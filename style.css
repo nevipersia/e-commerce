@@ -1,0 +1,113 @@
+body {
+    padding-top: 75px;
+    min-height: 100vh;
+    background-color: #fff;
+    background-image: radial-gradient(
+        circle 450px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        #D0D8DA 0%,
+        rgba(208, 216, 218, 0.4) 40%,
+        transparent 100%
+    );
+    background-attachment: fixed;
+}
+
+#navbar {
+    font-size: 20px;
+    background-color: #738488;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 75px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+}
+#nav-line {
+    color: white;
+    margin-left: 20px;
+}
+#navbar a {
+    display: inline-block;
+    text-decoration: none;
+    color: white;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+#navbar a:hover {
+    transform: scale(1.05);
+    background-color: #ddd;
+    color: #3c4649;
+    border-radius: 5px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.vendio-lockup {
+    --ink: #3C4649;
+    --disc: #D0D8DA;
+    --groove: #738488;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background: transparent;
+    padding: 24px 28px;
+    font-family: "Archivo", sans-serif;
+}
+.vendio-mark {
+    position: relative; width: 600px; height: 500px; flex: none;
+    transition: transform 0.3s ease;
+}
+.vendio-mark .sleeve {
+    position: absolute; left: 0; top: 0;
+    width: 500px; height: 500px;
+    border: 10px solid var(--ink);
+    transition: transform 0.3s ease;
+}
+.vendio-mark .disc {
+    position: absolute; left: 200px; top: 50px;
+    width: 400px; height: 400px;
+    border: 10px solid var(--groove);
+    border-radius: 50%;
+    background: var(--disc);
+    transition: transform 0.3s ease;
+}
+.vendio-mark .spindle {
+    position: absolute; left: 375px; top: 225px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--groove);
+    transition: transform 0.3s ease;
+}  .vendio-type { display: flex; flex-direction: column; gap: 20px; }
+.vendio-name {
+    font-weight: 800;
+    font-size: 200px;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    transition: transform 0.3s ease;
+    cursor: default;
+}
+.vendio-rule {
+    height: 3px; background: var(--ink);
+    transition: transform 0.3s ease;
+}
+.vendio-tagline {
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--groove);
+    transition: transform 0.3s ease;
+    margin-left: 150px;
+    cursor: default;
+}
+.vendio-name:hover, .vendio-rule:hover, .vendio-tagline:hover, .vendio-mark .sleeve:hover, .vendio-mark .disc:hover, .vendio-mark .spindle:hover {
+    transform: scale(1.05);
+}
