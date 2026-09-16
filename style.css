@@ -1,14 +1,48 @@
 body {
     padding-top: 75px;
     min-height: 100vh;
+    /* Fallback colour if the video can't play */
     background-color: #fff;
-    background-image: radial-gradient(
+}
+
+/* Full-screen looping video background */
+#gradient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Cursor-following glow, layered on top of the video but under the content */
+#cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    background: radial-gradient(
         circle 450px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        #D0D8DA 0%,
-        rgba(208, 216, 218, 0.4) 40%,
+        rgba(208, 216, 218, 0.75) 0%,
+        rgba(208, 216, 218, 0.3) 40%,
         transparent 100%
     );
-    background-attachment: fixed;
+}
+
+/* Everything else sits above the background layers */
+main {
+    position: relative;
+    z-index: 2;
+}
+header {
+    position: relative;
+    z-index: 3;
 }
 
 #navbar {
@@ -59,16 +93,19 @@ body {
     background: transparent;
     padding: 24px 28px;
     font-family: "Archivo", sans-serif;
+    
 }
 .vendio-mark {
     position: relative; width: 600px; height: 500px; flex: none;
     transition: transform 0.3s ease;
+    
 }
 .vendio-mark .sleeve {
     position: absolute; left: 0; top: 0;
     width: 500px; height: 500px;
     border: 10px solid var(--ink);
     transition: transform 0.3s ease;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
 }
 .vendio-mark .disc {
     position: absolute; left: 200px; top: 50px;
@@ -77,6 +114,9 @@ body {
     border-radius: 50%;
     background: var(--disc);
     transition: transform 0.3s ease;
+    box-shadow: 0 12px 24px rgba(60, 70, 73, 0.35);
+    box-shadow: inset 0 0 30px rgba(60, 70, 73, 0.4);
+    
 }
 .vendio-mark .spindle {
     position: absolute; left: 375px; top: 225px;
@@ -93,10 +133,12 @@ body {
     color: var(--ink);
     transition: transform 0.3s ease;
     cursor: default;
+    text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);;
 }
 .vendio-rule {
     height: 3px; background: var(--ink);
     transition: transform 0.3s ease;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 .vendio-tagline {
     font-size: 24px;
@@ -107,6 +149,9 @@ body {
     transition: transform 0.3s ease;
     margin-left: 150px;
     cursor: default;
+    width: 470px;
+    height: auto;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 .vendio-name:hover, .vendio-rule:hover, .vendio-tagline:hover, .vendio-mark .sleeve:hover, .vendio-mark .disc:hover, .vendio-mark .spindle:hover {
     transform: scale(1.05);
