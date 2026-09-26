@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/faviconn.png">
+    <script src="bg.js" defer></script>
+    <script src="account.js" defer></script>
+    <script src="ph-address.js" defer></script>
+    <script src="checkout.js" defer></script>
+
+    <title>Checkout — Vendio</title>
+</head>
+<body class="shop">
+    <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
+        <source src="videos/Olive-Green.mp4" type="video/mp4">
+    </video>
+    <div class="shop-veil" aria-hidden="true"></div>
+    <div id="cursor-glow"></div>
+
+    <header class="topbar">
+        <span class="brand">
+            <img src="images/VENAUDIO.png" alt="">
+            <span>VENDIO</span>
+        </span>
+
+        <nav class="topnav" aria-label="Primary">
+            <a href="browse.html">Browse</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <div class="topbar-tools">
+            <div class="account-chip" id="account-chip"></div>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section class="crate-hero">
+            <p class="eyebrow">Almost yours</p>
+            <h1>Checkout</h1>
+            <p class="crate-sub">Tell us where the records are going. We ship anywhere in the Philippines.</p>
+        </section>
+
+        <div class="checkout-layout">
+            <!-- ============ Delivery form ============ -->
+            <form class="panel checkout-form" id="checkout-form" novalidate>
+                <div class="checkout-signin" id="checkout-signin" hidden>
+                    <p>Have an account? Sign in to fill this in for you.</p>
+                    <a class="btn btn-ghost" href="index.html?signin&amp;next=checkout">Sign in</a>
+                </div>
+
+                <fieldset>
+                    <legend>Contact</legend>
+
+                    <label class="field" for="full-name">
+                        <span>Full name</span>
+                        <input type="text" id="full-name" name="name" autocomplete="name" required>
+                    </label>
+
+                    <div class="field-row">
+                        <label class="field" for="phone">
+                            <span>Mobile number</span>
+                            <input type="tel" id="phone" name="phone" autocomplete="tel" required
+                                placeholder="0917 123 4567"
+                                pattern="(\+63|0)\s?9\d{2}[\s\-]?\d{3}[\s\-]?\d{4}">
+                        </label>
+
+                        <label class="field" for="email">
+                            <span>Email <em>(for the receipt)</em></span>
+                            <input type="email" id="email" name="email" autocomplete="email" required
+                                placeholder="you@example.com">
+                        </label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Delivery address</legend>
+
+                    <div class="field-row">
+                        <label class="field" for="region">
+                            <span>Region</span>
+                            <select id="region" name="region" required>
+                                <option value="">Select region</option>
+                            </select>
+                        </label>
+
+                        <label class="field" for="province">
+                            <span>Province</span>
+                            <select id="province" name="province" required disabled>
+                                <option value="">Select province</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="field-row">
+                        <label class="field" for="city">
+                            <span>City / Municipality</span>
+                            <select id="city" name="city" required disabled>
+                                <option value="">Select city</option>
+                            </select>
+                        </label>
+
+                        <label class="field" for="barangay">
+                            <span>Barangay</span>
+                            <select id="barangay" name="barangay" required disabled>
+                                <option value="">Select barangay</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="field-row">
+                        <label class="field field-grow" for="street">
+                            <span>House no., building, street</span>
+                            <input type="text" id="street" name="street" autocomplete="address-line1" required
+                                placeholder="Unit 4B, 88 Maginhawa St.">
+                        </label>
+
+                        <label class="field field-small" for="postal">
+                            <span>Postal code</span>
+                            <input type="text" id="postal" name="postal" autocomplete="postal-code" required
+                                inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="1100">
+                        </label>
+                    </div>
+
+                    <label class="field" for="landmark">
+                        <span>Landmark <em>(optional)</em></span>
+                        <input type="text" id="landmark" name="landmark" placeholder="Near the church, blue gate">
+                    </label>
+
+                    <div class="choice-row" role="radiogroup" aria-label="Address label">
+                        <label class="choice"><input type="radio" name="label" value="Home" checked> Home</label>
+                        <label class="choice"><input type="radio" name="label" value="Work"> Work</label>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Delivery speed</legend>
+                    <label class="option-card">
+                        <input type="radio" name="speed" value="standard" checked>
+                        <span class="option-text">
+                            <strong>Standard</strong>
+                            <span id="standard-eta">3–5 business days</span>
+                        </span>
+                        <span class="option-price" id="standard-price">—</span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="speed" value="express">
+                        <span class="option-text">
+                            <strong>Express</strong>
+                            <span id="express-eta">1–2 business days</span>
+                        </span>
+                        <span class="option-price" id="express-price">—</span>
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Payment</legend>
+                    <div class="choice-row">
+                        <label class="choice"><input type="radio" name="payment" value="Cash on delivery" checked> Cash on delivery</label>
+                        <label class="choice"><input type="radio" name="payment" value="GCash on delivery"> GCash on delivery</label>
+                    </div>
+                </fieldset>
+
+                <label class="field" for="notes">
+                    <span>Notes for the rider <em>(optional)</em></span>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Leave with the guard if no one's home"></textarea>
+                </label>
+
+                <p class="form-error" id="form-error" role="alert" hidden></p>
+            </form>
+
+            <!-- ============ Order summary ============ -->
+            <aside class="panel checkout-summary" aria-labelledby="summary-title">
+                <h2 id="summary-title">Your order</h2>
+                <ul class="drawer-list summary-list" id="summary-list"></ul>
+                <p class="drawer-empty" id="summary-empty" hidden>
+                    Your bag is empty. <a href="browse.html">Back to the crates</a>
+                </p>
+
+                <dl class="summary-totals">
+                    <div><dt>Subtotal</dt><dd id="sum-subtotal">₱0.00</dd></div>
+                    <div><dt>Shipping</dt><dd id="sum-shipping">Select a region</dd></div>
+                    <div class="summary-grand"><dt>Total</dt><dd id="sum-total">₱0.00</dd></div>
+                </dl>
+
+                <button type="submit" form="checkout-form" class="btn btn-primary" id="place-order">Place order</button>
+                <a class="btn btn-ghost" href="browse.html">Keep digging</a>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Order placed pop-up -->
+    <div class="msgbox-backdrop" id="confirm-backdrop" hidden>
+        <div class="msgbox" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+            <h2 id="confirm-title">Order placed</h2>
+            <p id="confirm-text"></p>
+            <p class="confirm-address" id="confirm-address"></p>
+            <div class="msgbox-actions">
+                <a class="btn btn-primary" href="browse.html" id="confirm-done">Back to the crates</a>
+            </div>
+        </div>
+    </div>
+
+    <footer class="shop-footer">
+        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p class="muted">Ships nationwide. Sleeves handled with gloves.</p>
+    </footer>
+</body>
+</html>

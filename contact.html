@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="images/faviconn.png">
+    <script src="bg.js" defer></script>
+    <script src="contact.js" defer></script>
+
+    <title>Get in Touch — Vendio</title>
+</head>
+<body class="shop">
+    <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
+        <source src="videos/Olive-Green.mp4" type="video/mp4">
+    </video>
+    <div class="shop-veil" aria-hidden="true"></div>
+    <div id="cursor-glow"></div>
+
+    <header class="topbar">
+        <a class="brand" href="index.html">
+            <img src="images/VENAUDIO.png" alt="">
+            <span>VENDIO</span>
+        </a>
+
+        <nav class="topnav" aria-label="Primary">
+            <a href="browse.html">Browse</a>
+            <a href="about.html">About</a>
+            <a href="contact.html" aria-current="page">Contact</a>
+        </nav>
+
+        <div class="topbar-tools">
+            <span class="help-hint" title="Every form on this page posts to the local echo server.">
+                Need a hand?
+            </span>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section class="crate-hero">
+            <p class="eyebrow">Orders, trade-ins &amp; general noise</p>
+            <h1>Get in Touch</h1>
+            <p class="crate-sub">Questions about a pressing, a trade-in, or a bulk order — the counter is open.</p>
+        </section>
+
+        <!-- ============ 1. Main enquiry ============ -->
+        <section class="panel">
+            <h2>Send us a message</h2>
+
+            <form class="stack" method="POST" action="http://localhost/echo.py">
+
+                <dl class="field-list">
+                    <dt><label for="name">Your name</label></dt>
+                    <dd><input type="text" id="name" name="Name" size="45" placeholder="Jane Vinyl"></dd>
+
+                    <dt><label for="email">Email address</label></dt>
+                    <dd><input type="text" id="email" name="Address" size="45" placeholder="you@example.com"></dd>
+
+                    <dt><label for="zip">Zip / postcode</label></dt>
+                    <dd><input type="text" id="zip" name="Zip" size="5" maxlength="5" placeholder="12345"></dd>
+                </dl>
+
+                <label class="field" for="heard">
+                    <span>How did you hear about us?</span>
+                    <input list="channels" id="heard" name="Heard Via" autocomplete="off"
+                        placeholder="Start typing…">
+                </label>
+
+                <datalist id="channels">
+                    <option value="Record Store Day">
+                    <option value="A friend">
+                    <option value="Instagram">
+                    <option value="Discogs forum">
+                    <option value="Walked past the shop">
+                    <option value="Radio">
+                </datalist>
+
+                <label class="field" for="message">
+                    <span>Your message</span>
+                    <textarea id="message" name="Message" rows="8" cols="70"
+                            placeholder="Tell us which pressing you're after…"></textarea>
+                </label>
+
+                <fieldset>
+                    <legend>How should we reply?</legend>
+                    <label class="choice">
+                        <input type="radio" name="Reply Method" value="Email" checked> Email
+                    </label>
+                    <label class="choice">
+                        <input type="radio" name="Reply Method" value="Phone"> Phone
+                    </label>
+                    <label class="choice">
+                        <input type="radio" name="Reply Method" value="Carrier Pigeon"> Carrier pigeon
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Keep me posted</legend>
+                    <label class="choice">
+                        <input type="checkbox" name="Send" value="Details"> New arrivals
+                    </label>
+                    <label class="choice">
+                        <input type="checkbox" name="Send" value="Prices"> Price drops
+                    </label>
+                </fieldset>
+
+                <div class="button-row">
+                    <button type="button" class="btn btn-ghost" id="help-button">
+                        <img src="images/favicon.png" alt="">Help
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <img src="images/favicon.png" alt="">Send message
+                    </button>
+                    <button type="reset" class="btn btn-ghost">
+                        <img src="images/favicon.png" alt="">Reset
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 2. Validated email signup ============ -->
+        <section class="panel">
+            <h2>Join the mailing list</h2>
+            <p class="panel-note">
+                The button on the right is a plain image that runs a pattern check before sending —
+                the one on the left submits straight away.
+            </p>
+
+            <form id="myForm" method="GET" action="http://localhost/echo.py">
+                <label class="field" for="adr">
+                    <span>Please supply your email address</span>
+                    <input type="text" id="adr" name="Address" size="45" placeholder="you@example.com">
+                </label>
+
+                <div class="button-row">
+                    <input type="image" src="images/favicon.png" width="44" height="44"
+                        alt="Submit Button" title="Submit immediately">
+                    <img id="btn" src="images/favicon.png" width="44" height="44"
+                        alt="Submit Button" title="Click to submit with JavaScript validation">
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 3. Bulk order calculator ============ -->
+        <section class="panel">
+            <h2>Bulk order — Requiem boxset</h2>
+
+            <form method="GET" action="http://localhost/echo.py">
+                <label class="field" for="qty">
+                    <span>Quantity <em>(60 available)</em></span>
+                    <input type="number" id="qty" name="Quantity" min="1" max="60" value="1"
+                        oninput="document.getElementById('sum').value=multiply(this, document.getElementById('price'))">
+                </label>
+
+                <input type="hidden" id="price" name="Unit Price" value="65.00">
+                <output id="sum" name="sum" for="qty price"></output>
+
+                <div class="button-row">
+                    <input type="submit" name="Offer" value="Place bulk order" class="btn btn-primary">
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 4. Trade-in ============ -->
+        <section class="panel">
+            <h2>Trade in your crate</h2>
+
+            <form method="POST" action="http://localhost/echo.py" enctype="multipart/form-data">
+                <label class="field" for="file">
+                    <span>Photo of your records</span>
+                    <input type="file" id="file" name="file" accept="image/*">
+                </label>
+
+                <div class="select-row">
+                    <label class="field">
+                        <span>What are you trading?</span>
+                        <select name="Trade Format" size="4">
+                            <optgroup label="Trade Format">
+                                <option value="Vinyl LP">Vinyl LP</option>
+                                <option value="CD">CD</option>
+                                <option value="Boxset">Boxset</option>
+                            </optgroup>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span>Condition</span>
+                        <select name="Condition" size="4">
+                            <optgroup label="Condition">
+                                <option value="Mint">Mint</option>
+                                <option value="Very Good">Very Good</option>
+                                <option value="Played to death">Played to death</option>
+                            </optgroup>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="button-row">
+                    <input type="submit" value="Upload &amp; enquire" class="btn btn-primary">
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 5. Account ============ -->
+        <section class="panel">
+            <h2>Create an account</h2>
+
+            <form method="GET" action="http://localhost/echo.py">
+                <dl class="field-list">
+                    <dt><label for="user">User name</label></dt>
+                    <dd><input type="text" id="user" name="Name"></dd>
+
+                    <dt><label for="pass">Password</label></dt>
+                    <dd><input type="password" id="pass" name="Password"></dd>
+
+                    <dt><label for="zip2">Zip code</label></dt>
+                    <dd><input type="text" id="zip2" name="Zip" size="5" maxlength="5"></dd>
+                </dl>
+
+                <div class="button-row">
+                    <input type="submit" value="Sign up" class="btn btn-primary">
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 6. Find us ============ -->
+        <section class="panel">
+            <h2>More about the shop</h2>
+            <p class="panel-note">
+                Second floor, above the laundrette. Ring the bell twice — or read the long version below.
+            </p>
+
+            <iframe src="about.html" width="100%" height="320" loading="lazy"
+                    title="The Vendio about page, inline"></iframe>
+        </section>
+    </main>
+
+    <footer class="shop-footer">
+        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
+    </footer>
+</body>
+</html>

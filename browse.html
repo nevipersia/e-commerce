@@ -3,9 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendio</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/faviconn.png">
+    <script src="bg.js" defer></script>
+    <script src="account.js" defer></script>
+    <script src="browse.js" defer></script>
+
+    <title>Browse the Crates — Vendio</title>
 </head>
-<body>
-    
+<body class="shop">
+    <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
+        <source src="videos/Olive-Green.mp4" type="video/mp4">
+    </video>
+    <div class="shop-veil" aria-hidden="true"></div>
+    <div id="cursor-glow"></div>
+
+    <header class="topbar">
+        <!-- No link home: once you're in the crates, you stay in the crates. -->
+        <span class="brand">
+            <img src="images/VENAUDIO.png" alt="">
+            <span>VENDIO</span>
+        </span>
+
+        <nav class="topnav" aria-label="Primary">
+            <a href="browse.html" aria-current="page">Browse</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <div class="topbar-tools">
+            <div class="account-chip" id="account-chip"></div>
+            <label class="search">
+                <span class="visually-hidden">Search albums</span>
+                <input type="search" id="search" placeholder="Search artist or album" autocomplete="off">
+            </label>
+            <button type="button" class="cart-button" id="cart-button" aria-haspopup="dialog" aria-controls="cart-drawer">
+                Bag <span class="cart-count" id="cart-count">0</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section class="crate-hero">
+            <p class="eyebrow">New &amp; restocked</p>
+            <h1>The Crates</h1>
+            <p class="crate-sub">Pressed, packaged and picked by hand. Wax, disc and the odd signed sleeve.</p>
+        </section>
+
+        <section class="toolbar" aria-label="Filter and sort">
+            <div class="chips" role="group" aria-label="Filter by format">
+                <button type="button" class="chip is-active" data-filter="all">All</button>
+                <button type="button" class="chip" data-filter="vinyl">Vinyl</button>
+                <button type="button" class="chip" data-filter="cd">CD</button>
+                <button type="button" class="chip" data-filter="boxset">Boxsets</button>
+                <button type="button" class="chip" data-filter="signed">Signed</button>
+            </div>
+
+            <div class="toolbar-right">
+                <p class="result-count" id="result-count" aria-live="polite">10 records</p>
+                <label class="sort">
+                    <span class="visually-hidden">Sort records</span>
+                    <select id="sort">
+                        <option value="featured">Featured</option>
+                        <option value="price-asc">Price — low to high</option>
+                        <option value="price-desc">Price — high to low</option>
+                        <option value="title">Title A–Z</option>
+                    </select>
+                </label>
+            </div>
+        </section>
+
+        <section class="grid" id="grid" aria-label="Records">
+
+            <article class="card" data-format="vinyl" data-price="2390" data-title="Gabriel"
+                    data-artist="keshi" data-label="Vinyl LP"
+                    data-desc="The full-length pressed to 12-inch wax, housed in a matte gatefold sleeve with a printed inner. Tracklist:
+
+SIDE A:
+always
+more
+drunk
+
+SIDE B:
+talk
+B.Y.S.
+Us">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Keshi%20-%20Gabriel%20(vinyl).jpg" alt="keshi — Gabriel vinyl LP" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Gabriel</h2>
+                    <div class="buy">
+                        <p class="price">₱2,390.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cd" data-price="990" data-title="Gabriel"
+                    data-artist="keshi" data-label="Standard CD"
+                    data-desc="Standard jewel-case CD with the full booklet — the cheapest way into the record.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Keshi_Gabriel_Standard_CD.jpg" alt="keshi — Gabriel standard CD" loading="lazy">
+                    <span class="tag">CD</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Gabriel</h2>
+                    <div class="buy">
+                        <p class="price">₱990.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="boxset" data-price="3690" data-title="Requiem Collectible Boxset"
+                    data-artist="keshi" data-label="Collectible CD Boxset"
+                    data-desc="Rigid collector's box holding the CD, a set of art cards and a fold-out poster. Two sample shots below: the sealed box and everything inside it.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20CD%20Collectible%20Boxset.jpg" alt="keshi — Requiem collectible CD boxset" loading="lazy">
+                    <img class="art-alt" src="images/Requiem%20CD%20Collectible%20Boxset%20Contents.jpg" alt="keshi — Requiem boxset contents" loading="lazy">
+                    <span class="tag">Boxset</span>
+                    <span class="flag">Limited</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Collectible Boxset</h2>
+                    <div class="buy">
+                        <p class="price">₱3,690.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cd signed" data-price="1590" data-title="Requiem Signed CD"
+                    data-artist="keshi" data-label="Signed CD"
+                    data-desc="Jewel-case CD with a hand-signed insert. One per customer while they last.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Signed%20CD.jpg" alt="keshi — Requiem signed CD" loading="lazy">
+                    <span class="tag">Signed CD</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Signed CD</h2>
+                    <div class="buy">
+                        <p class="price">₱1,590.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl signed" data-price="2950" data-title="Requiem Signed LP"
+                    data-artist="keshi" data-label="Signed Vinyl LP"
+                    data-desc="12-inch pressing with a hand-signed sleeve. Shipped in a stiffened mailer, corners protected.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Signed%20LP.jpg" alt="keshi — Requiem signed LP" loading="lazy">
+                    <span class="tag">Signed LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Signed LP</h2>
+                    <div class="buy">
+                        <p class="price">₱2,950.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="2150" data-title="Currents"
+                     data-artist="Tame Impala" data-label="Vinyl LP"
+                     data-desc="The 2015 record on double vinyl, sleeve art intact. A permanent fixture of the crate.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/currents%20vinyl.jpg" alt="Tame Impala — Currents vinyl" loading="lazy">
+                    <img class="art-alt" src="images/tame%20impala.png" alt="Tame Impala — Currents sleeve art" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">Tame Impala</p>
+                    <h2 class="title">Currents</h2>
+                    <div class="buy">
+                        <p class="price">₱2,150.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1690" data-title="Wantchu"
+                    data-artist="keshi" data-label="Vinyl LP"
+                    data-desc="Single pressed to 7-inch, printed sleeve, alternate cover shown second.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/keshi%20wantchu%20(vinyl).jpg" alt="keshi — Wantchu vinyl" loading="lazy">
+                    <img class="art-alt" src="images/wantchu%20cover.jpg" alt="keshi — Wantchu alternate cover" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Wantchu</h2>
+                    <div class="buy">
+                        <p class="price">₱1,690.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1950" data-title="Always"
+                    data-artist="keshi" data-label="Vinyl LP"
+                    data-desc="Standard black LP in a printed sleeve. Restocked this month.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/always%20standard%20LP.jpg" alt="keshi — Always standard LP" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Always</h2>
+                    <div class="buy">
+                        <p class="price">₱1,950.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1950" data-title="Bandaids"
+                     data-artist="keshi" data-label="Vinyl LP"
+                     data-desc="Standard black LP in a printed sleeve. Pairs with Always and Skeletons.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/bandaids%20standard%20LP.jpg" alt="keshi — Bandaids standard LP" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Bandaids</h2>
+                    <div class="buy">
+                        <p class="price">₱1,950.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1950" data-title="Skeletons"
+                     data-artist="keshi" data-label="Vinyl LP"
+                     data-desc="Standard black LP in a printed sleeve. Last of the first run.">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/skeletons%20standard%20LP.jpg" alt="keshi — Skeletons standard LP" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Skeletons</h2>
+                    <div class="buy">
+                        <p class="price">₱1,950.00</p>
+                        <button type="button" class="add">Add to bag</button>
+                    </div>
+                </div>
+            </article>
+
+        </section>
+
+        <p class="empty" id="empty" hidden>Nothing in this crate yet — try another filter.</p>
+    </main>
+
+    <footer class="shop-footer">
+        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
+    </footer>
+
+    <!-- Product viewer -->
+    <div class="viewer-backdrop" id="viewer-backdrop" hidden></div>
+    <div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-labelledby="viewer-title" hidden>
+        <button type="button" class="msgbox-close viewer-close" id="viewer-close" aria-label="Close product">&times;</button>
+
+        <div class="viewer-gallery">
+            <div class="viewer-stage">
+                <img id="viewer-image" src="" alt="">
+                <button type="button" class="viewer-nav prev" id="viewer-prev" aria-label="Previous picture">&#8249;</button>
+                <button type="button" class="viewer-nav next" id="viewer-next" aria-label="Next picture">&#8250;</button>
+            </div>
+            <div class="viewer-thumbs" id="viewer-thumbs"></div>
+        </div>
+
+        <div class="viewer-info">
+            <p class="artist" id="viewer-artist"></p>
+            <h2 id="viewer-title"></h2>
+            <p class="viewer-format" id="viewer-format"></p>
+            <p class="viewer-desc" id="viewer-desc"></p>
+
+            <dl class="viewer-specs">
+                <div><dt>Ships</dt><dd>2–4 business days</dd></div>
+                <div><dt>Condition</dt><dd>New &amp; sealed</dd></div>
+            </dl>
+
+            <p class="viewer-price" id="viewer-price"></p>
+            <div class="viewer-actions">
+                <button type="button" class="btn btn-primary" id="viewer-add">Add to bag</button>
+                <button type="button" class="btn btn-ghost" id="viewer-back">Keep digging</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bag drawer -->
+    <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+    <aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+        <div class="drawer-head">
+            <h2 id="drawer-title">Your bag</h2>
+            <button type="button" class="msgbox-close" id="drawer-close" aria-label="Close bag">&times;</button>
+        </div>
+        <ul class="drawer-list" id="drawer-list"></ul>
+        <p class="drawer-empty" id="drawer-empty">Your bag is empty.</p>
+        <div class="drawer-foot">
+            <p class="drawer-total"><span>Total</span><span id="drawer-total">₱0.00</span></p>
+            <button type="button" class="btn btn-primary" id="checkout">Checkout</button>
+            <p class="msgbox-note" id="checkout-note" hidden>Add a record first — the bag's empty.</p>
+        </div>
+    </aside>
 </body>
 </html>

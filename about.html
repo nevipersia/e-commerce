@@ -4,12 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Vendio</title>
-</head>
-<header>
-    <h1>Welcome to Vendio</h1>
-</header>
-<body>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="images/faviconn.png">
+    <script src="bg.js" defer></script>
 
+    <title>About the Shop — Vendio</title>
+</head>
+<body class="shop about-page">
+    <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
+        <source src="videos/Olive-Green.mp4" type="video/mp4">
+    </video>
+    <div class="shop-veil" aria-hidden="true"></div>
+    <div id="cursor-glow"></div>
+
+    <header class="topbar">
+        <a class="brand" href="index.html">
+            <img src="images/VENAUDIO.png" alt="">
+            <span>VENDIO</span>
+        </a>
+
+        <nav class="topnav" aria-label="Primary">
+            <a href="browse.html">Browse</a>
+            <a href="about.html" aria-current="page">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <div class="topbar-tools">
+            <span class="help-hint" title="Everything here was pressed, packed and photographed by hand.">
+                About this shop
+            </span>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section class="crate-hero">
+            <p class="eyebrow">Since the first crate</p>
+            <h1>About</h1>
+            <p class="crate-sub">A small room, a lot of cardboard, and a fairly serious opinion about sleeve corners.</p>
+        </section>
+
+        <!-- ============ Story: figures float, first paragraph gets a drop cap ============ -->
+        <article class="prose">
+            <h2>Two sides of the same record</h2>
+
+            <figure id="front-stack">
+                <img src="images/currents vinyl.jpg" alt="A Currents LP resting in its sleeve"
+                     width="250" height="250">
+                <figcaption class="reference">Figure 1: The listening corner</figcaption>
+            </figure>
+
+            <p class="lede">Vendio started the way most record shops start — with one crate too many
+            and nowhere sensible to put it. What began as a shelf of duplicates became a room, then a
+            second room, then a small operation that ships sleeves to people who care whether the
+            corners arrive square.</p>
+
+            <figure id="back-stack">
+                <img src="images/Requiem Signed LP.jpg" alt="A signed Requiem LP sleeve"
+                     width="250" height="250">
+                <figcaption class="reference">Figure 2: The signing table</figcaption>
+            </figure>
+
+            <p>Every record listed on this site has been through the same short ritual: unpacked,
+            checked against the pressing notes, photographed on the same square of grey card, and
+            sleeved again before it goes back in the crate. The photographs you see on the Browse
+            page are the actual copies, not stock art from a distributor.</p>
+
+            <p>We press nothing ourselves. We just find the good copies, describe them honestly, and
+            wrap them like they matter — because the difference between a record that survives the
+            post and one that doesn't is usually about four pence worth of stiffened card.</p>
+        </article>
+
+        <!-- ============ Now spinning ============ -->
+        <section class="panel">
+            <h2>Now spinning in the shop</h2>
+            <p class="panel-note">Whatever is on the counter turntable, piped through to the website.</p>
+
+            <audio controls preload="none">
+                <source src="audio/logo sound.MP3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </section>
+
+        <!-- ============ Image map: the boxset, region by region ============ -->
+        <section class="panel">
+            <h2>What's actually in a boxset</h2>
+            <p class="panel-note">
+                Hover the picture and click any part of it — the slipcase, the poster, the booklet,
+                the disc or the art cards all lead back to the crates.
+            </p>
+
+            <img src="images/Requiem CD Collectible Boxset Contents.jpg"
+                 alt="The Requiem boxset laid out: slipcase, poster, booklet, disc and art cards"
+                 usemap="#boxset-map" width="560" height="560" class="mapped">
+
+            <map name="boxset-map">
+                <area shape="rect" coords="96,215,181,334"
+                      href="browse.html#boxset" alt="Slipcase" title="The rigid slipcase">
+                <area shape="rect" coords="187,132,342,345"
+                      href="browse.html#boxset" alt="Fold-out poster" title="The fold-out poster">
+                <area shape="rect" coords="314,135,415,220"
+                      href="browse.html#cd" alt="Booklet" title="The printed booklet">
+                <area shape="circle" coords="364,310,32"
+                      href="browse.html#cd" alt="The disc" title="The disc itself">
+                <area shape="poly" coords="196,352 262,330 360,356 352,414 238,420 192,398"
+                      href="browse.html#boxset" alt="Art cards" title="The set of art cards">
+                <area shape="rect" coords="358,218,461,308"
+                      href="browse.html#signed" alt="More art cards" title="More art cards">
+            </map>
+        </section>
+
+        <!-- ============ Catalogue PDF ============ -->
+        <section class="panel">
+            <h2>The printed price list</h2>
+            <p class="panel-note">The same list we keep by the till, in case you prefer paper.</p>
+
+            <object data="docs/vendio-catalogue.pdf" type="application/pdf"
+                    width="100%" height="460">
+                <p>Your browser does not support PDFs.
+                   <a href="docs/vendio-catalogue.pdf">Download the PDF</a>.</p>
+            </object>
+        </section>
+
+        <!-- ============ Customer support ============ -->
+        <aside class="sidenote">
+            <h2>Customer support</h2>
+            <p>The counter is staffed Monday to Friday, 10am–6pm. Anything ordered after 4pm
+            goes out the next working day.</p>
+            <p>Quote your order reference when you write in — it's at the top of your
+            confirmation email, in the form <code>VND-&lt;year&gt;-&lt;number&gt;</code>.</p>
+            <p>If a sleeve turns up with a bent corner or a disc arrives warped, tell us within
+            30 days and we'll replace it or refund you — postage on us.
+            <a href="contact.html">Get in touch</a>.</p>
+            <p class="muted">Sleeves handled with gloves. Always.</p>
+        </aside>
+    </main>
+
+    <footer class="shop-footer">
+        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
+    </footer>
 </body>
 </html>

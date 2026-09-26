@@ -1,11 +1,26 @@
-body {
-    padding-top: 75px;
-    min-height: 100vh;
-    /* Fallback colour if the video can't play */
-    background-color: #fff;
+/* ---------- Palette ---------- */
+:root {
+    --ink:    #332007;
+    --cream:  #F8CE97;
+    --forest: #1C4D37;
+    --olive:  #5A6631;
+    --bone:   #EFECE7;
 }
 
-/* Full-screen looping video background */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--ink);
+    font-family: "Archivo", sans-serif;
+    overflow-x: hidden;
+}
+
+/* ---------- Background layers ---------- */
 #gradient-bg {
     position: fixed;
     top: 0;
@@ -17,7 +32,6 @@ body {
     pointer-events: none;
 }
 
-/* Cursor-following glow, layered on top of the video but under the content */
 #cursor-glow {
     position: fixed;
     top: 0;
@@ -29,130 +43,2216 @@ body {
     mix-blend-mode: screen;
     background: radial-gradient(
         circle 450px at var(--mouse-x, 50%) var(--mouse-y, 50%),
-        rgba(208, 216, 218, 0.75) 0%,
-        rgba(208, 216, 218, 0.3) 40%,
+        rgba(248, 206, 151, 0.35) 0%,
+        rgba(248, 206, 151, 0.12) 40%,
         transparent 100%
     );
 }
 
-/* Everything else sits above the background layers */
-main {
+/* ---------- Landing layout ---------- */
+.landing {
     position: relative;
     z-index: 2;
-}
-header {
-    position: relative;
-    z-index: 3;
-}
-
-#navbar {
-    font-size: 20px;
-    background-color: #738488;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 75px;
-    width: 100%;
+    min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: left;
-}
-#nav-line {
-    color: white;
-    margin-left: 20px;
-}
-#navbar a {
-    display: inline-block;
-    text-decoration: none;
-    color: white;
-    padding: 8px 15px;
-    cursor: pointer;
-    transition: transform 0.3s ease, color 0.3s ease;
-}
-#navbar a:hover {
-    transform: scale(1.05);
-    background-color: #ddd;
-    color: #3c4649;
-    border-radius: 5px;
+    justify-content: center;
+    gap: 18px;
+    padding: 48px 24px;
+    text-align: center;
 }
 
-* {
-    margin: 0;
+/* ---------- Intro animation ---------- */
+@keyframes rise {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drop-in {
+    0%   { opacity: 0; transform: translateY(-40px) scale(0.85); }
+    60%  { opacity: 1; transform: translateY(6px)  scale(1.03); }
+    100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 1; }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.logo-button,
+.wordmark,
+.tagline,
+.hint {
+    opacity: 0;
+    animation-fill-mode: forwards;
+}
+
+.logo-button { animation: drop-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards; }
+.wordmark    { animation: rise 0.7s ease-out 0.9s forwards; }
+.tagline     { animation: rise 0.7s ease-out 1.15s forwards; }
+.hint        { animation: rise 0.7s ease-out 1.5s forwards,
+                          breathe 2.4s ease-in-out 2.2s infinite; }
+
+/* ---------- Logo button ---------- */
+.logo-button {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 260px;
+    height: 260px;
     padding: 0;
-    box-sizing: border-box;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.vendio-lockup {
-    --ink: #3C4649;
-    --disc: #D0D8DA;
-    --groove: #738488;
+.logo-button img {
+    width: 200px;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
+    transition: filter 0.35s ease;
+}
+
+.logo-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px dashed rgba(248, 206, 151, 0.35);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    animation: spin 14s linear infinite;
+}
+
+.logo-button:hover,
+.logo-button:focus-visible {
+    transform: scale(1.06);
+    outline: none;
+}
+
+.logo-button:hover .logo-ring,
+.logo-button:focus-visible .logo-ring {
+    opacity: 1;
+}
+
+.logo-button:hover img,
+.logo-button:focus-visible img {
+    filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.55));
+}
+
+.logo-button:active {
+    transform: scale(0.97);
+}
+
+/* ---------- Type ---------- */
+.wordmark {
+    font-size: clamp(56px, 12vw, 140px);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    color: var(--cream);
+    text-shadow: 0 0 40px rgba(0, 0, 0, 0.55);
+}
+
+.tagline {
+    font-size: clamp(13px, 2vw, 20px);
+    font-weight: 200;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--bone);
+    text-shadow: 0 0 14px rgba(0, 0, 0, 0.6);
+}
+
+.hint {
+    margin-top: 22px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(239, 236, 231, 0.75);
+}
+
+/* ---------- Pop-up ---------- */
+@keyframes backdrop-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes msgbox-in {
+    from { opacity: 0; transform: translateY(18px) scale(0.96); }
+    to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.msgbox-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(28, 20, 6, 0.65);
+    backdrop-filter: blur(6px);
+    animation: backdrop-in 0.25s ease-out;
+}
+
+.msgbox-backdrop[hidden] {
+    display: none;
+}
+
+.msgbox {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 40px 36px 32px;
+    border: 2px solid var(--forest);
+    border-radius: 14px;
+    background: var(--ink);
+    color: var(--bone);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.5);
+    animation: msgbox-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.msgbox h2 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+    margin-bottom: 10px;
+}
+
+.msgbox p {
+    font-size: 15px;
+    font-weight: 200;
+    line-height: 1.6;
+    color: rgba(239, 236, 231, 0.85);
+}
+
+.msgbox-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn:hover,
+.btn:focus-visible {
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.btn-primary {
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+    background: #fff;
+}
+
+.btn-ghost {
+    background: transparent;
+    border-color: var(--cream);
+    color: var(--cream);
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.msgbox-note {
+    margin-top: 18px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--cream);
+    text-align: center;
+}
+
+.msgbox-note[hidden] {
+    display: none;
+}
+
+.msgbox-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--bone);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.msgbox-close:hover,
+.msgbox-close:focus-visible {
+    background: var(--forest);
+    color: var(--cream);
+    outline: none;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 520px) {
+    .logo-button { width: 200px; height: 200px; }
+    .logo-button img { width: 150px; }
+    .msgbox { padding: 36px 24px 28px; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .logo-button,
+    .wordmark,
+    .tagline,
+    .hint,
+    .logo-ring,
+    .msgbox,
+    .msgbox-backdrop {
+        animation: none !important;
+        opacity: 1;
+    }
+    .logo-ring { opacity: 0; }
+}
+
+/* ============================================================
+   BROWSE / SHOP PAGE
+   ============================================================ */
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* The video is great behind one hero, too loud behind a whole grid —
+   this veil knocks it back so the sleeves stay the brightest thing. */
+.shop-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+        rgba(28, 20, 6, 0.82) 0%,
+        rgba(28, 20, 6, 0.92) 60%,
+        rgba(28, 20, 6, 0.97) 100%);
+}
+
+.shop #cursor-glow {
+    opacity: 0.55;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 8;
     display: flex;
     align-items: center;
     gap: 28px;
-    background: transparent;
-    padding: 24px 28px;
-    font-family: "Archivo", sans-serif;
-    
+    padding: 14px clamp(18px, 4vw, 48px);
+    background: rgba(28, 20, 6, 0.72);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(248, 206, 151, 0.16);
 }
-.vendio-mark {
-    position: relative; width: 600px; height: 500px; flex: none;
-    transition: transform 0.3s ease;
-    
-}
-.vendio-mark .sleeve {
-    position: absolute; left: 0; top: 0;
-    width: 500px; height: 500px;
-    border: 10px solid var(--ink);
-    transition: transform 0.3s ease;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.5);
-}
-.vendio-mark .disc {
-    position: absolute; left: 200px; top: 50px;
-    width: 400px; height: 400px;
-    border: 10px solid var(--groove);
-    border-radius: 50%;
-    background: var(--disc);
-    transition: transform 0.3s ease;
-    box-shadow: 0 12px 24px rgba(60, 70, 73, 0.35);
-    box-shadow: inset 0 0 30px rgba(60, 70, 73, 0.4);
-    
-}
-.vendio-mark .spindle {
-    position: absolute; left: 375px; top: 225px;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--groove);
-    transition: transform 0.3s ease;
-}  .vendio-type { display: flex; flex-direction: column; gap: 20px; }
-.vendio-name {
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--cream);
     font-weight: 800;
-    font-size: 200px;
-    line-height: 1;
-    letter-spacing: -0.045em;
-    color: var(--ink);
-    transition: transform 0.3s ease;
-    cursor: default;
-    text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);;
+    letter-spacing: 0.06em;
+    font-size: 18px;
 }
-.vendio-rule {
-    height: 3px; background: var(--ink);
-    transition: transform 0.3s ease;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+
+.brand img {
+    width: 34px;
+    height: auto;
+    display: block;
 }
-.vendio-tagline {
-    font-size: 24px;
-    font-weight: 300;
+
+.topnav {
+    display: flex;
+    gap: 22px;
+    margin-right: auto;
+}
+
+.topnav a {
+    position: relative;
+    padding: 4px 0;
+    font-size: 12px;
+    font-weight: 400;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--groove);
-    transition: transform 0.3s ease;
-    margin-left: 150px;
-    cursor: default;
-    width: 470px;
-    height: auto;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: rgba(239, 236, 231, 0.7);
+    transition: color 0.25s ease;
 }
-.vendio-name:hover, .vendio-rule:hover, .vendio-tagline:hover, .vendio-mark .sleeve:hover, .vendio-mark .disc:hover, .vendio-mark .spindle:hover {
-    transform: scale(1.05);
+
+.topnav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--cream);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.topnav a:hover,
+.topnav a:focus-visible,
+.topnav a[aria-current="page"] {
+    color: var(--cream);
+    outline: none;
+}
+
+.topnav a:hover::after,
+.topnav a:focus-visible::after,
+.topnav a[aria-current="page"]::after {
+    transform: scaleX(1);
+}
+
+.topbar-tools {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search input {
+    width: clamp(150px, 20vw, 240px);
+    padding: 10px 14px;
+    border: 1px solid rgba(248, 206, 151, 0.28);
+    border-radius: 999px;
+    background: rgba(239, 236, 231, 0.06);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.search input::placeholder {
+    color: rgba(239, 236, 231, 0.45);
+}
+
+.search input:focus {
+    outline: none;
+    border-color: var(--cream);
+    background: rgba(239, 236, 231, 0.1);
+}
+
+.cart-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid var(--cream);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.cart-button:hover,
+.cart-button:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+}
+
+.cart-count {
+    display: grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--forest);
+    color: var(--bone);
+    font-size: 11px;
+}
+
+.cart-button:hover .cart-count,
+.cart-button:focus-visible .cart-count {
+    background: var(--ink);
+    color: var(--cream);
+}
+
+/* ---------- Shell ---------- */
+.shop-main {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: clamp(40px, 7vw, 90px) clamp(18px, 4vw, 48px) 90px;
+}
+
+/* ---------- Hero ---------- */
+.crate-hero {
+    margin-bottom: 46px;
+    animation: rise 0.7s ease-out both;
+}
+
+.eyebrow {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: rgba(248, 206, 151, 0.75);
+    margin-bottom: 14px;
+}
+
+.crate-hero h1 {
+    font-size: clamp(44px, 9vw, 104px);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    color: var(--cream);
+}
+
+.crate-sub {
+    max-width: 46ch;
+    margin-top: 16px;
+    font-size: clamp(14px, 1.6vw, 17px);
+    font-weight: 200;
+    line-height: 1.7;
+    color: rgba(239, 236, 231, 0.75);
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+    position: sticky;
+    top: 66px;
+    z-index: 6;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 34px;
+    padding: 14px 0;
+    border-top: 1px solid rgba(248, 206, 151, 0.16);
+    border-bottom: 1px solid rgba(248, 206, 151, 0.16);
+    /* Glass, not a slab — the sleeves scroll past underneath it */
+    background: rgba(28, 20, 6, 0.18);
+    backdrop-filter: blur(22px) saturate(1.3);
+    -webkit-backdrop-filter: blur(22px) saturate(1.3);
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    padding: 9px 18px;
+    border: 1px solid rgba(248, 206, 151, 0.3);
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(239, 236, 231, 0.78);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.chip:hover,
+.chip:focus-visible {
+    border-color: var(--cream);
+    color: var(--cream);
+    outline: none;
+}
+
+.chip.is-active {
+    background: var(--cream);
+    border-color: var(--cream);
+    color: var(--ink);
+    font-weight: 800;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.result-count {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(239, 236, 231, 0.55);
+}
+
+.sort select {
+    padding: 9px 14px;
+    border: 1px solid rgba(248, 206, 151, 0.3);
+    border-radius: 999px;
+    background: rgba(239, 236, 231, 0.07);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+}
+
+/* The native dropdown list can't be transparent — keep it readable */
+.sort select option {
+    background: var(--ink);
+    color: var(--bone);
+}
+
+.sort select:focus {
+    outline: none;
+    border-color: var(--cream);
+}
+
+/* ---------- Grid ---------- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: clamp(20px, 2.6vw, 34px);
+}
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    animation: rise 0.6s ease-out forwards;
+}
+
+/* Lift the hovered card so its record slides over its neighbours, not under */
+.card:hover,
+.card:focus-within {
+    z-index: 3;
+}
+
+.card[hidden] {
+    display: none;
+}
+
+/* ---------- Sleeve art ---------- */
+/* overflow stays visible so the record can slide out past the sleeve edge —
+   the sleeve images carry their own rounding instead. */
+.art {
+    position: relative;
+    border-radius: 12px;
+    aspect-ratio: 1 / 1;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.45s ease;
+}
+
+.art img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid rgba(248, 206, 151, 0.14);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+    transition: border-color 0.45s ease, box-shadow 0.45s ease, opacity 0.5s ease;
+}
+
+/* Second shot (inner sleeve, alternate cover) cross-fades on hover */
+/* Must out-specify `.art img` above, or this second shot stays in the flow
+   and stacks under the cover instead of on top of it. */
+.art img.art-alt {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0;
+}
+
+.card:hover .art img.art-alt,
+.card:focus-within .art img.art-alt {
+    opacity: 1;
+}
+
+/* The record peeking out from behind the sleeve */
+.disc {
+    position: absolute;
+    top: 50%;
+    right: 12%;
+    width: 72%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    transform: translate(0, -50%) scale(0.92);
+    background:
+        radial-gradient(circle at 50% 50%,
+            var(--cream) 0 7%,
+            #120c04 7% 9%,
+            #241a09 9% 100%),
+        repeating-radial-gradient(circle at 50% 50%,
+            rgba(255, 255, 255, 0.05) 0 2px,
+            transparent 2px 5px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease;
+}
+
+.card:hover .art,
+.card:focus-within .art {
+    transform: translateY(-8px);
+}
+
+.card:hover .art img,
+.card:focus-within .art img {
+    border-color: rgba(248, 206, 151, 0.4);
+    box-shadow: 0 26px 50px rgba(0, 0, 0, 0.55);
+}
+
+.card:hover .disc,
+.card:focus-within .disc {
+    opacity: 1;
+    transform: translate(30%, -50%) scale(1) rotate(22deg);
+}
+
+.tag,
+.flag {
+    position: absolute;
+    z-index: 3;
+    top: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    backdrop-filter: blur(6px);
+}
+
+.tag {
+    left: 12px;
+    background: rgba(28, 20, 6, 0.72);
+    color: var(--cream);
+    border: 1px solid rgba(248, 206, 151, 0.28);
+}
+
+.flag {
+    right: 12px;
+    background: var(--forest);
+    color: var(--cream);
+}
+
+/* ---------- Card meta ---------- */
+.meta {
+    padding: 16px 2px 0;
+}
+
+.artist {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(248, 206, 151, 0.78);
+}
+
+.title {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    color: var(--bone);
+}
+
+.buy {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.price {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--bone);
+}
+
+.add {
+    padding: 10px 16px;
+    border: 1px solid rgba(248, 206, 151, 0.4);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+.add:hover,
+.add:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.add.is-added {
+    background: var(--forest);
+    border-color: var(--forest);
+    color: var(--cream);
+}
+
+.empty {
+    padding: 60px 0;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 200;
+    letter-spacing: 0.08em;
+    color: rgba(239, 236, 231, 0.65);
+}
+
+.empty[hidden] {
+    display: none;
+}
+
+/* ---------- Footer ---------- */
+.shop-footer {
+    position: relative;
+    z-index: 2;
+    padding: 40px 24px 56px;
+    text-align: center;
+    border-top: 1px solid rgba(248, 206, 151, 0.14);
+}
+
+.shop-footer p {
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cream);
+}
+
+.shop-footer .muted {
+    margin-top: 8px;
+    letter-spacing: 0.12em;
+    text-transform: none;
+    color: rgba(239, 236, 231, 0.5);
+}
+
+/* ---------- Bag drawer ---------- */
+.drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 11;
+    background: rgba(28, 20, 6, 0.6);
+    backdrop-filter: blur(4px);
+    animation: backdrop-in 0.25s ease-out;
+}
+
+.drawer-backdrop[hidden] {
+    display: none;
+}
+
+@keyframes drawer-in {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 12;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, 100%);
+    height: 100%;
+    padding: 26px 24px 28px;
+    background: var(--ink);
+    border-left: 2px solid var(--forest);
+    box-shadow: -24px 0 60px rgba(0, 0, 0, 0.5);
+    animation: drawer-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.drawer[hidden] {
+    display: none;
+}
+
+.drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(248, 206, 151, 0.18);
+}
+
+.drawer-head h2 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--cream);
+}
+
+.drawer-head .msgbox-close {
+    position: static;
+}
+
+.drawer-list {
+    flex: 1;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 18px 0;
+}
+
+.drawer-list li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(239, 236, 231, 0.08);
+}
+
+.drawer-list img {
+    width: 54px;
+    height: 54px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.drawer-item-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.drawer-item-text .artist {
+    font-size: 10px;
+}
+
+.drawer-item-text .name {
+    margin-top: 3px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--bone);
+}
+
+.drawer-item-text .line-price {
+    margin-top: 3px;
+    font-size: 12px;
+    color: rgba(239, 236, 231, 0.6);
+}
+
+.drawer-remove {
+    border: none;
+    background: transparent;
+    color: rgba(239, 236, 231, 0.5);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.drawer-remove:hover,
+.drawer-remove:focus-visible {
+    color: var(--cream);
+    outline: none;
+}
+
+.drawer-empty {
+    padding: 26px 0;
+    font-size: 14px;
+    font-weight: 200;
+    color: rgba(239, 236, 231, 0.6);
+}
+
+.drawer-empty[hidden] {
+    display: none;
+}
+
+.drawer-foot {
+    padding-top: 18px;
+    border-top: 1px solid rgba(248, 206, 151, 0.18);
+}
+
+.drawer-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--cream);
+}
+
+/* ---------- Shop responsive ---------- */
+@media (max-width: 900px) {
+    .topnav { display: none; }
+    .topbar-tools { margin-left: auto; }
+}
+
+@media (max-width: 560px) {
+    .topbar { gap: 12px; }
+    .search input { width: 100%; }
+    .toolbar { top: 62px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .buy { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card,
+    .crate-hero,
+    .drawer,
+    .drawer-backdrop {
+        animation: none !important;
+        opacity: 1;
+    }
+    .art,
+    .art img,
+    .disc {
+        transition: none !important;
+    }
+}
+
+/* ---------- Quick-view affordance on the sleeve ---------- */
+.art {
+    cursor: pointer;
+}
+
+.view {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    bottom: 16px;
+    transform: translate(-50%, 10px);
+    padding: 10px 22px;
+    border: 1px solid rgba(248, 206, 151, 0.5);
+    border-radius: 999px;
+    background: rgba(28, 20, 6, 0.78);
+    backdrop-filter: blur(8px);
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease,
+                background-color 0.25s ease, color 0.25s ease;
+}
+
+.card:hover .view,
+.card:focus-within .view {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.view:hover,
+.view:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+}
+
+/* ---------- Product viewer ---------- */
+.viewer-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 13;
+    background: rgba(18, 12, 4, 0.78);
+    backdrop-filter: blur(8px);
+    animation: backdrop-in 0.25s ease-out;
+}
+
+.viewer-backdrop[hidden] {
+    display: none;
+}
+
+@keyframes viewer-in {
+    from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.viewer {
+    position: fixed;
+    z-index: 14;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 40px);
+    width: min(980px, calc(100vw - 32px));
+    max-height: min(88vh, 760px);
+    overflow-y: auto;
+    padding: clamp(22px, 3vw, 38px);
+    border: 2px solid var(--forest);
+    border-radius: 16px;
+    background: var(--ink);
+    box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6);
+    animation: viewer-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.viewer[hidden] {
+    display: none;
+}
+
+.viewer-close {
+    top: 12px;
+    right: 14px;
+}
+
+/* ---------- Gallery ---------- */
+.viewer-stage {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(239, 236, 231, 0.04);
+}
+
+.viewer-stage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.viewer-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(248, 206, 151, 0.4);
+    border-radius: 50%;
+    background: rgba(28, 20, 6, 0.72);
+    backdrop-filter: blur(6px);
+    color: var(--cream);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.viewer-nav.prev { left: 12px; }
+.viewer-nav.next { right: 12px; }
+
+.viewer-nav:hover,
+.viewer-nav:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+}
+
+.viewer-nav[hidden] {
+    display: none;
+}
+
+.viewer-thumbs {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.viewer-thumbs[hidden] {
+    display: none;
+}
+
+.viewer-thumb {
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    border: 1px solid rgba(248, 206, 151, 0.22);
+    border-radius: 8px;
+    overflow: hidden;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.25s ease, border-color 0.25s ease;
+}
+
+.viewer-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.viewer-thumb:hover,
+.viewer-thumb:focus-visible {
+    opacity: 1;
+    outline: none;
+}
+
+.viewer-thumb.is-active {
+    opacity: 1;
+    border-color: var(--cream);
+}
+
+/* ---------- Viewer copy ---------- */
+.viewer-info {
+    display: flex;
+    flex-direction: column;
+    padding-top: 6px;
+}
+
+.viewer-info h2 {
+    margin-top: 6px;
+    font-size: clamp(26px, 3.4vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    color: var(--cream);
+}
+
+.viewer-format {
+    margin-top: 12px;
+    align-self: flex-start;
+    padding: 6px 14px;
+    border: 1px solid rgba(248, 206, 151, 0.3);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream);
+}
+
+.viewer-desc {
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 200;
+    line-height: 1.7;
+    color: rgba(239, 236, 231, 0.8);
+}
+
+.viewer-specs {
+    display: flex;
+    gap: 34px;
+    margin: 22px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid rgba(248, 206, 151, 0.16);
+}
+
+.viewer-specs dt {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(239, 236, 231, 0.5);
+}
+
+.viewer-specs dd {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--bone);
+}
+
+.viewer-price {
+    margin-top: auto;
+    padding-top: 24px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--bone);
+}
+
+.viewer-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.viewer-actions .btn {
+    width: auto;
+    flex: 1;
+}
+
+/* ---------- Viewer responsive ---------- */
+@media (max-width: 760px) {
+    .viewer {
+        grid-template-columns: 1fr;
+        max-height: 92vh;
+    }
+    .viewer-price { margin-top: 20px; padding-top: 0; }
+    .viewer-actions { flex-direction: column; }
+    .viewer-thumb { width: 58px; height: 58px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .viewer,
+    .viewer-backdrop {
+        animation: none !important;
+    }
+    .view {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        transition: none;
+    }
+}
+
+/* ---------- Bag quantity stepper ---------- */
+.qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 2px;
+    border: 1px solid rgba(248, 206, 151, 0.28);
+    border-radius: 999px;
+}
+
+.qty-step {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.qty-step:hover,
+.qty-step:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+}
+
+.qty-step:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.qty-step:disabled:hover {
+    background: transparent;
+    color: var(--cream);
+}
+
+.qty-input {
+    width: 34px;
+    border: none;
+    background: transparent;
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 13px;
+    text-align: center;
+    appearance: textfield;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.qty-input:focus {
+    outline: none;
+    color: var(--cream);
+}
+
+/* ============================================================
+   SHARED — contact & about pages
+   ============================================================ */
+
+/* Boxed section used for every block on the contact and about pages */
+.panel,
+.prose,
+.sidenote {
+    max-width: 780px;
+    margin: 0 auto 28px;
+    backdrop-filter: blur(6px);
+}
+
+.panel {
+    padding: 28px 30px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 14px;
+    background: rgba(28, 20, 7, 0.55);
+}
+
+.panel h2,
+.prose h2,
+.sidenote h2 {
+    margin-bottom: 8px;
+    color: var(--cream);
+    font-weight: 800;
+    letter-spacing: 0.4px;
+}
+
+.panel h2,
+.prose h2 { font-size: 22px; }
+.sidenote h2 { font-size: 18px; }
+
+/* Small grey caption under a heading */
+.panel-note {
+    margin-bottom: 18px;
+    color: rgba(239, 236, 231, 0.62);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Text with the browser's "help" cursor over it */
+.help-hint {
+    cursor: help;
+    color: rgba(239, 236, 231, 0.7);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    border-bottom: 1px dotted rgba(248, 206, 151, 0.45);
+}
+
+/* ============================================================
+   CONTACT PAGE — forms
+   ============================================================ */
+
+.panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 16px;
+}
+
+/* One label stacked above its input */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.field > span {
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+}
+
+.field em {
+    color: rgba(239, 236, 231, 0.5);
+    font-style: normal;
+}
+
+/* Description list used as a form layout */
+.field-list dt {
+    margin-bottom: 6px;
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 13px;
+    letter-spacing: 0.3px;
+}
+
+.field-list dd {
+    margin-bottom: 16px;
+}
+
+/* Every typed-in control shares one look */
+.panel input[type="text"],
+.panel input[type="password"],
+.panel input[type="number"],
+.panel input[list],
+.panel textarea,
+.panel select {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1px solid rgba(248, 206, 151, 0.26);
+    border-radius: 8px;
+    background: rgba(51, 32, 7, 0.6);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.panel textarea {
+    min-height: 150px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.panel input:focus,
+.panel textarea:focus,
+.panel select:focus {
+    outline: none;
+    border-color: var(--cream);
+    background: rgba(51, 32, 7, 0.85);
+}
+
+.panel ::placeholder {
+    color: rgba(239, 236, 231, 0.35);
+}
+
+/* The native dropdown list can't be transparent — keep it readable */
+.panel option,
+.panel optgroup {
+    background: var(--ink);
+    color: var(--bone);
+}
+
+.panel input[type="file"] {
+    color: rgba(239, 236, 231, 0.7);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.panel input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    border: 1px solid rgba(248, 206, 151, 0.35);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+/* ---------- Fieldsets ---------- */
+.panel fieldset {
+    padding: 16px 18px;
+    border: 1px solid rgba(248, 206, 151, 0.2);
+    border-radius: 10px;
+}
+
+.panel legend {
+    padding: 0 8px;
+    color: var(--cream);
+    font-size: 13px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+/* One radio or checkbox with its label */
+.choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-right: 20px;
+    color: rgba(239, 236, 231, 0.85);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.choice input {
+    accent-color: var(--cream);
+    cursor: pointer;
+}
+
+/* ---------- Two dropdowns side by side ---------- */
+.select-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.select-row .field {
+    flex: 1;
+    min-width: 200px;
+}
+
+.select-row select {
+    padding: 8px;
+}
+
+/* ---------- Buttons ---------- */
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.button-row .btn img {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    object-fit: contain;
+    vertical-align: middle;
+}
+
+/* The two picture-buttons on the mailing list form */
+.button-row input[type="image"],
+.button-row #btn {
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.button-row input[type="image"]:hover,
+.button-row #btn:hover {
+    transform: scale(1.08);
+    filter: brightness(1.2);
+}
+
+.panel input[type="submit"] {
+    align-self: flex-start;
+    cursor: pointer;
+}
+
+/* Running total printed by the quantity calculator */
+#sum {
+    display: block;
+    min-height: 26px;
+    color: var(--cream);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.panel iframe,
+.panel object {
+    display: block;
+    margin-top: 6px;
+    border: 1px solid rgba(248, 206, 151, 0.2);
+    border-radius: 10px;
+    background: rgba(51, 32, 7, 0.4);
+}
+
+/* Shown only if the browser can't display the PDF */
+.panel object p {
+    padding: 20px;
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 14px;
+}
+
+/* ============================================================
+   ABOUT PAGE
+   ============================================================ */
+
+/* Groove watermark that stays still while the page scrolls past it */
+.about-page .shop-main {
+    background: url(images/groove-tile.png) no-repeat bottom right fixed;
+    background-size: 220px 220px;
+}
+
+/* ---------- Story ---------- */
+/* Same tile again, this time repeating across the whole panel */
+.prose {
+    padding: 30px 32px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 14px;
+    background: rgba(28, 20, 7, 0.58) url(images/groove-tile.png) repeat;
+    background-size: 64px 64px;
+    overflow: hidden;
+}
+
+.prose h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.prose p {
+    margin-bottom: 18px;
+    color: rgba(239, 236, 231, 0.86);
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+/* Drop cap on the opening paragraph */
+.prose p.lede:first-letter {
+    float: left;
+    margin: 4px 10px 0 0;
+    color: var(--cream);
+    font-size: 58px;
+    font-weight: 800;
+    line-height: 0.82;
+}
+
+/* ---------- Figures ---------- */
+figure#front-stack {
+    float: left;
+    margin: 0 24px 16px 0;
+}
+
+figure#back-stack {
+    float: right;
+    /* Wait for the left figure to finish, or the text is squeezed between them */
+    clear: left;
+    margin: 0 0 16px 24px;
+}
+
+.prose figure img {
+    display: block;
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border: 1px solid rgba(248, 206, 151, 0.22);
+    border-radius: 10px;
+}
+
+.reference {
+    margin-top: 8px;
+    color: var(--cream);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 0.4px;
+}
+
+.panel audio {
+    width: 100%;
+    margin-top: 6px;
+}
+
+/* ---------- Clickable picture ---------- */
+/* Record-shaped cursor over the mapped photo and the shop sleeves */
+.mapped,
+.art {
+    cursor: url(images/stylus-cursor.png) 12 12, pointer;
+}
+
+/* ============================================================
+   RECORD CURSOR
+   Plain PNG cursor by default. If JS is running, bg.js hides the
+   real cursor and follows the pointer with #stylus instead —
+   a cursor: url() image is static and cannot be animated.
+   ============================================================ */
+
+/* What you get with no JavaScript */
+body {
+    cursor: url(images/stylus-cursor.png) 12 12, auto;
+}
+
+/* JS is driving — hand the drawing over to #stylus */
+body.has-stylus,
+body.has-stylus * {
+    cursor: none;
+}
+
+/* Except where the cursor's shape is telling you something.
+   These keep the real pointer and #stylus hides itself instead. */
+body.has-stylus .help-hint {
+    cursor: help;
+}
+
+body.has-stylus input,
+body.has-stylus textarea,
+body.has-stylus select {
+    cursor: auto;
+}
+
+/* The follower. JS moves this one; never give it a transition,
+   or the cursor drifts behind the pointer. */
+#stylus {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+#stylus.is-ready { opacity: 1; }
+
+/* Over a text field or the help text, get out of the way */
+#stylus.is-hidden { opacity: 0; }
+
+/* The record itself. Sized and animated here, positioned by the parent,
+   so the spin never fights the JS positioning. */
+#stylus span {
+    display: block;
+    width: 26px;
+    height: 26px;
+    margin: -13px 0 0 -13px;   /* centre the disc on the pointer */
+    background: url(images/stylus-large.png) center / contain no-repeat;
+    /* scale and rotate are their own properties, so the spin
+       animation doesn't wipe out the hover scale */
+    scale: 1;
+    transition: scale 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Hover — grow, and set the record spinning */
+#stylus.is-hover span {
+    scale: 1.6;
+    animation: stylus-spin 1.6s linear infinite;
+}
+
+/* Click — press it down into the groove */
+#stylus.is-press span {
+    scale: 0.8;
+    transition-duration: 0.09s;
+}
+
+@keyframes stylus-spin {
+    to { rotate: 360deg; }
+}
+
+/* Ring that pings outward on each click */
+#stylus::after {
+    content: "";
+    position: absolute;
+    top: -13px;
+    left: -13px;
+    width: 26px;
+    height: 26px;
+    border: 2px solid var(--cream);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+#stylus.is-ping::after {
+    animation: stylus-ping 0.5s ease-out;
+}
+
+@keyframes stylus-ping {
+    from { opacity: 0.8; scale: 1; }
+    to   { opacity: 0;   scale: 2.6; }
+}
+
+/* Touch screens and anyone who asked for less motion keep the plain cursor */
+@media (prefers-reduced-motion: reduce) {
+    #stylus.is-hover span {
+        animation: none;
+    }
+}
+
+.mapped {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-top: 6px;
+    border-radius: 12px;
+    background: rgba(239, 236, 231, 0.92);
+}
+
+/* ---------- Support note ---------- */
+/* A single column of grooves running down the right edge only */
+.sidenote {
+    padding: 26px 30px;
+    border-left: 3px solid var(--cream);
+    border-radius: 0 14px 14px 0;
+    background: rgba(90, 102, 49, 0.28) url(images/groove-tile.png) repeat-y top right;
+    background-size: 48px 48px;
+}
+
+.sidenote p {
+    margin-bottom: 10px;
+    color: rgba(239, 236, 231, 0.85);
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+.sidenote a {
+    color: var(--cream);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.sidenote a:hover {
+    color: var(--bone);
+}
+
+.sidenote code {
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(51, 32, 7, 0.75);
+    color: var(--cream);
+    font-family: "Courier New", monospace;
+    font-size: 13px;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 640px) {
+    .panel,
+    .prose {
+        padding: 22px 18px;
+    }
+
+    .select-row {
+        flex-direction: column;
+    }
+
+    figure#front-stack,
+    figure#back-stack {
+        float: none;
+        margin: 0 auto 18px;
+    }
+}
+
+
+/* ============================================================
+   ACCOUNT — demo sign-in tile and top bar chip
+   ============================================================ */
+
+.msgbox-view[hidden] { display: none; }
+
+.account-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--cream);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+}
+
+/* The clickable mock account on the sign-in pop-up */
+.account-tile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    margin-top: 22px;
+    padding: 14px 16px;
+    border: 1px solid rgba(248, 206, 151, 0.3);
+    border-radius: 10px;
+    background: rgba(239, 236, 231, 0.05);
+    color: var(--bone);
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+
+.account-tile:hover,
+.account-tile:focus-visible {
+    border-color: var(--cream);
+    background: rgba(239, 236, 231, 0.1);
+    transform: translateY(-2px);
+    outline: none;
+}
+
+.account-tile .account-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 14px;
+}
+
+.account-tile-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+}
+
+.account-tile-name {
+    color: var(--cream);
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.account-tile-email {
+    overflow: hidden;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-tile-tag {
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--olive);
+    color: var(--bone);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+/* Top bar: "Hi, Juan · Sign out" or a "Sign in" link */
+.account-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bone);
+    font-size: 13px;
+}
+
+.account-chip:empty { display: none; }
+
+.account-signin,
+.account-signout {
+    padding: 0;
+    border: none;
+    background: none;
+    color: rgba(239, 236, 231, 0.7);
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.account-signin:hover,
+.account-signin:focus-visible,
+.account-signout:hover,
+.account-signout:focus-visible {
+    color: var(--cream);
+    outline: none;
+}
+
+.account-signout::before {
+    content: "·";
+    margin-right: 8px;
+    color: rgba(239, 236, 231, 0.4);
+}
+
+
+/* ============================================================
+   CHECKOUT
+   ============================================================ */
+
+.checkout-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: 24px;
+    align-items: start;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.checkout-layout .panel {
+    max-width: none;
+    margin: 0;
+}
+
+.panel.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    margin-top: 0;
+}
+
+.checkout-form fieldset {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Two fields side by side, stacking on narrow screens */
+.field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.field-row .field {
+    flex: 1 1 200px;
+    min-width: 0;
+}
+
+.field-row .field-grow  { flex: 3 1 240px; }
+.field-row .field-small { flex: 1 1 110px; }
+
+.panel input[type="email"],
+.panel input[type="tel"] {
+    width: 100%;
+    padding: 10px 13px;
+    border: 1px solid rgba(248, 206, 151, 0.26);
+    border-radius: 8px;
+    background: rgba(51, 32, 7, 0.6);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.panel select:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* Only flag bad fields once someone has tried to submit */
+.was-submitted input:invalid,
+.was-submitted select:invalid {
+    border-color: #e38b6d;
+}
+
+.form-error {
+    padding: 10px 14px;
+    border: 1px solid #e38b6d;
+    border-radius: 8px;
+    background: rgba(227, 139, 109, 0.12);
+    color: #f4c3b1;
+    font-size: 13px;
+}
+
+.form-error[hidden] { display: none; }
+
+.choice-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 4px;
+}
+
+/* Delivery speed: a whole-row radio with its price on the right */
+.option-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(248, 206, 151, 0.2);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.option-card:has(input:checked) {
+    border-color: var(--cream);
+    background: rgba(248, 206, 151, 0.07);
+}
+
+.option-card input {
+    accent-color: var(--cream);
+}
+
+.option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 13px;
+}
+
+.option-text strong {
+    color: var(--bone);
+    font-size: 15px;
+}
+
+.option-price {
+    color: var(--cream);
+    font-weight: 800;
+}
+
+/* "Sign in to fill this in" banner for guests */
+.checkout-signin {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px dashed rgba(248, 206, 151, 0.35);
+    border-radius: 10px;
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 14px;
+}
+
+.checkout-signin[hidden] { display: none; }
+
+.checkout-signin .btn {
+    width: auto;
+    padding: 10px 18px;
+    font-size: 12px;
+}
+
+/* ---------- Summary ---------- */
+.checkout-summary {
+    position: sticky;
+    top: 90px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.summary-list {
+    max-height: 320px;
+    overflow-y: auto;
+}
+
+.checkout-summary .drawer-empty a {
+    color: var(--cream);
+}
+
+.summary-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(248, 206, 151, 0.18);
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 14px;
+}
+
+.summary-totals div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary-grand {
+    margin: 6px 0 8px;
+    color: var(--cream);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.checkout-summary .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.confirm-address {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--cream);
+    background: rgba(239, 236, 231, 0.05);
+    font-size: 14px;
+}
+
+@media (max-width: 860px) {
+    .checkout-layout { grid-template-columns: 1fr; }
+    .checkout-summary { position: static; }
+    .account-name { display: none; }
 }
