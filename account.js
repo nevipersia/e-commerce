@@ -1,9 +1,9 @@
 /* =============================================================
-   ACCOUNT + SAVED BAG
-   Shared by every page that needs to know who's signed in or
-   what's in the bag. There is no server: the "account" is a
-   single demo profile, and both the session and the bag live
-   in localStorage so they survive moving between pages.
+ACCOUNT + SAVED BAG
+Shared by every page that needs to know who's signed in or
+what's in the bag. There is no server: the "account" is a
+single demo profile, and both the session and the bag live
+in localStorage so they survive moving between pages.
    ============================================================= */
 
 // The one mock account offered on the sign-in pop-up.
@@ -27,8 +27,8 @@ const DEMO_ACCOUNT = {
     }
 };
 
-const SESSION_KEY = 'vendio.session';
-const BAG_KEY = 'vendio.bag.php';   // renamed when prices moved to pesos, so old $ bags are dropped
+const SESSION_KEY = 'venaudio.session';
+const BAG_KEY = 'venaudio.bag.php';   // renamed when prices moved to pesos, so old $ bags are dropped
 
 // localStorage can throw (private windows, blocked site data) —
 // every read and write goes through these so a failure just means

@@ -24,7 +24,7 @@ const money = (n) => `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2,
 // Shipping in pesos by zone, per delivery speed
 const RATES = {
     metro:    { standard: 99,  express: 199, eta: ['2–3 business days', 'Next business day'] },
-    luzon:    { standard: 150, express: 290, eta: ['3–5 business days', '1–2 business days'] },
+    luzon:    { standard: 99, express: 290, eta: ['3–5 business days', '1–2 business days'] },
     visayas:  { standard: 180, express: 350, eta: ['4–6 business days', '2–3 business days'] },
     mindanao: { standard: 200, express: 390, eta: ['5–7 business days', '2–3 business days'] }
 };
@@ -43,6 +43,10 @@ function fillSelect(select, placeholder, names) {
     select.disabled = names.length === 0;
 }
 
+const postalInput = document.getElementById('postal');
+const postalOptions = document.getElementById('postal-options');
+const postalHint = document.getElementById('postal-hint');
+
 const selectedRegion = () => PH_REGIONS.find((r) => r.code === regionSelect.value);
 const provinces = () => regionData[regionSelect.value] || {};
 const cities = () => provinces()[provinceSelect.value] || {};
@@ -57,8 +61,12 @@ async function onRegionChange() {
     fillSelect(provinceSelect, code ? 'Loading…' : 'Select province', []);
     fillSelect(citySelect, 'Select city', []);
     fillSelect(barangaySelect, 'Select barangay', []);
+    updatePostal();
     renderTotals();
     if (!code) return;
+
+    // ZIPs come in their own file. Optional: if it fails, the address still works.
+    loadRegionZips(code).then(updatePostal, () => {});
 
     try {
         await loadRegion(code);
@@ -81,15 +89,69 @@ async function onRegionChange() {
 function onProvinceChange() {
     fillSelect(citySelect, 'Select city', Object.keys(cities()));
     fillSelect(barangaySelect, 'Select barangay', []);
+    updatePostal();
 }
 
 function onCityChange() {
     fillSelect(barangaySelect, 'Select barangay', cities()[citySelect.value] || []);
+    updatePostal();
 }
 
 regionSelect.addEventListener('change', onRegionChange);
 provinceSelect.addEventListener('change', onProvinceChange);
 citySelect.addEventListener('change', onCityChange);
+barangaySelect.addEventListener('change', updatePostal);
+
+
+/* ---------- Postal code from the address ---------- */
+
+// "1012", "1012 or 1013", "1008, 1015 or 1016"
+const orList = (zips) => zips.length === 1 ? zips[0]
+    : `${zips.slice(0, -1).join(', ')} or ${zips[zips.length - 1]}`;
+
+// Runs whenever the address changes, so the ZIP always belongs to the
+// address on screen — a ZIP left over from another address (or from the
+// account's saved one) is replaced. Typing your own ZIP still works: it
+// stands until the address changes again.
+function updatePostal() {
+    // No town picked yet: whatever ZIP is there was for some other address
+    if (!citySelect.value) {
+        postalInput.value = '';
+        postalOptions.innerHTML = '';
+        postalHint.textContent = '';
+        return;
+    }
+
+    const zips = zipsFor(regionSelect.value, provinceSelect.value, citySelect.value, barangaySelect.value);
+    if (zips.length === 0) return;   // ZIP file still loading — it calls us again when it lands
+
+    postalOptions.innerHTML = '';
+    zips.forEach((zip) => postalOptions.append(new Option(zip)));
+
+    if (zips.length === 1) {
+        postalInput.value = zips[0];
+        postalHint.textContent = 'Filled in from your address — change it if yours is different.';
+        return;
+    }
+
+    // Several possible: keep the current ZIP only if it's one of them
+    if (!zips.includes(postalInput.value)) postalInput.value = '';
+
+    if (postalInput.value) {
+        postalHint.textContent = '';
+    } else if (zips.length <= 3) {
+        postalHint.textContent = `${barangaySelect.value || citySelect.value} uses ${orList(zips)} — pick yours from the list.`;
+    } else if (!barangaySelect.value) {
+        postalHint.textContent = `${citySelect.value} has ${zips.length} ZIP codes — choose your barangay to narrow it down.`;
+    } else {
+        postalHint.textContent = `${citySelect.value} has ${zips.length} ZIP codes and we can't tell yours from the barangay — pick it from the list.`;
+    }
+}
+
+// Once they type, "Filled in from your address" is no longer true
+postalInput.addEventListener('input', () => {
+    postalHint.textContent = '';
+});
 
 // Pick a full address in one go, e.g. from the signed-in account
 async function setAddress({ region, province, city, barangay }) {
@@ -100,6 +162,7 @@ async function setAddress({ region, province, city, barangay }) {
     citySelect.value = city;
     onCityChange();
     barangaySelect.value = barangay;
+    updatePostal();   // setting .value doesn't fire 'change'
 }
 
 

@@ -10,7 +10,7 @@
     <script src="account.js" defer></script>
     <script src="browse.js" defer></script>
 
-    <title>Browse the Crates — Vendio</title>
+    <title>Browse the Crates — VenAudio</title>
 </head>
 <body class="shop">
     <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
@@ -23,7 +23,7 @@
         <!-- No link home: once you're in the crates, you stay in the crates. -->
         <span class="brand">
             <img src="images/VENAUDIO.png" alt="">
-            <span>VENDIO</span>
+            <span>VenAudio</span>
         </span>
 
         <nav class="topnav" aria-label="Primary">
@@ -39,7 +39,17 @@
                 <input type="search" id="search" placeholder="Search artist or album" autocomplete="off">
             </label>
             <button type="button" class="cart-button" id="cart-button" aria-haspopup="dialog" aria-controls="cart-drawer">
-                Bag <span class="cart-count" id="cart-count">0</span>
+                <svg class="bag-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+                     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <g class="crate-sleeves">
+                        <path d="M6.5 11L8 4.5h5L12 11"/>
+                        <path d="M12.5 11l2-4.5h4l-1 4.5"/>
+                    </g>
+                    <rect x="3" y="11" width="18" height="9" rx="1.5"/>
+                    <path d="M10 15.5h4"/>
+                </svg>
+                <span class="visually-hidden">Bag</span>
+                <span class="cart-count" id="cart-count">0</span>
             </button>
         </div>
     </header>
@@ -52,16 +62,20 @@
         </section>
 
         <section class="toolbar" aria-label="Filter and sort">
-            <div class="chips" role="group" aria-label="Filter by format">
-                <button type="button" class="chip is-active" data-filter="all">All</button>
-                <button type="button" class="chip" data-filter="vinyl">Vinyl</button>
-                <button type="button" class="chip" data-filter="cd">CD</button>
-                <button type="button" class="chip" data-filter="boxset">Boxsets</button>
-                <button type="button" class="chip" data-filter="signed">Signed</button>
+            <div class="toolbar-left">
+                <div class="chips" role="group" aria-label="Filter by format">
+                    <button type="button" class="chip is-active" data-filter="all">All</button>
+                    <button type="button" class="chip" data-filter="vinyl">Vinyl</button>
+                    <button type="button" class="chip" data-filter="cd">CD</button>
+                    <button type="button" class="chip" data-filter="cassette">Cassette</button>
+                    <button type="button" class="chip" data-filter="boxset">Boxsets</button>
+                    <button type="button" class="chip" data-filter="signed">Signed</button>
+                </div>
+                <!-- Right after the chips, so it reads as the result of the one you picked -->
+                <p class="result-count" id="result-count" aria-live="polite">19 records</p>
             </div>
 
             <div class="toolbar-right">
-                <p class="result-count" id="result-count" aria-live="polite">10 records</p>
                 <label class="sort">
                     <span class="visually-hidden">Sort records</span>
                     <select id="sort">
@@ -76,41 +90,35 @@
 
         <section class="grid" id="grid" aria-label="Records">
 
-            <article class="card" data-format="vinyl" data-price="2390" data-title="Gabriel"
-                    data-artist="keshi" data-label="Vinyl LP"
-                    data-desc="The full-length pressed to 12-inch wax, housed in a matte gatefold sleeve with a printed inner. Tracklist:
+            <article class="card" data-format="vinyl" data-price="1450" data-title="Gabriel"
+                    data-artist="keshi" data-label="Limited Red Vinyl LP"
+                    data-desc="keshi&#x27;s 2022 debut album, pressed on limited-edition red vinyl."
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
 
-SIDE A:
-always
-more
-drunk
 
-SIDE B:
-talk
-B.Y.S.
-Us">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
-                    <img src="images/Keshi%20-%20Gabriel%20(vinyl).jpg" alt="keshi — Gabriel vinyl LP" loading="lazy">
-                    <span class="tag">Vinyl LP</span>
+                    <img src="images/Keshi%20-%20Gabriel%20(vinyl).jpg" alt="keshi — Gabriel vinyl LP" loading="eager" fetchpriority="high">
+                    <span class="tag">Red Vinyl LP</span>
                     <button type="button" class="view">View</button>
                 </div>
                 <div class="meta">
                     <p class="artist">keshi</p>
                     <h2 class="title">Gabriel</h2>
                     <div class="buy">
-                        <p class="price">₱2,390.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱1,450.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="cd" data-price="990" data-title="Gabriel"
+            <article class="card" data-format="cd" data-price="756" data-title="Gabriel"
                     data-artist="keshi" data-label="Standard CD"
-                    data-desc="Standard jewel-case CD with the full booklet — the cheapest way into the record.">
+                    data-desc="keshi&#x27;s 2022 debut album on CD in its original cover — the everyday way into the record."
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
-                    <img src="images/Keshi_Gabriel_Standard_CD.jpg" alt="keshi — Gabriel standard CD" loading="lazy">
+                    <img src="images/Keshi_Gabriel_Standard_CD.jpg" alt="keshi — Gabriel standard CD" loading="eager" fetchpriority="high">
                     <span class="tag">CD</span>
                     <button type="button" class="view">View</button>
                 </div>
@@ -118,18 +126,19 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Gabriel</h2>
                     <div class="buy">
-                        <p class="price">₱990.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱756.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="boxset" data-price="3690" data-title="Requiem Collectible Boxset"
+            <article class="card" data-format="boxset" data-price="2523" data-title="Requiem Collectible Boxset"
                     data-artist="keshi" data-label="Collectible CD Boxset"
-                    data-desc="Rigid collector's box holding the CD, a set of art cards and a fold-out poster. Two sample shots below: the sealed box and everything inside it.">
+                    data-desc="The limited Requiem collector&#x27;s box: the standard CD, twelve behind-the-album polaroids, a photo booklet from the music video shoots and a double-sided poster, in a matte box wrapped with the Requiem obi strip. There&#x27;s room left inside for the rest of your collection. The second picture shows everything that comes in it."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
-                    <img src="images/Requiem%20CD%20Collectible%20Boxset.jpg" alt="keshi — Requiem collectible CD boxset" loading="lazy">
+                    <img src="images/Requiem%20CD%20Collectible%20Boxset.jpg" alt="keshi — Requiem collectible CD boxset" loading="eager" fetchpriority="high">
                     <img class="art-alt" src="images/Requiem%20CD%20Collectible%20Boxset%20Contents.jpg" alt="keshi — Requiem boxset contents" loading="lazy">
                     <span class="tag">Boxset</span>
                     <span class="flag">Limited</span>
@@ -139,18 +148,19 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Requiem — Collectible Boxset</h2>
                     <div class="buy">
-                        <p class="price">₱3,690.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱2,523.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="cd signed" data-price="1590" data-title="Requiem Signed CD"
+            <article class="card" data-format="cd signed" data-price="883" data-title="Requiem Signed CD"
                     data-artist="keshi" data-label="Signed CD"
-                    data-desc="Jewel-case CD with a hand-signed insert. One per customer while they last.">
+                    data-desc="Requiem on CD in a standard jewel case, with a square insert signed by keshi. One per customer while they last."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
-                    <img src="images/Requiem%20Signed%20CD.jpg" alt="keshi — Requiem signed CD" loading="lazy">
+                    <img src="images/Requiem%20Signed%20CD.jpg" alt="keshi — Requiem signed CD" loading="eager" fetchpriority="high">
                     <span class="tag">Signed CD</span>
                     <button type="button" class="view">View</button>
                 </div>
@@ -158,15 +168,16 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Requiem — Signed CD</h2>
                     <div class="buy">
-                        <p class="price">₱1,590.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱883.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl signed" data-price="2950" data-title="Requiem Signed LP"
+            <article class="card" data-format="vinyl signed" data-price="1640" data-title="Requiem Signed LP"
                     data-artist="keshi" data-label="Signed Vinyl LP"
-                    data-desc="12-inch pressing with a hand-signed sleeve. Shipped in a stiffened mailer, corners protected.">
+                    data-desc="The standard Requiem LP on black vinyl, with an insert signed by keshi. Shipped in a stiffened mailer, corners protected."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Signed%20LP.jpg" alt="keshi — Requiem signed LP" loading="lazy">
@@ -177,55 +188,58 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Requiem — Signed LP</h2>
                     <div class="buy">
-                        <p class="price">₱2,950.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱1,640.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="2150" data-title="Currents"
-                     data-artist="Tame Impala" data-label="Vinyl LP"
-                     data-desc="The 2015 record on double vinyl, sleeve art intact. A permanent fixture of the crate.">
+            <article class="card" data-format="vinyl" data-price="2460" data-title="Currents"
+                     data-artist="Tame Impala" data-label="Double Vinyl LP"
+                     data-desc="Tame Impala&#x27;s 2015 album across two LPs in a gatefold sleeve. A permanent fixture of the crate."
+                     data-tracks="Let It Happen|Nangs|The Moment|Yes I&#x27;m Changing|Eventually|Gossip|The Less I Know the Better|Past Life|Disciples|&#x27;Cause I&#x27;m a Man|Reality in Motion|Love/Paranoia|New Person, Same Old Mistakes">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/currents%20vinyl.jpg" alt="Tame Impala — Currents vinyl" loading="lazy">
-                    <img class="art-alt" src="images/tame%20impala.png" alt="Tame Impala — Currents sleeve art" loading="lazy">
-                    <span class="tag">Vinyl LP</span>
+                    <img class="art-alt" src="images/tame%20impala.jpg" alt="Tame Impala — Currents sleeve art" loading="lazy">
+                    <span class="tag">2LP</span>
                     <button type="button" class="view">View</button>
                 </div>
                 <div class="meta">
                     <p class="artist">Tame Impala</p>
                     <h2 class="title">Currents</h2>
                     <div class="buy">
-                        <p class="price">₱2,150.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱2,460.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1690" data-title="Wantchu"
-                    data-artist="keshi" data-label="Vinyl LP"
-                    data-desc="Single pressed to 7-inch, printed sleeve, alternate cover shown second.">
+            <article class="card" data-format="vinyl" data-price="882" data-title="Wantchu"
+                    data-artist="keshi" data-label="7-inch Single"
+                    data-desc="keshi&#x27;s WANTCHU on a 7-inch single: the original on side A, a slowed-down version on side B. Every disc&#x27;s colour comes out a little different, so yours may not match the photo exactly."
+                     data-tracks="WANTCHU|WANTCHU (Slowed Down Version)">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/keshi%20wantchu%20(vinyl).jpg" alt="keshi — Wantchu vinyl" loading="lazy">
                     <img class="art-alt" src="images/wantchu%20cover.jpg" alt="keshi — Wantchu alternate cover" loading="lazy">
-                    <span class="tag">Vinyl LP</span>
+                    <span class="tag">7-inch</span>
                     <button type="button" class="view">View</button>
                 </div>
                 <div class="meta">
                     <p class="artist">keshi</p>
                     <h2 class="title">Wantchu</h2>
                     <div class="buy">
-                        <p class="price">₱1,690.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱882.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1950" data-title="Always"
+            <article class="card" data-format="vinyl" data-price="1260" data-title="Always"
                     data-artist="keshi" data-label="Vinyl LP"
-                    data-desc="Standard black LP in a printed sleeve. Restocked this month.">
+                    data-desc="keshi&#x27;s always EP on a standard 12-inch LP — six songs over two sides."
+                     data-tracks="always|more|drunk|talk|B.Y.S.|Us">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/always%20standard%20LP.jpg" alt="keshi — Always standard LP" loading="lazy">
@@ -236,15 +250,16 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Always</h2>
                     <div class="buy">
-                        <p class="price">₱1,950.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱1,260.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1950" data-title="Bandaids"
+            <article class="card" data-format="vinyl" data-price="1260" data-title="Bandaids"
                      data-artist="keshi" data-label="Vinyl LP"
-                     data-desc="Standard black LP in a printed sleeve. Pairs with Always and Skeletons.">
+                     data-desc="keshi&#x27;s bandaids EP on a standard 12-inch LP — five songs over two sides. Pairs with always and skeletons."
+                     data-tracks="less of you|alright|blue|right here|bandaids">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/bandaids%20standard%20LP.jpg" alt="keshi — Bandaids standard LP" loading="lazy">
@@ -255,15 +270,16 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Bandaids</h2>
                     <div class="buy">
-                        <p class="price">₱1,950.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱1,260.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1950" data-title="Skeletons"
+            <article class="card" data-format="vinyl" data-price="1260" data-title="Skeletons"
                      data-artist="keshi" data-label="Vinyl LP"
-                     data-desc="Standard black LP in a printed sleeve. Last of the first run.">
+                     data-desc="keshi&#x27;s skeletons EP on a standard 12-inch LP — four songs over two sides."
+                     data-tracks="atlas|skeletons|summer|xoxosos">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/skeletons%20standard%20LP.jpg" alt="keshi — Skeletons standard LP" loading="lazy">
@@ -274,8 +290,191 @@ Us">
                     <p class="artist">keshi</p>
                     <h2 class="title">Skeletons</h2>
                     <div class="buy">
-                        <p class="price">₱1,950.00</p>
-                        <button type="button" class="add">Add to bag</button>
+                        <p class="price">₱1,260.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Added from keshi's official store, priced at USD -> PHP 63.08 (2026-10-16) -->
+
+            <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Standard LP"
+                     data-artist="keshi" data-label="Vinyl LP"
+                     data-desc="Requiem on classic black vinyl in a standard jacket, with an 11-inch insert carrying the lyrics and credits, and an obi strip from the limited first run."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Standard%20LP.jpg" alt="keshi — Requiem standard LP" loading="lazy">
+                    <span class="tag">Vinyl LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Standard LP</h2>
+                    <div class="buy">
+                        <p class="price">₱1,640.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Premium LP"
+                     data-artist="keshi" data-label="Premium Vinyl LP"
+                     data-desc="Requiem in its standard cover but on a differently coloured disc, with an exclusive double-sided poster and a limited obi strip. Every disc&#x27;s colour comes out a little different."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Premium%20LP.jpg" alt="keshi — Requiem premium LP" loading="lazy">
+                    <span class="tag">Premium LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Premium LP</h2>
+                    <div class="buy">
+                        <p class="price">₱1,892.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Alternate Cover LP"
+                     data-artist="keshi" data-label="Alternate Cover Vinyl LP"
+                     data-desc="Same record, different face: Requiem in its alternate cover, in standard packaging with a limited obi strip."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Alternate%20Cover%20LP.jpg" alt="keshi — Requiem alternate cover LP" loading="lazy">
+                    <span class="tag">Alt Cover LP</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Alternate Cover LP</h2>
+                    <div class="buy">
+                        <p class="price">₱1,640.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Fans First LP"
+                     data-artist="keshi" data-label="Picture Disc LP"
+                     data-desc="Requiem as a picture disc in a clear sleeve with a product sticker — first released as a Spotify Fans First exclusive."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Fans%20First%20LP.jpg" alt="keshi — Requiem Spotify Fans First exclusive LP" loading="lazy">
+                    <span class="tag">Picture Disc</span>
+                    <span class="flag">Exclusive</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Fans First LP</h2>
+                    <div class="buy">
+                        <p class="price">₱1,892.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cd" data-price="882" data-title="Requiem Standard CD"
+                     data-artist="keshi" data-label="Standard CD"
+                     data-desc="Requiem on CD in a standard jewel case — the cheapest way into the album."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Standard%20CD.jpg" alt="keshi — Requiem standard CD" loading="lazy">
+                    <span class="tag">CD</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Standard CD</h2>
+                    <div class="buy">
+                        <p class="price">₱882.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cassette" data-price="945" data-title="Requiem Cassette"
+                     data-artist="keshi" data-label="Cassette"
+                     data-desc="Requiem on cassette in a standard case, for the deck that still works."
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Requiem%20Standard%20Cassette.jpg" alt="keshi — Requiem cassette" loading="lazy">
+                    <span class="tag">Cassette</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Requiem — Cassette</h2>
+                    <div class="buy">
+                        <p class="price">₱945.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="vinyl" data-price="882" data-title="Say"
+                     data-artist="keshi" data-label="7-inch Single"
+                     data-desc="Say, the lead single from Requiem, on a 7-inch: the song on side A, its instrumental on side B."
+                     data-tracks="Say|Say (Instrumental)">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Say%207-inch%20Single.jpg" alt="keshi — Say 7-inch single" loading="lazy">
+                    <span class="tag">7-inch</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Say — 7-inch Single</h2>
+                    <div class="buy">
+                        <p class="price">₱882.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cd" data-price="756" data-title="Gabriel Heaven Cover"
+                     data-artist="keshi" data-label="Alternate Cover CD"
+                     data-desc="Gabriel on CD in the alternate heaven cover — the same twelve songs, a different face. Pairs with the limbo edition."
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Gabriel%20Heaven%20CD.jpg" alt="keshi — Gabriel CD, heaven alternate cover" loading="lazy">
+                    <span class="tag">Alt Cover CD</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Gabriel — Heaven Cover</h2>
+                    <div class="buy">
+                        <p class="price">₱756.00</p>
+                        <button type="button" class="add">Add to crate</button>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card" data-format="cd" data-price="756" data-title="Gabriel Limbo Cover"
+                     data-artist="keshi" data-label="Alternate Cover CD"
+                     data-desc="Gabriel on CD in the alternate limbo cover — the same twelve songs, a different face. Pairs with the heaven edition."
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                <div class="art">
+                    <span class="disc" aria-hidden="true"></span>
+                    <img src="images/Gabriel%20Limbo%20CD.jpg" alt="keshi — Gabriel CD, limbo alternate cover" loading="lazy">
+                    <span class="tag">Alt Cover CD</span>
+                    <button type="button" class="view">View</button>
+                </div>
+                <div class="meta">
+                    <p class="artist">keshi</p>
+                    <h2 class="title">Gabriel — Limbo Cover</h2>
+                    <div class="buy">
+                        <p class="price">₱756.00</p>
+                        <button type="button" class="add">Add to crate</button>
                     </div>
                 </div>
             </article>
@@ -286,7 +485,7 @@ Us">
     </main>
 
     <footer class="shop-footer">
-        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p>VenAudio — albums on wax, disc &amp; file</p>
         <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
     </footer>
 
@@ -310,6 +509,12 @@ Us">
             <p class="viewer-format" id="viewer-format"></p>
             <p class="viewer-desc" id="viewer-desc"></p>
 
+            <!-- Filled from the card's data-tracks by browse.js; hidden when a record has none -->
+            <div class="viewer-tracks" id="viewer-tracks" hidden>
+                <p class="viewer-tracks-label">Tracklist</p>
+                <ol id="viewer-tracklist"></ol>
+            </div>
+
             <dl class="viewer-specs">
                 <div><dt>Ships</dt><dd>2–4 business days</dd></div>
                 <div><dt>Condition</dt><dd>New &amp; sealed</dd></div>
@@ -317,25 +522,25 @@ Us">
 
             <p class="viewer-price" id="viewer-price"></p>
             <div class="viewer-actions">
-                <button type="button" class="btn btn-primary" id="viewer-add">Add to bag</button>
+                <button type="button" class="btn btn-primary" id="viewer-add">Add to crate</button>
                 <button type="button" class="btn btn-ghost" id="viewer-back">Keep digging</button>
             </div>
         </div>
     </div>
 
-    <!-- Bag drawer -->
+    <!-- Crate drawer -->
     <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
     <aside class="drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
         <div class="drawer-head">
-            <h2 id="drawer-title">Your bag</h2>
-            <button type="button" class="msgbox-close" id="drawer-close" aria-label="Close bag">&times;</button>
+            <h2 id="drawer-title">Your crate</h2>
+            <button type="button" class="msgbox-close" id="drawer-close" aria-label="Close crate">&times;</button>
         </div>
         <ul class="drawer-list" id="drawer-list"></ul>
-        <p class="drawer-empty" id="drawer-empty">Your bag is empty.</p>
+        <p class="drawer-empty" id="drawer-empty">Your crate is empty.</p>
         <div class="drawer-foot">
             <p class="drawer-total"><span>Total</span><span id="drawer-total">₱0.00</span></p>
             <button type="button" class="btn btn-primary" id="checkout">Checkout</button>
-            <p class="msgbox-note" id="checkout-note" hidden>Add a record first — the bag's empty.</p>
+            <p class="msgbox-note" id="checkout-note" hidden>Add a record first — the crate's empty.</p>
         </div>
     </aside>
 </body>

@@ -11,7 +11,7 @@
     <script src="ph-address.js" defer></script>
     <script src="checkout.js" defer></script>
 
-    <title>Checkout — Vendio</title>
+    <title>Checkout — VenAudio</title>
 </head>
 <body class="shop">
     <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
@@ -23,7 +23,7 @@
     <header class="topbar">
         <span class="brand">
             <img src="images/VENAUDIO.png" alt="">
-            <span>VENDIO</span>
+            <span>VenAudio</span>
         </span>
 
         <nav class="topnav" aria-label="Primary">
@@ -55,9 +55,13 @@
                 <fieldset>
                     <legend>Contact</legend>
 
-                    <label class="field" for="full-name">
-                        <span>Full name</span>
-                        <input type="text" id="full-name" name="name" autocomplete="name" required>
+                    <label class="field" for="first-name">
+                        <span>First name</span>
+                        <input type="text" id="first-name" name="first-name" autocomplete="given-name" placeholder="John" required>
+                    </label>
+                    <label class="field" for="last-name">
+                        <span>Last name</span>
+                        <input type="text" id="last-name" name="last-name" autocomplete="family-name" placeholder="Doe" required>
                     </label>
 
                     <div class="field-row">
@@ -121,9 +125,14 @@
                         <label class="field field-small" for="postal">
                             <span>Postal code</span>
                             <input type="text" id="postal" name="postal" autocomplete="postal-code" required
-                                inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="1100">
+                                inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="1100"
+                                list="postal-options" aria-describedby="postal-hint">
+                            <!-- Filled from the address dropdowns by checkout.js -->
+                            <datalist id="postal-options"></datalist>
                         </label>
                     </div>
+
+                    <p class="field-hint" id="postal-hint" aria-live="polite"></p>
 
                     <label class="field" for="landmark">
                         <span>Landmark <em>(optional)</em></span>
@@ -205,7 +214,7 @@
     </div>
 
     <footer class="shop-footer">
-        <p>VENDIO — albums on wax, disc &amp; file</p>
+        <p>VenAudio — albums on wax, disc &amp; file</p>
         <p class="muted">Ships nationwide. Sleeves handled with gloves.</p>
     </footer>
 </body>

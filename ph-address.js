@@ -13,6 +13,9 @@
 
    Regenerate data/ph/ with: python tools/build_ph_address.py
    `zone` sets the shipping rate on the checkout page.
+
+   ZIP codes live alongside in data/ph-zip/, one file per region,
+   joined on from GeoNames by: python tools/build_ph_zip.py
    ============================================================= */
 
 const PH_REGIONS = [
@@ -37,31 +40,61 @@ const PH_REGIONS = [
 
 // Loaded regions, by code: { "Province": { "City": ["Barangay", ...] } }
 const regionData = {};
-const regionWaiters = {};
 
-// Each data/ph/<code>.js file calls this when it loads
-function registerRegionData(code, data) {
-    regionData[code] = data;
-    (regionWaiters[code] || []).forEach(({ resolve }) => resolve(data));
-    delete regionWaiters[code];
+// Loaded ZIP codes, by code: { "Province": { "City": entry } } where entry is
+//   "6000"                       the town's only ZIP
+//   { all: [...], b: {...} }     a Metro Manila city: `b` maps a barangay to
+//                                its ZIP (or the 2–3 it might be); any
+//                                barangay not listed could be any of `all`
+const regionZips = {};
+
+// Promises still waiting on a file, by "folder/code"
+const waiters = {};
+
+function settle(id, store, code, data) {
+    store[code] = data;
+    (waiters[id] || []).forEach(({ resolve }) => resolve(data));
+    delete waiters[id];
 }
 
-// Resolve with one region's provinces, loading its file the first time
-function loadRegion(code) {
-    if (regionData[code]) return Promise.resolve(regionData[code]);
+// Each data/ph/<code>.js and data/ph-zip/<code>.js file calls one of these when it loads
+function registerRegionData(code, data) { settle(`ph/${code}`, regionData, code, data); }
+function registerRegionZips(code, zips) { settle(`ph-zip/${code}`, regionZips, code, zips); }
+
+// Add data/<folder>/<code>.js to the page once; resolve when it registers itself
+function loadDataFile(folder, code, store) {
+    if (store[code]) return Promise.resolve(store[code]);
+    const id = `${folder}/${code}`;
 
     return new Promise((resolve, reject) => {
-        const first = !regionWaiters[code];
-        (regionWaiters[code] = regionWaiters[code] || []).push({ resolve, reject });
+        const first = !waiters[id];
+        (waiters[id] = waiters[id] || []).push({ resolve, reject });
         if (!first) return;   // already on its way
 
         const script = document.createElement('script');
-        script.src = `data/ph/${code}.js`;
+        script.src = `data/${id}.js`;
         script.onerror = () => {
-            regionWaiters[code].forEach((w) => w.reject(new Error(`Couldn't load ${script.src}`)));
-            delete regionWaiters[code];
+            waiters[id].forEach((w) => w.reject(new Error(`Couldn't load ${script.src}`)));
+            delete waiters[id];
             script.remove();   // let a later attempt try again
         };
         document.head.appendChild(script);
     });
+}
+
+// Resolve with one region's provinces, loading its file the first time
+const loadRegion = (code) => loadDataFile('ph', code, regionData);
+
+// Same for its ZIP codes. Kept separate on purpose: the dropdowns must keep
+// working even if this file fails, so callers treat it as optional.
+const loadRegionZips = (code) => loadDataFile('ph-zip', code, regionZips);
+
+// The ZIP codes an address could have — one when we're sure, several when
+// a Metro Manila city can't be narrowed down, none when there's no data.
+function zipsFor(code, province, city, barangay) {
+    const entry = regionZips[code]?.[province]?.[city];
+    if (!entry) return [];
+    if (typeof entry === 'string') return [entry];
+    const known = entry.b[barangay];
+    return known ? [].concat(known) : entry.all;
 }

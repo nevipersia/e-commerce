@@ -24,6 +24,27 @@ cards.forEach((card, i) => { card.dataset.order = i; });
 // Which crate is on show. Changed by the chips and by the URL hash.
 let activeFilter = 'all';
 
+// The filter bar sticks directly under the top bar (style.css reads
+// --topbar-h). Measured rather than hardcoded, because the top bar's
+// height changes: it wraps on narrow screens and grows when signed in.
+const topbar = document.querySelector('.topbar');
+function measureTopbar() {
+    document.documentElement.style.setProperty('--topbar-h', `${topbar.offsetHeight}px`);
+}
+measureTopbar();                                   // right away, before the first paint
+new ResizeObserver(measureTopbar).observe(topbar); // and again whenever it changes height
+
+// The filter bar only gets its dark glass once it's pinned under the header
+// (.is-stuck in style.css). While it sits under the title it stays clear.
+const toolbar = document.querySelector('.toolbar');
+function updateStuck() {
+    const stuck = toolbar.getBoundingClientRect().top <= topbar.offsetHeight + 1;
+    toolbar.classList.toggle('is-stuck', stuck);
+}
+window.addEventListener('scroll', updateStuck, { passive: true });
+window.addEventListener('resize', updateStuck);
+updateStuck();
+
 
 /* =============================================================
    FILTER / SEARCH / SORT
@@ -280,14 +301,14 @@ function addToBag(card) {
     renderBag();
 }
 
-// Briefly swap a button's label to "In bag" so the click feels answered
+// Briefly swap a button's label to "In crate" so the click feels answered
 function flashAdded(button) {
     button.classList.add('is-added');
 
     // Stash the real label on the element the first time round
     const original = button.dataset.label || button.textContent;
     button.dataset.label = original;
-    button.textContent = 'In bag';
+    button.textContent = 'In crate';
 
     setTimeout(() => {
         button.classList.remove('is-added');
@@ -330,6 +351,8 @@ const viewerArtist = document.getElementById('viewer-artist');
 const viewerTitle = document.getElementById('viewer-title');
 const viewerFormat = document.getElementById('viewer-format');
 const viewerDesc = document.getElementById('viewer-desc');
+const viewerTracks = document.getElementById('viewer-tracks');
+const viewerTracklist = document.getElementById('viewer-tracklist');
 const viewerPrice = document.getElementById('viewer-price');
 const viewerAdd = document.getElementById('viewer-add');
 const viewerBack = document.getElementById('viewer-back');
@@ -369,6 +392,16 @@ function openViewer(card) {
     viewerFormat.textContent = card.dataset.label;
     viewerDesc.textContent = card.dataset.desc;
     viewerPrice.textContent = money(Number(card.dataset.price));
+
+    // Song titles live in data-tracks, separated by "|"
+    const tracks = (card.dataset.tracks || '').split('|').map((t) => t.trim()).filter(Boolean);
+    viewerTracklist.innerHTML = '';
+    tracks.forEach((title) => {
+        const li = document.createElement('li');
+        li.textContent = title;
+        viewerTracklist.appendChild(li);
+    });
+    viewerTracks.hidden = tracks.length === 0;
 
     // Thumbnail strip — only worth showing when there's more than one shot
     viewerThumbs.innerHTML = '';

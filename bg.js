@@ -27,28 +27,36 @@ requestAnimationFrame(animate);
 if (window.matchMedia('(pointer: fine)').matches) {
 
     // Things worth reacting to with the grow-and-spin
-    const INTERACTIVE = 'a, button, .chip, .art, .title, .add, .view, .mapped,' +
+    const INTERACTIVE = 'a, area, button, .chip, .art, .title, .add, .view, .mapped,' +
                         ' audio, [role="button"], input[type="image"], input[type="submit"]';
 
-    // Things whose own cursor shape means something — over these the
-    // real cursor stays visible and the record gets out of the way.
-    const NATIVE = 'input, textarea, select, .help-hint';
+    // Over these the record steps aside and the real cursor comes back:
+    // either its shape means something (text bar, help "?", the hand over
+    // a dropdown and its options), or we can't follow the mouse in there
+    // (an embedded page, the PDF viewer).
+    const NATIVE = 'input, textarea, select, option, .help-hint, iframe, object, embed';
 
     const stylus = document.createElement('div');
     stylus.id = 'stylus';
     stylus.setAttribute('aria-hidden', 'true');
     stylus.appendChild(document.createElement('span'));
     document.body.appendChild(stylus);
-    document.body.classList.add('has-stylus');
+
+    // The one switch between the two cursors. `stylus-on` on <html> is what
+    // hides the real cursor (style.css), and it's set only while the record
+    // is showing — so there's never a moment with neither. Until the mouse
+    // first moves, the real cursor stays.
+    function useRecord(on) {
+        stylus.classList.toggle('is-ready', on);
+        root.classList.toggle('stylus-on', on);
+    }
 
     window.addEventListener('pointermove', (e) => {
         // Straight from the event, with no CSS transition on the parent,
         // so the record sits exactly under the pointer
         stylus.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
-        stylus.classList.add('is-ready');
-
         stylus.classList.toggle('is-hover', !!e.target.closest(INTERACTIVE));
-        stylus.classList.toggle('is-hidden', !!e.target.closest(NATIVE));
+        useRecord(!e.target.closest(NATIVE));
     });
 
     // Press in on mouse-down, and fire the ring outward
@@ -65,6 +73,61 @@ if (window.matchMedia('(pointer: fine)').matches) {
         if (e.animationName === 'stylus-ping') stylus.classList.remove('is-ping');
     });
 
-    // Fade out when the pointer leaves the window
-    document.addEventListener('mouseleave', () => stylus.classList.remove('is-ready'));
+    // The page stops hearing about the mouse when it leaves the window or
+    // crosses into an embedded page / PDF — hand back to the real cursor
+    // rather than leave the record frozen at the edge.
+    document.addEventListener('mouseout', (e) => {
+        if (!e.relatedTarget || e.relatedTarget.closest('iframe, object, embed')) useRecord(false);
+    });
 }
+
+/* ---------- Back to top / go to bottom ---------- */
+// Built here rather than written into each page, so all five pages get the
+// same pair. The whole control hides itself on pages too short to scroll.
+(() => {
+    const EDGE = 120;   // how close to an end counts as "already there"
+
+    const nav = document.createElement('div');
+    nav.className = 'scroll-nav';
+
+    // One round button. `toTop` picks which end it sends you to.
+    function makeButton(toTop, label, glyph) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'scroll-btn';
+        button.setAttribute('aria-label', label);
+        button.textContent = glyph;
+
+        button.addEventListener('click', () => {
+            // Jump instantly for anyone who asked for less motion
+            const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({
+                top: toTop ? 0 : document.documentElement.scrollHeight,
+                behavior: smooth ? 'smooth' : 'auto'
+            });
+        });
+
+        return button;
+    }
+
+    const up = makeButton(true, 'Back to top', '↑');
+    const down = makeButton(false, 'Go to bottom', '↓');
+    nav.append(up, down);
+    document.body.appendChild(nav);
+
+    // Show the pair only when the page scrolls, and dim whichever
+    // direction you are already at.
+    function update() {
+        const slack = document.documentElement.scrollHeight - window.innerHeight;
+
+        nav.classList.toggle('is-on', slack > EDGE);
+        if (slack <= EDGE) return;
+
+        up.classList.toggle('is-off', window.scrollY < EDGE);
+        down.classList.toggle('is-off', window.scrollY > slack - EDGE);
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+})();
