@@ -319,6 +319,118 @@ body {
     outline: none;
 }
 
+/* The sign-up form is taller than a phone screen — scroll inside the box */
+.msgbox {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(248, 206, 151, 0.35) transparent;
+}
+
+/* ---------- Forms inside pop-ups (sign in, create an account) ---------- */
+.msgbox-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 22px;
+}
+
+.msgbox-form .field-row .field {
+    flex-basis: 140px;               /* first and last name side by side */
+}
+
+.msgbox input[type="text"],
+.msgbox input[type="email"],
+.msgbox input[type="tel"],
+.msgbox input[type="password"] {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid rgba(248, 206, 151, 0.26);
+    border-radius: 8px;
+    background: rgba(239, 236, 231, 0.05);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.msgbox input:focus {
+    outline: none;
+    border-color: var(--cream);
+    background: rgba(239, 236, 231, 0.08);
+}
+
+.msgbox ::placeholder {
+    color: rgba(239, 236, 231, 0.35);
+}
+
+.msgbox-form .btn {
+    margin-top: 6px;
+}
+
+.msgbox-form .btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+    transform: none;
+}
+
+/* `.msgbox p` would otherwise repaint the error in plain body text */
+.msgbox .form-error {
+    font-size: 13px;
+    font-weight: 400;
+    color: #f4c3b1;
+}
+
+/* "No account yet? Create one" */
+.msgbox .msgbox-switch {
+    margin-top: 16px;
+    font-size: 14px;
+    text-align: center;
+}
+
+.link-button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 400;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+}
+
+.link-button:hover,
+.link-button:focus-visible {
+    color: #fff;
+    outline: none;
+}
+
+/* A thin rule with words in the middle: ──── or try the shop as ──── */
+.msgbox .msgbox-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 22px;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(239, 236, 231, 0.55);
+}
+
+.msgbox-divider::before,
+.msgbox-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(248, 206, 151, 0.2);
+}
+
+.msgbox-divider + .account-tile {
+    margin-top: 14px;
+}
+
 /* ---------- Small screens ---------- */
 @media (max-width: 520px) {
     .logo-button { width: 200px; height: 200px; }
@@ -2270,6 +2382,46 @@ html.stylus-on * {
 }
 
 .checkout-signin[hidden] { display: none; }
+
+.checkout-signin-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+}
+
+/* ---------- Card details ---------- */
+/* `.checkout-form fieldset` sets display: flex, which beats the browser's
+   own [hidden] rule — without this the card fields would always show */
+.card-details[hidden] {
+    display: none;
+}
+
+.card-details {
+    margin-top: 4px;
+    background: rgba(239, 236, 231, 0.03);
+}
+
+.card-demo-note {
+    padding: 10px 12px;
+    border-left: 2px solid var(--cream);
+    border-radius: 0;
+    background: rgba(248, 206, 151, 0.07);
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.card-demo-note strong {
+    color: var(--cream);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+#place-order:disabled {
+    cursor: progress;
+}
 
 .checkout-signin .btn {
     width: auto;

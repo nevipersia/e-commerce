@@ -39,17 +39,32 @@
 
                 <div class="msgbox-actions">
                     <button type="button" class="btn btn-primary" data-action="signin">Sign in</button>
-                    <button type="button" class="btn btn-primary" data-action="signup">Sign up</button>
+                    <button type="button" class="btn btn-primary" data-action="signup">Create an account</button>
                     <a class="btn btn-ghost" href="browse.html">Continue to shop</a>
                 </div>
-
-                <p class="msgbox-note" id="msgbox-note" hidden>Sign-ups aren't open yet — use the demo account under Sign in.</p>
             </div>
 
-            <!-- View 2: pick the demo account -->
+            <!-- View 2: sign in with email and password, or the demo account -->
             <div class="msgbox-view" id="view-signin" hidden>
                 <h2 id="signin-title">Sign in</h2>
-                <p>Choose an account to continue. This is a demo — no password needed.</p>
+
+                <form class="msgbox-form" id="signin-form" novalidate>
+                    <label class="field" for="signin-email">
+                        <span>Email</span>
+                        <input type="email" id="signin-email" name="email" autocomplete="email" required
+                               placeholder="you@example.com">
+                    </label>
+                    <label class="field" for="signin-password">
+                        <span>Password</span>
+                        <input type="password" id="signin-password" name="password" autocomplete="current-password" required>
+                    </label>
+                    <p class="form-error" id="signin-error" role="alert" hidden></p>
+                    <button type="submit" class="btn btn-primary">Sign in</button>
+                </form>
+
+                <p class="msgbox-switch">No account yet? <button type="button" class="link-button" data-action="signup">Create one</button></p>
+
+                <p class="msgbox-divider"><span>or try the shop as</span></p>
 
                 <button type="button" class="account-tile" id="demo-account">
                     <span class="account-avatar" aria-hidden="true" id="demo-initials"></span>
@@ -63,6 +78,53 @@
                 <div class="msgbox-actions">
                     <button type="button" class="btn btn-ghost" data-action="back">Back</button>
                 </div>
+            </div>
+
+            <!-- View 3: create an account -->
+            <div class="msgbox-view" id="view-signup" hidden>
+                <h2 id="signup-title">Create an account</h2>
+                <p>Saves your details and address, so checkout fills itself in next time.</p>
+
+                <form class="msgbox-form" id="signup-form" novalidate>
+                    <div class="field-row">
+                        <label class="field" for="signup-first">
+                            <span>First name</span>
+                            <input type="text" id="signup-first" name="firstName" autocomplete="given-name" required>
+                        </label>
+                        <label class="field" for="signup-last">
+                            <span>Last name</span>
+                            <input type="text" id="signup-last" name="lastName" autocomplete="family-name" required>
+                        </label>
+                    </div>
+                    <label class="field" for="signup-email">
+                        <span>Email</span>
+                        <input type="email" id="signup-email" name="email" autocomplete="email" required
+                               placeholder="you@example.com">
+                    </label>
+                    <label class="field" for="signup-phone">
+                        <span>Mobile number <em>(optional)</em></span>
+                        <input type="tel" id="signup-phone" name="phone" autocomplete="tel"
+                               placeholder="0917 123 4567" pattern="(\+63|0)\s?9\d{2}[\s\-]?\d{3}[\s\-]?\d{4}">
+                    </label>
+                    <label class="field" for="signup-password">
+                        <span>Password <em>(at least 8 characters)</em></span>
+                        <input type="password" id="signup-password" name="password" autocomplete="new-password"
+                               minlength="8" required>
+                    </label>
+                    <label class="field" for="signup-confirm">
+                        <span>Confirm password</span>
+                        <input type="password" id="signup-confirm" name="confirm" autocomplete="new-password" required>
+                    </label>
+                    <label class="choice">
+                        <input type="checkbox" id="signup-show"> Show passwords
+                    </label>
+                    <p class="form-error" id="signup-error" role="alert" hidden></p>
+                    <button type="submit" class="btn btn-primary">Create account</button>
+                </form>
+
+                <p class="msgbox-switch">Already have an account? <button type="button" class="link-button" data-action="signin">Sign in</button></p>
+
+                <p class="msgbox-note">Your account is saved in this browser only — it's a demo shop with no server.</p>
             </div>
 
             <button type="button" class="msgbox-close" id="msgbox-close" aria-label="Close">&times;</button>

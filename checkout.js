@@ -1,9 +1,10 @@
 /* =============================================================
    CHECKOUT PAGE
    Reads the saved bag, runs the Region -> Province -> City ->
-   Barangay dropdowns, works out shipping, and "places" the order.
-   Nothing is sent anywhere — placing an order just shows a
-   confirmation and empties the bag.
+   Barangay dropdowns, works out shipping, takes a (pretend)
+   payment and "places" the order.
+   Nothing is sent anywhere — payment is simulated, and placing an
+   order just shows a confirmation and empties the bag.
    ============================================================= */
 
 const form = document.getElementById('checkout-form');
@@ -233,6 +234,128 @@ form.querySelectorAll('input[name="speed"]').forEach((radio) => {
 
 
 /* =============================================================
+   PAYMENT METHOD
+   ============================================================= */
+
+const cardDetails = document.getElementById('card-details');
+const cardNumber = document.getElementById('card-number');
+const cardExp = document.getElementById('card-exp');
+
+// Card fields only exist while "card" is picked. Disabling the fieldset
+// (not just hiding it) takes its required fields out of validation.
+form.querySelectorAll('input[name="payment"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+        const isCard = form.elements.payment.value === 'card';
+        cardDetails.disabled = !isCard;
+        cardDetails.hidden = !isCard;
+        formError.hidden = true;
+    });
+});
+
+// 4242424242424242 -> "4242 4242 4242 4242" as they type
+cardNumber.addEventListener('input', () => {
+    const digits = cardNumber.value.replace(/\D/g, '').slice(0, 19);
+    cardNumber.value = digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+});
+
+// "1229" -> "12/29", so nobody has to hunt for the slash
+cardExp.addEventListener('input', (e) => {
+    if (e.inputType === 'deleteContentBackward') return;   // let backspace through the slash
+    const digits = cardExp.value.replace(/\D/g, '').slice(0, 4);
+    cardExp.value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+});
+
+// The Luhn check: the checksum every real card number passes, which
+// catches most typos (one wrong digit, two digits swapped)
+function passesLuhn(digits) {
+    let sum = 0;
+    [...digits].reverse().forEach((d, i) => {
+        let n = Number(d);
+        if (i % 2 === 1) {
+            n *= 2;
+            if (n > 9) n -= 9;
+        }
+        sum += n;
+    });
+    return sum % 10 === 0;
+}
+
+// Checks the browser can't do by itself. setCustomValidity marks a field
+// invalid, so the normal "first bad field" scan below picks it up.
+function checkCard() {
+    cardNumber.setCustomValidity('');
+    cardExp.setCustomValidity('');
+    if (cardDetails.disabled) return;
+
+    const digits = cardNumber.value.replace(/\D/g, '');
+    if (digits && (digits.length < 13 || !passesLuhn(digits))) {
+        cardNumber.setCustomValidity("That card number doesn't look right — check it for typos.");
+    }
+
+    const match = cardExp.value.match(/^(0[1-9]|1[0-2])\/(\d{2})$/);
+    if (match) {
+        const firstDayAfterExpiry = new Date(2000 + Number(match[2]), Number(match[1]), 1);
+        if (firstDayAfterExpiry <= new Date()) cardExp.setCustomValidity('That card has expired.');
+    }
+}
+
+
+/* =============================================================
+   PRETEND PAYMENT PROVIDER
+   Shaped like a real one — ask, then wait for an answer — so the
+   order code would barely change if a real provider replaced it.
+   ============================================================= */
+
+const WALLETS = { gcash: 'GCash', maya: 'Maya' };
+
+// "Charge" a card or e-wallet. Resolves with a receipt or rejects with an
+// Error whose message can go straight to the shopper.
+function fakeCharge({ method, cardDigits }) {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {                                  // the "network"
+            if (method === 'card' && cardDigits.endsWith('0002')) {
+                reject(new Error('Your card was declined. Try another card, or choose a different way to pay.'));
+                return;
+            }
+            resolve({ reference: `PAY-${Math.random().toString(36).slice(2, 8).toUpperCase()}` });
+        }, 1500);
+    });
+}
+
+const walletBackdrop = document.getElementById('wallet-backdrop');
+const walletApprove = document.getElementById('wallet-approve');
+const walletCancel = document.getElementById('wallet-cancel');
+
+// Stand-in for being sent to the GCash / Maya app: resolves on Approve,
+// rejects on Cancel or Escape
+function askWalletApproval(wallet, amount) {
+    document.getElementById('wallet-title').textContent = `Approve in ${wallet}`;
+    document.getElementById('wallet-text').textContent =
+        `VenAudio is asking for ${money(amount)}. Approve to pay from your ${wallet} wallet.`;
+    walletBackdrop.hidden = false;
+    walletApprove.focus();
+
+    return new Promise((resolve, reject) => {
+        function finish(approved) {
+            walletBackdrop.hidden = true;
+            walletApprove.removeEventListener('click', onApprove);
+            walletCancel.removeEventListener('click', onCancel);
+            document.removeEventListener('keydown', onKey);
+            if (approved) resolve();
+            else reject(new Error(`You cancelled the payment in ${wallet}. Nothing was charged.`));
+        }
+        const onApprove = () => finish(true);
+        const onCancel = () => finish(false);
+        const onKey = (e) => { if (e.key === 'Escape') finish(false); };
+
+        walletApprove.addEventListener('click', onApprove);
+        walletCancel.addEventListener('click', onCancel);
+        document.addEventListener('keydown', onKey);
+    });
+}
+
+
+/* =============================================================
    ACCOUNT PREFILL
    ============================================================= */
 
@@ -247,11 +370,13 @@ async function prefillFromAccount() {
         if (!el.value) el.value = value;
     };
 
-    fillIfEmpty('full-name', account.name);
-    fillIfEmpty('phone', account.phone);
+    fillIfEmpty('first-name', account.firstName);
+    fillIfEmpty('last-name', account.lastName);
+    if (account.phone) fillIfEmpty('phone', account.phone);
     fillIfEmpty('email', account.email);
 
-    if (!regionSelect.value) {
+    // A new account has no address until its first order
+    if (account.address && !regionSelect.value) {
         fillIfEmpty('postal', account.address.postal);
         fillIfEmpty('street', account.address.street);
         fillIfEmpty('landmark', account.address.landmark);
@@ -271,52 +396,109 @@ accountChip.addEventListener('account-change', prefillFromAccount);
 const MESSAGES = {
     phone: 'Enter a PH mobile number, e.g. 0917 123 4567.',
     postal: 'Postal codes are 4 digits.',
-    email: 'Enter a valid email address.'
+    email: 'Enter a valid email address.',
+    'card-exp': 'Enter the expiry as MM/YY, e.g. 08/29.',
+    'card-cvc': 'The CVC is the 3 or 4 digits on the back of the card.'
 };
 
-form.addEventListener('submit', (e) => {
+// The first field that fails, with a message to show for it
+function firstProblem() {
+    checkCard();
+    const bad = Array.from(form.elements).find((el) => el.willValidate && !el.checkValidity());
+    if (!bad) return null;
+
+    const label = bad.closest('.field')?.querySelector('span')?.firstChild.textContent.trim();
+    let message;
+    if (bad.validity.valueMissing) message = `Please fill in: ${label}.`;
+    else if (bad.validity.customError) message = bad.validationMessage;   // from checkCard()
+    else message = MESSAGES[bad.name] || `Please check: ${label}.`;
+    return { field: bad, message };
+}
+
+// How the confirmation describes the payment
+function paymentLine(method, total, receipt, cardDigits) {
+    if (method === 'cod') return `pay ${money(total)} in cash when it arrives`;
+    if (method === 'card') return `${money(total)} paid by card ending ${cardDigits.slice(-4)} (ref ${receipt.reference})`;
+    return `${money(total)} paid with ${WALLETS[method]} (ref ${receipt.reference})`;
+}
+
+let processing = false;
+
+form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (bag.length === 0) return;
+    if (bag.length === 0 || processing) return;
 
     // Mark fields so :invalid styling only shows after a submit attempt
     form.classList.add('was-submitted');
 
-    const firstBad = Array.from(form.elements).find((el) => el.willValidate && !el.checkValidity());
-    if (firstBad) {
-        const label = firstBad.closest('.field')?.querySelector('span')?.firstChild.textContent.trim();
-        formError.textContent = firstBad.validity.valueMissing
-            ? `Please fill in: ${label}.`
-            : MESSAGES[firstBad.name] || `Please check: ${label}.`;
+    const problem = firstProblem();
+    if (problem) {
+        formError.textContent = problem.message;
         formError.hidden = false;
-        firstBad.focus();
+        problem.field.focus();
         return;
     }
     formError.hidden = true;
 
     const data = new FormData(form);
-    const orderNo = `VND-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+    const method = data.get('payment');
     const total = subtotal() + shippingCost();
-    const region = selectedRegion();
+    const cardDigits = (data.get('card-number') || '').replace(/\D/g, '');
 
-    document.getElementById('confirm-text').textContent =
-        `Thanks, ${data.get('name').split(' ')[0]}! Order ${orderNo} — ${money(total)}, ` +
-        `${data.get('payment').toLowerCase()}. We'll text ${data.get('phone')} when it ships.`;
+    // Lock the button while we wait — a second click mustn't pay twice
+    processing = true;
+    placeOrder.disabled = true;
+    placeOrder.textContent = 'Processing…';
 
-    document.getElementById('confirm-address').textContent = [
-        data.get('street'),
-        `Brgy. ${data.get('barangay')}`,
-        data.get('city'),
-        data.get('province'),
-        region.name,
-        data.get('postal')
-    ].join(', ');
+    try {
+        let receipt = null;
+        if (WALLETS[method]) await askWalletApproval(WALLETS[method], total);
+        if (method !== 'cod') receipt = await fakeCharge({ method, cardDigits });
 
-    // The order is "placed" — empty the saved bag
-    saveBag([]);
+        // Paid (or paying on delivery): the order goes through
+        const orderNo = `VND-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+        const region = selectedRegion();
 
-    document.getElementById('confirm-backdrop').hidden = false;
-    document.body.style.overflow = 'hidden';
-    document.getElementById('confirm-done').focus();
+        document.getElementById('confirm-text').textContent =
+            `Thanks, ${data.get('first-name').trim()}! Order ${orderNo} — ` +
+            `${paymentLine(method, total, receipt, cardDigits)}. We'll text ${data.get('phone')} when it ships.`;
+
+        document.getElementById('confirm-address').textContent = [
+            data.get('street'),
+            `Brgy. ${data.get('barangay')}`,
+            data.get('city'),
+            data.get('province'),
+            region.name,
+            data.get('postal')
+        ].join(', ');
+
+        // Signed-up accounts remember this address for next time
+        saveAccountAddress({
+            region: regionSelect.value,
+            province: data.get('province'),
+            city: data.get('city'),
+            barangay: data.get('barangay'),
+            postal: data.get('postal'),
+            street: data.get('street'),
+            landmark: data.get('landmark')
+        });
+
+        // Only now — after payment worked — empty the bag
+        saveBag([]);
+        bag.length = 0;
+
+        document.getElementById('confirm-backdrop').hidden = false;
+        document.body.style.overflow = 'hidden';
+        document.getElementById('confirm-done').focus();
+    } catch (err) {
+        // Declined or cancelled: the bag stays, and they can try again
+        formError.textContent = err.message;
+        formError.hidden = false;
+    } finally {
+        processing = false;
+        placeOrder.disabled = bag.length === 0;
+        placeOrder.textContent = 'Place order';
+    }
 });
 
 

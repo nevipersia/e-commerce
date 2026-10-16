@@ -49,7 +49,10 @@
             <form class="panel checkout-form" id="checkout-form" novalidate>
                 <div class="checkout-signin" id="checkout-signin" hidden>
                     <p>Have an account? Sign in to fill this in for you.</p>
-                    <a class="btn btn-ghost" href="index.html?signin&amp;next=checkout">Sign in</a>
+                    <div class="checkout-signin-actions">
+                        <a class="btn btn-ghost" href="index.html?signin&amp;next=checkout">Sign in</a>
+                        <a class="link-button" href="index.html?signup&amp;next=checkout">Create an account</a>
+                    </div>
                 </div>
 
                 <fieldset>
@@ -167,10 +170,69 @@
 
                 <fieldset>
                     <legend>Payment</legend>
-                    <div class="choice-row">
-                        <label class="choice"><input type="radio" name="payment" value="Cash on delivery" checked> Cash on delivery</label>
-                        <label class="choice"><input type="radio" name="payment" value="GCash on delivery"> GCash on delivery</label>
-                    </div>
+                    <label class="option-card">
+                        <input type="radio" name="payment" value="cod" checked>
+                        <span class="option-text">
+                            <strong>Cash on delivery</strong>
+                            <span>Pay the rider when your records arrive</span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="payment" value="gcash">
+                        <span class="option-text">
+                            <strong>GCash</strong>
+                            <span>Approve the payment in the GCash app</span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="payment" value="maya">
+                        <span class="option-text">
+                            <strong>Maya</strong>
+                            <span>Approve the payment in the Maya app</span>
+                        </span>
+                    </label>
+                    <label class="option-card">
+                        <input type="radio" name="payment" value="card">
+                        <span class="option-text">
+                            <strong>Credit or debit card</strong>
+                            <span>Visa, Mastercard or JCB</span>
+                        </span>
+                    </label>
+
+                    <!-- Switched on by checkout.js only while "card" is picked. A disabled
+                         fieldset is skipped by validation and left out of the form data,
+                         so its required fields don't block cash or e-wallet orders. -->
+                    <fieldset class="card-details" id="card-details" disabled hidden>
+                        <legend>Card details</legend>
+                        <p class="card-demo-note">
+                            Demo only — nothing is charged. Pay with <strong>4242 4242 4242 4242</strong>,
+                            or use <strong>4000 0000 0000 0002</strong> to see a declined card.
+                            Never enter a real card here.
+                        </p>
+
+                        <!-- autocomplete="off": stop the browser offering a real saved card on a demo shop -->
+                        <label class="field" for="card-number">
+                            <span>Card number</span>
+                            <input type="text" id="card-number" name="card-number" inputmode="numeric"
+                                   autocomplete="off" maxlength="23" required placeholder="4242 4242 4242 4242">
+                        </label>
+                        <label class="field" for="card-name">
+                            <span>Name on card</span>
+                            <input type="text" id="card-name" name="card-name" autocomplete="off" required>
+                        </label>
+                        <div class="field-row">
+                            <label class="field" for="card-exp">
+                                <span>Expiry</span>
+                                <input type="text" id="card-exp" name="card-exp" inputmode="numeric" autocomplete="off"
+                                       maxlength="5" required placeholder="MM/YY" pattern="(0[1-9]|1[0-2])\/\d{2}">
+                            </label>
+                            <label class="field" for="card-cvc">
+                                <span>CVC</span>
+                                <input type="text" id="card-cvc" name="card-cvc" inputmode="numeric" autocomplete="off"
+                                       maxlength="4" required placeholder="123" pattern="\d{3,4}">
+                            </label>
+                        </div>
+                    </fieldset>
                 </fieldset>
 
                 <label class="field" for="notes">
@@ -200,6 +262,20 @@
             </aside>
         </div>
     </main>
+
+    <!-- Pretend e-wallet approval (GCash / Maya). checkout.js fills in the
+         wallet name and amount and waits for Approve or Cancel. -->
+    <div class="msgbox-backdrop" id="wallet-backdrop" hidden>
+        <div class="msgbox" role="dialog" aria-modal="true" aria-labelledby="wallet-title" aria-describedby="wallet-text">
+            <h2 id="wallet-title">Approve in GCash</h2>
+            <p id="wallet-text"></p>
+            <div class="msgbox-actions">
+                <button type="button" class="btn btn-primary" id="wallet-approve">Approve payment</button>
+                <button type="button" class="btn btn-ghost" id="wallet-cancel">Cancel</button>
+            </div>
+            <p class="msgbox-note">Demo — no app opens and no money moves.</p>
+        </div>
+    </div>
 
     <!-- Order placed pop-up -->
     <div class="msgbox-backdrop" id="confirm-backdrop" hidden>

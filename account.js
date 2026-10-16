@@ -1,9 +1,13 @@
 /* =============================================================
 ACCOUNT + SAVED BAG
 Shared by every page that needs to know who's signed in or
-what's in the bag. There is no server: the "account" is a
-single demo profile, and both the session and the bag live
-in localStorage so they survive moving between pages.
+what's in the bag. There is no server: accounts, the session
+and the bag all live in this browser's localStorage, so they
+survive moving between pages but never leave this computer.
+
+Two kinds of account:
+  - the demo account, one click on the sign-in pop-up
+  - accounts people create with Sign up, which have a password
    ============================================================= */
 
 // The one mock account offered on the sign-in pop-up.
@@ -13,6 +17,7 @@ const DEMO_ACCOUNT = {
     id: 'demo-juan',
     name: 'Juan dela Cruz',
     firstName: 'Juan',
+    lastName: 'dela Cruz',
     initials: 'JD',
     email: 'juan.delacruz@example.com',
     phone: '0917 123 4567',
@@ -28,6 +33,7 @@ const DEMO_ACCOUNT = {
 };
 
 const SESSION_KEY = 'venaudio.session';
+const ACCOUNTS_KEY = 'venaudio.accounts';
 const BAG_KEY = 'venaudio.bag.php';   // renamed when prices moved to pesos, so old $ bags are dropped
 
 // localStorage can throw (private windows, blocked site data) —
@@ -50,13 +56,112 @@ function writeStore(key, value) {
     }
 }
 
+/* ---------- Passwords ---------- */
+
+// Passwords are never stored. We keep a salted PBKDF2 hash instead: the
+// browser's built-in way of turning a password into a value that can be
+// checked again later but not turned back into the password.
+const toHex = (buf) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
+const fromHex = (hex) => new Uint8Array(hex.match(/../g).map((h) => parseInt(h, 16)));
+
+async function hashPassword(password, saltHex) {
+    if (!window.crypto?.subtle) {
+        throw new Error("This browser can't create accounts here. Open the site through Live Server (http://localhost).");
+    }
+    const salt = saltHex ? fromHex(saltHex) : crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256);
+    return { salt: toHex(salt), hash: toHex(bits) };
+}
+
+/* ---------- Accounts ---------- */
+
+// Signed-up accounts as stored: { id, firstName, lastName, email, phone, address, salt, hash }
+function storedAccounts() {
+    const saved = readStore(ACCOUNTS_KEY);
+    return Array.isArray(saved) ? saved : [];
+}
+
+// What the rest of the site sees — never the salt or hash
+function profileOf(stored) {
+    return {
+        id: stored.id,
+        firstName: stored.firstName,
+        lastName: stored.lastName,
+        name: `${stored.firstName} ${stored.lastName}`,
+        initials: (stored.firstName[0] + stored.lastName[0]).toUpperCase(),
+        email: stored.email,
+        phone: stored.phone,
+        address: stored.address
+    };
+}
+
+const sameEmail = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+// Create an account, sign it in, and return its profile.
+// Throws an Error with a message fit to show the visitor.
+async function signUp({ firstName, lastName, email, phone, password }) {
+    if (sameEmail(email, DEMO_ACCOUNT.email) || storedAccounts().some((a) => sameEmail(a.email, email))) {
+        throw new Error('That email already has an account. Sign in instead.');
+    }
+
+    const { salt, hash } = await hashPassword(password);
+    const account = {
+        id: `acct-${crypto.randomUUID()}`,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        address: null,          // filled in after their first order
+        salt,
+        hash
+    };
+
+    writeStore(ACCOUNTS_KEY, [...storedAccounts(), account]);
+    writeStore(SESSION_KEY, account.id);
+    return profileOf(account);
+}
+
+// Check an email and password; sign in and return the profile, or throw
+async function signInWithPassword(email, password) {
+    if (sameEmail(email, DEMO_ACCOUNT.email)) {
+        throw new Error("The demo account doesn't use a password — choose it below instead.");
+    }
+
+    const account = storedAccounts().find((a) => sameEmail(a.email, email));
+    const { hash } = account ? await hashPassword(password, account.salt) : { hash: null };
+
+    // One message for both "no such email" and "wrong password", so the form
+    // doesn't tell a stranger which emails have accounts
+    if (!account || hash !== account.hash) {
+        throw new Error("That email and password don't match an account.");
+    }
+
+    writeStore(SESSION_KEY, account.id);
+    return profileOf(account);
+}
+
+// Remember a signed-up account's address so their next checkout fills itself in
+function saveAccountAddress(address) {
+    const id = readStore(SESSION_KEY);
+    const accounts = storedAccounts();
+    const account = accounts.find((a) => a.id === id);
+    if (!account) return;          // guests and the demo account have nothing to update
+    account.address = address;
+    writeStore(ACCOUNTS_KEY, accounts);
+}
+
 /* ---------- Session ---------- */
 
 // The signed-in account, or null for a guest
 function currentAccount() {
-    return readStore(SESSION_KEY) === DEMO_ACCOUNT.id ? DEMO_ACCOUNT : null;
+    const id = readStore(SESSION_KEY);
+    if (id === DEMO_ACCOUNT.id) return DEMO_ACCOUNT;
+    const account = storedAccounts().find((a) => a.id === id);
+    return account ? profileOf(account) : null;
 }
 
+// One click on the demo tile
 function signIn() {
     writeStore(SESSION_KEY, DEMO_ACCOUNT.id);
     return DEMO_ACCOUNT;
