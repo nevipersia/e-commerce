@@ -627,7 +627,7 @@ body {
     background: var(--forest);
     color: var(--bone);
     font-size: 11px;
-    font-weight: 800;             /* new: see below */
+    font-weight: 800;
 }
 
 .cart-button:hover .cart-count,
@@ -1212,13 +1212,19 @@ body {
 
 /* ---------- Shop responsive ---------- */
 @media (max-width: 900px) {
-    .topnav { display: none; }
+    /* The page links drop to a second row rather than vanishing —
+       without them there'd be no way between pages on a tablet or phone */
+    .topbar { flex-wrap: wrap; row-gap: 10px; }
+    .topnav { order: 3; flex-basis: 100%; margin-right: 0; }
     .topbar-tools { margin-left: auto; }
 }
 
 @media (max-width: 560px) {
     .topbar { gap: 12px; }
-    .search input { width: 100%; }
+    /* The search box takes whatever room the logo, account and bag leave */
+    .topbar-tools { flex: 1; min-width: 0; justify-content: flex-end; }
+    .search { flex: 1; min-width: 0; }
+    .search input { width: 100%; min-width: 0; }
     .grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     .buy { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
@@ -2193,44 +2199,62 @@ html.stylus-on * {
     text-transform: uppercase;
 }
 
-/* Top bar: "Hi, Juan · Sign out" or a "Sign in" link */
+/* Top bar: avatar + "Hi, Juan" linking to My account, or a "Sign in" link */
 .account-chip {
     display: flex;
     align-items: center;
-    gap: 8px;
     color: var(--bone);
     font-size: 13px;
 }
 
 .account-chip:empty { display: none; }
 
-.account-signin,
-.account-signout {
-    padding: 0;
-    border: none;
-    background: none;
+.account-signin {
     color: rgba(239, 236, 231, 0.7);
-    font-family: inherit;
     font-size: 12px;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     text-decoration: none;
-    cursor: pointer;
     transition: color 0.2s ease;
 }
 
 .account-signin:hover,
-.account-signin:focus-visible,
-.account-signout:hover,
-.account-signout:focus-visible {
+.account-signin:focus-visible {
     color: var(--cream);
     outline: none;
 }
 
-.account-signout::before {
-    content: "·";
-    margin-right: 8px;
-    color: rgba(239, 236, 231, 0.4);
+.account-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bone);
+    text-decoration: none;
+}
+
+.account-link .account-avatar {
+    transition: box-shadow 0.2s ease;
+}
+
+.account-link .account-name {
+    transition: color 0.2s ease;
+}
+
+/* A cream ring round the avatar on hover, and while you're on My account */
+.account-link:hover .account-avatar,
+.account-link:focus-visible .account-avatar,
+.account-link[aria-current="page"] .account-avatar {
+    box-shadow: 0 0 0 2px var(--cream);
+}
+
+.account-link:hover .account-name,
+.account-link:focus-visible .account-name,
+.account-link[aria-current="page"] .account-name {
+    color: var(--cream);
+}
+
+.account-link:focus-visible {
+    outline: none;
 }
 
 
@@ -2420,7 +2444,24 @@ html.stylus-on * {
 }
 
 #place-order:disabled {
+    cursor: not-allowed;
+}
+
+#place-order.is-processing {
     cursor: progress;
+}
+
+.summary-notes {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--cream);
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--bone);
+}
+
+.summary-notes[hidden] {
+    display: none;
 }
 
 .checkout-signin .btn {
@@ -2760,4 +2801,629 @@ select optgroup option {
     select::picker-icon {
         transition: none;
     }
+}
+
+/* `.btn` sets display: block, which beats the browser's own [hidden] rule */
+.btn[hidden] {
+    display: none;
+}
+
+
+/* ============================================================
+   MY ORDERS
+   Order cards reuse .panel, the bag's .drawer-list and the
+   checkout's .summary-totals, so they match the rest of the shop.
+   ============================================================ */
+
+.orders {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.order {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.order-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.order-head h2 {
+    margin-bottom: 4px;
+}
+
+.order-date {
+    color: rgba(239, 236, 231, 0.6);
+    font-size: 13px;
+}
+
+/* Status pill: grey while processing, cream once shipped, green when delivered */
+.order-status {
+    padding: 6px 14px;
+    border: 1px solid rgba(248, 206, 151, 0.35);
+    border-radius: 999px;
+    color: rgba(239, 236, 231, 0.85);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.order-status.is-step-1 {
+    border-color: var(--cream);
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.order-status.is-step-2 {
+    border-color: var(--forest);
+    background: var(--forest);
+    color: var(--cream);
+}
+
+/* Processing ─── Shipped ─── Delivered, filled in up to where the order is */
+.order-progress {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.order-progress li {
+    position: relative;
+    flex: 1;
+    padding-top: 18px;
+    color: rgba(239, 236, 231, 0.45);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* the dot */
+.order-progress li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 10px;
+    height: 10px;
+    border: 2px solid rgba(248, 206, 151, 0.35);
+    border-radius: 50%;
+    background: var(--ink);
+}
+
+/* the line to the next dot */
+.order-progress li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    right: 6px;
+    height: 2px;
+    background: rgba(248, 206, 151, 0.2);
+}
+
+.order-progress li.is-done {
+    color: var(--bone);
+}
+
+.order-progress li.is-done::before {
+    border-color: var(--cream);
+    background: var(--cream);
+}
+
+.order-progress li.is-done:has(+ .is-done)::after {
+    background: var(--cream);
+}
+
+.order-progress li[aria-current="step"] {
+    color: var(--cream);
+    font-weight: 800;
+}
+
+.order-arrival {
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 14px;
+}
+
+/* The bag drawer's list pads itself and lines every row; in an order card
+   the totals below already draw their own line */
+.order-items {
+    max-height: none;
+    padding: 0;
+}
+
+.order-items li:last-child {
+    border-bottom: none;
+}
+
+.order-details {
+    display: grid;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(248, 206, 151, 0.18);
+    font-size: 14px;
+}
+
+.order-details dt {
+    margin-bottom: 2px;
+    color: rgba(239, 236, 231, 0.5);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.order-details dd {
+    margin: 0;
+    color: var(--bone);
+    line-height: 1.6;
+}
+
+/* "No orders yet" and "Sign in to see your orders" */
+.orders-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.orders-message[hidden] {
+    display: none;
+}
+
+.orders-message .btn {
+    width: auto;
+}
+
+
+/* ============================================================
+   MY ACCOUNT
+   Three panels (details, saved address, orders) and Sign out.
+   ============================================================ */
+
+.account-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* display: flex above beats the browser's own [hidden] rule */
+.account-page[hidden] {
+    display: none;
+}
+
+.account-page .panel {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.account-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.account-section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.account-section-head h2 {
+    margin-bottom: 0;
+}
+
+.account-avatar-large {
+    width: 48px;
+    height: 48px;
+    font-size: 16px;
+}
+
+/* No line above the details — the panel's own edge does that job here */
+.account-section .order-details {
+    padding-top: 0;
+    border-top: none;
+}
+
+.account-address {
+    color: var(--bone);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.account-section .btn,
+.account-signout-button {
+    align-self: flex-start;
+    width: auto;
+}
+
+.account-signout-button {
+    align-self: center;
+    margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+    /* Logo only — the name would leave the search box no room */
+    .brand span { display: none; }
+}
+
+
+/* ============================================================
+   BACK LINK
+   Top of every page except Browse. account.js makes it go back
+   in history when you came from this site; otherwise it's a
+   plain link to Browse.
+   ============================================================ */
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 22px;
+    color: rgba(239, 236, 231, 0.7);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.back-link::before {
+    content: "←";
+    font-size: 14px;
+    letter-spacing: 0;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+    gap: 12px;                      /* the arrow nudges left, pointing the way */
+    color: var(--cream);
+    outline: none;
+}
+
+
+/* ============================================================
+   SELLER BITS ELSEWHERE
+   ============================================================ */
+
+/* "Dashboard" beside the staff account's name in the top bar */
+.account-dashboard {
+    margin-left: 14px;
+    color: rgba(239, 236, 231, 0.7);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.account-dashboard:hover,
+.account-dashboard:focus-visible,
+.account-dashboard[aria-current="page"] {
+    color: var(--cream);
+    outline: none;
+}
+
+/* The staff tile on the sign-in pop-up */
+.account-avatar-seller {
+    background: var(--olive);
+}
+
+.account-tile-tag-seller {
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.account-tile + .account-tile {
+    margin-top: 10px;
+}
+
+/* A record the seller marked sold out */
+.card.is-sold-out .art img {
+    filter: grayscale(0.6) opacity(0.75);
+}
+
+.card.is-sold-out .add:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* ============================================================
+   EDITING ON MY ACCOUNT
+   ============================================================ */
+
+.account-view,
+.account-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* display: flex above beats the browser's own [hidden] rule */
+.account-view[hidden],
+.account-form[hidden] {
+    display: none;
+}
+
+.account-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.account-form-actions .btn {
+    width: auto;
+}
+
+/* Checkout: "Save as my shipping address" */
+.save-address {
+    margin-top: 4px;
+}
+
+
+/* ============================================================
+   SELLER DASHBOARD
+   ============================================================ */
+
+.seller {
+    display: flex;
+    flex-direction: column;
+    gap: 44px;
+}
+
+.seller[hidden] {
+    display: none;
+}
+
+/* Panels here use the full width instead of the 780px reading column */
+.seller .panel {
+    max-width: none;
+    margin: 0;
+}
+
+.seller-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.seller-heading {
+    color: var(--cream);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- Overview ---------- */
+.seller-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+}
+
+.seller-stat {
+    padding: 18px 20px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 12px;
+    background: rgba(28, 20, 7, 0.55);
+}
+
+.seller-stat-label {
+    color: rgba(239, 236, 231, 0.6);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.seller-stat-value {
+    margin-top: 6px;
+    color: var(--cream);
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.seller-best h3 {
+    margin-bottom: 10px;
+    color: var(--cream);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+}
+
+.seller-best-list {
+    padding-left: 20px;
+    color: var(--bone);
+    font-size: 14px;
+}
+
+.seller-best-list li {
+    padding: 6px 0;
+}
+
+.seller-best-list li::marker {
+    color: rgba(248, 206, 151, 0.6);
+}
+
+.seller-best-name {
+    margin-right: 12px;
+}
+
+.seller-best-count,
+.seller-best-empty {
+    color: rgba(239, 236, 231, 0.6);
+}
+
+/* ---------- Tables (orders, products) ---------- */
+/* Tables scroll sideways on a phone instead of squashing.
+   position: relative so absolutely positioned bits inside (the hidden
+   "Remove" column label) are clipped here too — otherwise they escape
+   the scroll box and stretch the whole page sideways. */
+.seller-table-wrap {
+    position: relative;
+    overflow-x: auto;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 12px;
+    background: rgba(28, 20, 7, 0.55);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(248, 206, 151, 0.35) transparent;
+}
+
+.seller-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+    color: var(--bone);
+    font-size: 14px;
+}
+
+.seller-table[hidden] {
+    display: none;
+}
+
+.seller-table th {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(248, 206, 151, 0.2);
+    color: rgba(239, 236, 231, 0.55);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.seller-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(239, 236, 231, 0.07);
+    vertical-align: middle;
+}
+
+.seller-table tr:last-child td {
+    border-bottom: none;
+}
+
+.seller-sub {
+    display: block;
+    margin-top: 2px;
+    color: rgba(239, 236, 231, 0.55);
+    font-size: 12px;
+}
+
+.seller-records {
+    max-width: 260px;
+    color: rgba(239, 236, 231, 0.8);
+    font-size: 13px;
+}
+
+.seller-status-cell {
+    white-space: nowrap;
+}
+
+.seller-status-cell .order-status {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.seller-action {
+    padding: 6px 12px;
+    border: 1px solid rgba(248, 206, 151, 0.4);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cream);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.seller-action:hover,
+.seller-action:focus-visible {
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+}
+
+.seller-remove {
+    border-color: rgba(227, 139, 109, 0.5);
+    color: #f4c3b1;
+}
+
+.seller-remove:hover,
+.seller-remove:focus-visible {
+    background: #e38b6d;
+    color: var(--ink);
+}
+
+/* ---------- Products ---------- */
+.seller-record {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.seller-thumb {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 6px;
+    background: var(--bone);
+}
+
+.seller-price {
+    width: 110px;
+    padding: 8px 10px;
+    border: 1px solid rgba(248, 206, 151, 0.26);
+    border-radius: 8px;
+    background: rgba(51, 32, 7, 0.6);
+    color: var(--bone);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.seller-price:focus {
+    outline: none;
+    border-color: var(--cream);
+}
+
+.seller-table input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--cream);
+    cursor: pointer;
+}
+
+/* Hidden records stay in the table, faded, so they can be brought back */
+.is-hidden-product td {
+    opacity: 0.5;
+}
+
+/* ---------- Add a record ---------- */
+.seller-add {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.seller-add-preview {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border: 1px solid rgba(248, 206, 151, 0.22);
+    border-radius: 10px;
+}
+
+.seller-add-preview[hidden] {
+    display: none;
 }

@@ -8,6 +8,7 @@
     <link rel="icon" type="image/png" href="images/faviconn.png">
     <script src="bg.js" defer></script>
     <script src="account.js" defer></script>
+    <script src="catalogue.js" defer></script>
     <script src="browse.js" defer></script>
 
     <title>Browse the Crates — VenAudio</title>
@@ -20,11 +21,12 @@
     <div id="cursor-glow"></div>
 
     <header class="topbar">
-        <!-- No link home: once you're in the crates, you stay in the crates. -->
-        <span class="brand">
+        <!-- The same header on every shop page. The logo goes to Browse, not the
+             landing page: once you're in the crates, you stay in the crates. -->
+        <a class="brand" href="browse.html">
             <img src="images/VENAUDIO.png" alt="">
             <span>VenAudio</span>
-        </span>
+        </a>
 
         <nav class="topnav" aria-label="Primary">
             <a href="browse.html" aria-current="page">Browse</a>

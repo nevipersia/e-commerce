@@ -55,10 +55,17 @@ dialog.querySelectorAll('[data-action]').forEach((btn) => {
     });
 });
 
-// After signing in or up, carry on wherever the visitor was heading
+// After signing in or up, carry on wherever the visitor was heading.
+// Only pages on this list — never a URL taken straight from the address bar.
+const NEXT_PAGES = {
+    browse: 'browse.html', about: 'about.html', contact: 'contact.html',
+    checkout: 'checkout.html', orders: 'orders.html', account: 'account.html',
+    seller: 'seller.html'
+};
+
 function goOn() {
     const next = new URLSearchParams(location.search).get('next');
-    location.href = next === 'checkout' ? 'checkout.html' : 'browse.html';
+    location.href = NEXT_PAGES[next] || 'browse.html';
 }
 
 /* ---------- Demo account ---------- */
@@ -70,6 +77,16 @@ document.getElementById('demo-email').textContent = DEMO_ACCOUNT.email;
 demoTile.addEventListener('click', () => {
     signIn();
     goOn();
+});
+
+// The staff account goes straight to its dashboard
+document.getElementById('seller-initials').textContent = DEMO_SELLER.initials;
+document.getElementById('seller-name').textContent = DEMO_SELLER.name;
+document.getElementById('seller-email').textContent = DEMO_SELLER.email;
+
+document.getElementById('seller-account').addEventListener('click', () => {
+    signIn(DEMO_SELLER);
+    location.href = 'seller.html';
 });
 
 /* ---------- Shared form handling ---------- */

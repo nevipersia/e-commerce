@@ -15,12 +15,11 @@ const barangaySelect = document.getElementById('barangay');
 const formError = document.getElementById('form-error');
 const placeOrder = document.getElementById('place-order');
 const signinPrompt = document.getElementById('checkout-signin');
-const accountChip = document.getElementById('account-chip');
 
+// The bag as saved, updated for anything the seller changed since
 const bag = loadBag();
-
-// 2390 -> "₱2,390.00"
-const money = (n) => `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const bagNotes = reconcileBag(bag);
+if (bagNotes.length) saveBag(bag);
 
 // Shipping in pesos by zone, per delivery speed
 const RATES = {
@@ -32,139 +31,23 @@ const RATES = {
 
 
 /* =============================================================
-   CASCADING ADDRESS DROPDOWNS
+   ADDRESS
+   The dropdowns and postal code live in address-picker.js, shared
+   with My account. Changing the region re-prices shipping.
    ============================================================= */
 
-// Replace a select's options with a placeholder plus `names`,
-// and disable it when there's nothing to pick yet.
-function fillSelect(select, placeholder, names) {
-    select.innerHTML = '';
-    select.add(new Option(placeholder, ''));
-    names.forEach((name) => select.add(new Option(name, name)));
-    select.disabled = names.length === 0;
-}
+const picker = createAddressPicker({
+    region: regionSelect,
+    province: provinceSelect,
+    city: citySelect,
+    barangay: barangaySelect,
+    postal: document.getElementById('postal'),
+    postalOptions: document.getElementById('postal-options'),
+    postalHint: document.getElementById('postal-hint')
+}, { onRegionChange: () => renderTotals() });
 
-const postalInput = document.getElementById('postal');
-const postalOptions = document.getElementById('postal-options');
-const postalHint = document.getElementById('postal-hint');
-
-const selectedRegion = () => PH_REGIONS.find((r) => r.code === regionSelect.value);
-const provinces = () => regionData[regionSelect.value] || {};
-const cities = () => provinces()[provinceSelect.value] || {};
-
-// Regions list, filled once
-PH_REGIONS.forEach((r) => regionSelect.add(new Option(r.name, r.code)));
-
-// Picking a region loads its file (ph-address.js), then fills provinces.
-// Each level resets everything below it. Resolves once provinces are in.
-async function onRegionChange() {
-    const code = regionSelect.value;
-    fillSelect(provinceSelect, code ? 'Loading…' : 'Select province', []);
-    fillSelect(citySelect, 'Select city', []);
-    fillSelect(barangaySelect, 'Select barangay', []);
-    updatePostal();
-    renderTotals();
-    if (!code) return;
-
-    // ZIPs come in their own file. Optional: if it fails, the address still works.
-    loadRegionZips(code).then(updatePostal, () => {});
-
-    try {
-        await loadRegion(code);
-    } catch {
-        fillSelect(provinceSelect, "Couldn't load — pick the region again", []);
-        return;
-    }
-    if (regionSelect.value !== code) return;   // they picked another region meanwhile
-
-    const names = Object.keys(provinces());
-    fillSelect(provinceSelect, 'Select province', names);
-
-    // A region with a single province (e.g. NCR) needs no extra click
-    if (names.length === 1) {
-        provinceSelect.value = names[0];
-        onProvinceChange();
-    }
-}
-
-function onProvinceChange() {
-    fillSelect(citySelect, 'Select city', Object.keys(cities()));
-    fillSelect(barangaySelect, 'Select barangay', []);
-    updatePostal();
-}
-
-function onCityChange() {
-    fillSelect(barangaySelect, 'Select barangay', cities()[citySelect.value] || []);
-    updatePostal();
-}
-
-regionSelect.addEventListener('change', onRegionChange);
-provinceSelect.addEventListener('change', onProvinceChange);
-citySelect.addEventListener('change', onCityChange);
-barangaySelect.addEventListener('change', updatePostal);
-
-
-/* ---------- Postal code from the address ---------- */
-
-// "1012", "1012 or 1013", "1008, 1015 or 1016"
-const orList = (zips) => zips.length === 1 ? zips[0]
-    : `${zips.slice(0, -1).join(', ')} or ${zips[zips.length - 1]}`;
-
-// Runs whenever the address changes, so the ZIP always belongs to the
-// address on screen — a ZIP left over from another address (or from the
-// account's saved one) is replaced. Typing your own ZIP still works: it
-// stands until the address changes again.
-function updatePostal() {
-    // No town picked yet: whatever ZIP is there was for some other address
-    if (!citySelect.value) {
-        postalInput.value = '';
-        postalOptions.innerHTML = '';
-        postalHint.textContent = '';
-        return;
-    }
-
-    const zips = zipsFor(regionSelect.value, provinceSelect.value, citySelect.value, barangaySelect.value);
-    if (zips.length === 0) return;   // ZIP file still loading — it calls us again when it lands
-
-    postalOptions.innerHTML = '';
-    zips.forEach((zip) => postalOptions.append(new Option(zip)));
-
-    if (zips.length === 1) {
-        postalInput.value = zips[0];
-        postalHint.textContent = 'Filled in from your address — change it if yours is different.';
-        return;
-    }
-
-    // Several possible: keep the current ZIP only if it's one of them
-    if (!zips.includes(postalInput.value)) postalInput.value = '';
-
-    if (postalInput.value) {
-        postalHint.textContent = '';
-    } else if (zips.length <= 3) {
-        postalHint.textContent = `${barangaySelect.value || citySelect.value} uses ${orList(zips)} — pick yours from the list.`;
-    } else if (!barangaySelect.value) {
-        postalHint.textContent = `${citySelect.value} has ${zips.length} ZIP codes — choose your barangay to narrow it down.`;
-    } else {
-        postalHint.textContent = `${citySelect.value} has ${zips.length} ZIP codes and we can't tell yours from the barangay — pick it from the list.`;
-    }
-}
-
-// Once they type, "Filled in from your address" is no longer true
-postalInput.addEventListener('input', () => {
-    postalHint.textContent = '';
-});
-
-// Pick a full address in one go, e.g. from the signed-in account
-async function setAddress({ region, province, city, barangay }) {
-    regionSelect.value = region;
-    await onRegionChange();
-    provinceSelect.value = province;
-    onProvinceChange();
-    citySelect.value = city;
-    onCityChange();
-    barangaySelect.value = barangay;
-    updatePostal();   // setting .value doesn't fire 'change'
-}
+const selectedRegion = picker.selectedRegion;
+const setAddress = picker.setAddress;
 
 
 /* =============================================================
@@ -198,6 +81,10 @@ function renderSummary() {
         li.append(img, text);
         list.appendChild(li);
     });
+
+    const notes = document.getElementById('summary-notes');
+    notes.textContent = bagNotes.join(' ');
+    notes.hidden = bagNotes.length === 0;
 
     document.getElementById('summary-empty').hidden = bag.length > 0;
     placeOrder.disabled = bag.length === 0;
@@ -362,6 +249,13 @@ function askWalletApproval(wallet, amount) {
 async function prefillFromAccount() {
     const account = currentAccount();
     signinPrompt.hidden = !!account;
+
+    // "Save as my shipping address": only for accounts that can keep one.
+    // Ticked when there's nothing saved yet; unticked otherwise, so sending
+    // one order somewhere else doesn't replace the usual address.
+    document.getElementById('save-address-row').hidden = !canEdit(account);
+    document.getElementById('save-address').checked = canEdit(account) && !account.address;
+
     if (!account) return;
 
     // Only fill blanks, so switching accounts never wipes typed details
@@ -384,8 +278,6 @@ async function prefillFromAccount() {
     }
     renderTotals();
 }
-
-accountChip.addEventListener('account-change', prefillFromAccount);
 
 
 /* =============================================================
@@ -448,6 +340,7 @@ form.addEventListener('submit', async (e) => {
     // Lock the button while we wait — a second click mustn't pay twice
     processing = true;
     placeOrder.disabled = true;
+    placeOrder.classList.add('is-processing');
     placeOrder.textContent = 'Processing…';
 
     try {
@@ -463,7 +356,7 @@ form.addEventListener('submit', async (e) => {
             `Thanks, ${data.get('first-name').trim()}! Order ${orderNo} — ` +
             `${paymentLine(method, total, receipt, cardDigits)}. We'll text ${data.get('phone')} when it ships.`;
 
-        document.getElementById('confirm-address').textContent = [
+        const addressLine = [
             data.get('street'),
             `Brgy. ${data.get('barangay')}`,
             data.get('city'),
@@ -471,9 +364,31 @@ form.addEventListener('submit', async (e) => {
             region.name,
             data.get('postal')
         ].join(', ');
+        document.getElementById('confirm-address').textContent = addressLine;
 
-        // Signed-up accounts remember this address for next time
-        saveAccountAddress({
+        // Keep a copy under the signed-in account for My orders (guests: not saved).
+        // Must happen before the bag is emptied below.
+        const speed = data.get('speed');
+        const saved = saveOrder({
+            id: orderNo,
+            placedAt: new Date().toISOString(),
+            items: bag.map(({ title, artist, price, qty, image }) => ({ title, artist, price, qty, image })),
+            subtotal: subtotal(),
+            shipping: shippingCost(),
+            total,
+            speed,
+            eta: RATES[region.zone].eta[speed === 'express' ? 1 : 0],
+            payment: {
+                method,
+                reference: receipt ? receipt.reference : null,
+                last4: method === 'card' ? cardDigits.slice(-4) : null
+            },
+            address: addressLine
+        });
+        document.getElementById('confirm-orders').hidden = !saved;
+
+        // Keep this as the account's shipping address if they asked to
+        if (form.elements['save-address'].checked) saveAccountAddress({
             region: regionSelect.value,
             province: data.get('province'),
             city: data.get('city'),
@@ -497,6 +412,7 @@ form.addEventListener('submit', async (e) => {
     } finally {
         processing = false;
         placeOrder.disabled = bag.length === 0;
+        placeOrder.classList.remove('is-processing');
         placeOrder.textContent = 'Place order';
     }
 });
@@ -506,7 +422,6 @@ form.addEventListener('submit', async (e) => {
    FIRST DRAW
    ============================================================= */
 
-mountAccountChip(accountChip, 'checkout');
 renderSummary();
 renderTotals();
 prefillFromAccount();

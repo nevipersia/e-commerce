@@ -149,13 +149,12 @@ const checkoutNote = document.getElementById('checkout-note');
 
 // What's in the bag. Each entry: { key, title, artist, price, image, qty }
 // Saved to localStorage (account.js) so it follows the visitor to checkout.
+// The saved bag, quietly updated for the seller's latest prices and stock
 const bag = loadBag();
+if (reconcileBag(bag).length) saveBag(bag);
 
 // Where focus was before a pop-up opened, so we can hand it back on close
 let lastFocusedInShop = null;
-
-// 2390 -> "₱2,390.00"
-const money = (n) => `₱${n.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const MAX_QTY = 10;
 
@@ -290,6 +289,10 @@ function addToBag(card) {
     } else {
         bag.push({
             key: title + card.dataset.format,
+            // productTitle + format let catalogue.js find the seller's later changes
+            productTitle: title,
+            format: card.dataset.format,
+            added: card.querySelector('.art img').getAttribute('src').startsWith('data:'),
             title: card.querySelector('.title').textContent,
             artist: card.dataset.artist,
             price: Number(card.dataset.price),
@@ -392,6 +395,12 @@ function openViewer(card) {
     viewerFormat.textContent = card.dataset.label;
     viewerDesc.textContent = card.dataset.desc;
     viewerPrice.textContent = money(Number(card.dataset.price));
+
+    // A record the seller marked sold out can be looked at, not bought
+    const soldOut = card.classList.contains('is-sold-out');
+    viewerAdd.disabled = soldOut;
+    viewerAdd.textContent = soldOut ? 'Sold out' : 'Add to crate';
+    delete viewerAdd.dataset.label;   // flashAdded() remembers the label; let it re-read this one
 
     // Song titles live in data-tracks, separated by "|"
     const tracks = (card.dataset.tracks || '').split('|').map((t) => t.trim()).filter(Boolean);
@@ -525,7 +534,6 @@ window.addEventListener('hashchange', () => {
 });
 
 // First paint
-mountAccountChip(document.getElementById('account-chip'));
 applyHash();
 render();
 renderBag();

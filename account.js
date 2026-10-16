@@ -32,6 +32,26 @@ const DEMO_ACCOUNT = {
     }
 };
 
+// The shop's own demo account. Its top bar shows the Seller dashboard, and
+// it's the only account that page lets in. (Client-side only — a demo, not
+// real security: anyone could edit localStorage to look like a seller.)
+const DEMO_SELLER = {
+    id: 'demo-seller',
+    role: 'seller',
+    name: 'VenAudio Staff',
+    firstName: 'VenAudio',
+    lastName: 'Staff',
+    initials: 'VS',
+    email: 'staff@venaudio.example',
+    phone: '',
+    address: null
+};
+
+const DEMO_ACCOUNTS = [DEMO_ACCOUNT, DEMO_SELLER];
+
+// 2390 -> "₱2,390.00". Every page loads this file, so this is the one copy.
+const money = (n) => `₱${Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 const SESSION_KEY = 'venaudio.session';
 const ACCOUNTS_KEY = 'venaudio.accounts';
 const BAG_KEY = 'venaudio.bag.php';   // renamed when prices moved to pesos, so old $ bags are dropped
@@ -100,8 +120,15 @@ const sameEmail = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 // Create an account, sign it in, and return its profile.
 // Throws an Error with a message fit to show the visitor.
+// Is this email already taken — by a demo account or another signed-up one?
+// `exceptId` lets an account keep its own email when editing its details.
+function emailTaken(email, exceptId) {
+    return DEMO_ACCOUNTS.some((a) => sameEmail(a.email, email))
+        || storedAccounts().some((a) => a.id !== exceptId && sameEmail(a.email, email));
+}
+
 async function signUp({ firstName, lastName, email, phone, password }) {
-    if (sameEmail(email, DEMO_ACCOUNT.email) || storedAccounts().some((a) => sameEmail(a.email, email))) {
+    if (emailTaken(email)) {
         throw new Error('That email already has an account. Sign in instead.');
     }
 
@@ -124,8 +151,8 @@ async function signUp({ firstName, lastName, email, phone, password }) {
 
 // Check an email and password; sign in and return the profile, or throw
 async function signInWithPassword(email, password) {
-    if (sameEmail(email, DEMO_ACCOUNT.email)) {
-        throw new Error("The demo account doesn't use a password — choose it below instead.");
+    if (DEMO_ACCOUNTS.some((a) => sameEmail(a.email, email))) {
+        throw new Error("The demo accounts don't use a password — choose one below instead.");
     }
 
     const account = storedAccounts().find((a) => sameEmail(a.email, email));
@@ -138,6 +165,26 @@ async function signInWithPassword(email, password) {
     }
 
     writeStore(SESSION_KEY, account.id);
+    return profileOf(account);
+}
+
+// Only signed-up accounts can be edited — the demo accounts are shared
+const canEdit = (account) => !!account && !DEMO_ACCOUNTS.some((d) => d.id === account.id);
+
+// Change the signed-in account's name, email or phone. Throws an Error with
+// a message fit to show if the email belongs to someone else.
+function updateAccountDetails({ firstName, lastName, email, phone }) {
+    const id = readStore(SESSION_KEY);
+    const accounts = storedAccounts();
+    const account = accounts.find((a) => a.id === id);
+    if (!account) throw new Error('Only accounts you created can be edited.');
+    if (emailTaken(email, id)) throw new Error('That email already belongs to another account.');
+
+    account.firstName = firstName.trim();
+    account.lastName = lastName.trim();
+    account.email = email.trim().toLowerCase();
+    account.phone = phone.trim();
+    writeStore(ACCOUNTS_KEY, accounts);
     return profileOf(account);
 }
 
@@ -156,15 +203,18 @@ function saveAccountAddress(address) {
 // The signed-in account, or null for a guest
 function currentAccount() {
     const id = readStore(SESSION_KEY);
-    if (id === DEMO_ACCOUNT.id) return DEMO_ACCOUNT;
+    const demo = DEMO_ACCOUNTS.find((a) => a.id === id);
+    if (demo) return demo;
     const account = storedAccounts().find((a) => a.id === id);
     return account ? profileOf(account) : null;
 }
 
-// One click on the demo tile
-function signIn() {
-    writeStore(SESSION_KEY, DEMO_ACCOUNT.id);
-    return DEMO_ACCOUNT;
+const isSeller = (account) => account?.role === 'seller';
+
+// One click on a demo tile — the shopper demo unless told otherwise
+function signIn(account = DEMO_ACCOUNT) {
+    writeStore(SESSION_KEY, account.id);
+    return account;
 }
 
 function signOut() {
@@ -182,10 +232,63 @@ function saveBag(bag) {
     writeStore(BAG_KEY, bag);
 }
 
+/* ---------- Orders ---------- */
+
+// Every account's past orders, newest first: { [accountId]: [order, ...] }.
+// Keyed by account id so the demo account keeps its own history too.
+// Guests' orders aren't kept — there's no account to show them under.
+const ORDERS_KEY = 'venaudio.orders';
+
+function ordersOf(accountId) {
+    const all = readStore(ORDERS_KEY) || {};
+    return Array.isArray(all[accountId]) ? all[accountId] : [];
+}
+
+// Save an order under the signed-in account. Returns false for a guest.
+// New orders start at 'processing'; the seller moves them on.
+function saveOrder(order) {
+    const account = currentAccount();
+    if (!account) return false;
+    const all = readStore(ORDERS_KEY) || {};
+    const record = {
+        ...order,
+        status: 'processing',
+        customer: { name: account.name, email: account.email }
+    };
+    all[account.id] = [record, ...ordersOf(account.id)];
+    writeStore(ORDERS_KEY, all);
+    return true;
+}
+
+// Every customer's orders in one list, newest first — for the seller.
+// Each carries `accountId` so the seller can update the right one.
+function allOrders() {
+    const all = readStore(ORDERS_KEY) || {};
+    return Object.entries(all)
+        .flatMap(([accountId, orders]) => (Array.isArray(orders) ? orders : []).map((o) => ({ ...o, accountId })))
+        .sort((a, b) => new Date(b.placedAt) - new Date(a.placedAt));
+}
+
+const ORDER_STATUSES = ['processing', 'shipped', 'delivered'];
+
+// The seller marks an order shipped or delivered; the time is kept so the
+// shopper's My orders page can say when it happened
+function setOrderStatus(accountId, orderId, status) {
+    if (!ORDER_STATUSES.includes(status)) return;
+    const all = readStore(ORDERS_KEY) || {};
+    const order = (all[accountId] || []).find((o) => o.id === orderId);
+    if (!order) return;
+    order.status = status;
+    order[`${status}At`] = new Date().toISOString();
+    writeStore(ORDERS_KEY, all);
+}
+
 /* ---------- Top bar account chip ---------- */
 
-// Fill a .account-chip element: initials + first name and a sign-out
-// button when signed in, a "Sign in" link back to the landing page otherwise.
+// Fill a .account-chip element: the avatar and first name, linking to My
+// account, when signed in; a "Sign in" link back to the landing page otherwise.
+// My orders and Sign out live on the account page, which keeps the top bar
+// short enough for a phone.
 // `next` names the page to come back to after signing in (e.g. 'checkout').
 function mountAccountChip(chip, next) {
     if (!chip) return;
@@ -202,6 +305,12 @@ function mountAccountChip(chip, next) {
         return;
     }
 
+    const link = document.createElement('a');
+    link.href = 'account.html';
+    link.className = 'account-link';
+    link.setAttribute('aria-label', `My account — signed in as ${account.name}`);
+    if (location.pathname.endsWith('account.html')) link.setAttribute('aria-current', 'page');
+
     const avatar = document.createElement('span');
     avatar.className = 'account-avatar';
     avatar.setAttribute('aria-hidden', 'true');
@@ -209,17 +318,51 @@ function mountAccountChip(chip, next) {
 
     const name = document.createElement('span');
     name.className = 'account-name';
+    name.setAttribute('aria-hidden', 'true');   // the link's label already says it
     name.textContent = `Hi, ${account.firstName}`;
 
-    const out = document.createElement('button');
-    out.type = 'button';
-    out.className = 'account-signout';
-    out.textContent = 'Sign out';
-    out.addEventListener('click', () => {
-        signOut();
-        mountAccountChip(chip, next);
-        chip.dispatchEvent(new CustomEvent('account-change', { bubbles: true }));
-    });
+    link.append(avatar, name);
+    chip.appendChild(link);
 
-    chip.append(avatar, name, out);
+    // Staff get a way into the dashboard from every page
+    if (isSeller(account)) {
+        const dash = document.createElement('a');
+        dash.href = 'seller.html';
+        dash.className = 'account-dashboard';
+        dash.textContent = 'Dashboard';
+        if (location.pathname.endsWith('seller.html')) dash.setAttribute('aria-current', 'page');
+        chip.appendChild(dash);
+    }
+}
+
+/* ---------- Back button ---------- */
+
+// <a data-back href="browse.html">: go back to the page they came from on
+// this site; if they arrived some other way (a typed address, a bookmark, a
+// link from elsewhere), the href takes them to Browse instead.
+document.addEventListener('click', (e) => {
+    const back = e.target.closest('[data-back]');
+    if (!back) return;
+    const cameFromHere = document.referrer.startsWith(location.origin) && document.referrer !== location.href;
+    if (cameFromHere && history.length > 1) {
+        e.preventDefault();
+        history.back();
+    }
+});
+
+// Fill the account area on every page that has one — including About and
+// Contact, which have no script of their own. `next` brings people back to
+// this page after signing in.
+const thisPage = location.pathname.split('/').pop().replace('.html', '') || 'browse';
+mountAccountChip(document.getElementById('account-chip'), thisPage);
+
+/* ---------- Bag count in the top bar ---------- */
+
+// Browse keeps its own count (browse.js). Every other page shows a link to
+// checkout with the saved bag's count, filled in here.
+const bagLinkCount = document.querySelector('a.cart-button .cart-count');
+if (bagLinkCount) {
+    const count = loadBag().reduce((sum, item) => sum + item.qty, 0);
+    bagLinkCount.textContent = count;
+    bagLinkCount.closest('a').setAttribute('aria-label', `Bag, ${count} ${count === 1 ? 'item' : 'items'} — go to checkout`);
 }

@@ -9,6 +9,8 @@
     <script src="bg.js" defer></script>
     <script src="account.js" defer></script>
     <script src="ph-address.js" defer></script>
+    <script src="address-picker.js" defer></script>
+    <script src="catalogue.js" defer></script>
     <script src="checkout.js" defer></script>
 
     <title>Checkout — VenAudio</title>
@@ -21,10 +23,12 @@
     <div id="cursor-glow"></div>
 
     <header class="topbar">
-        <span class="brand">
+        <!-- The same header on every shop page. The logo goes to Browse, not the
+             landing page: once you're in the crates, you stay in the crates. -->
+        <a class="brand" href="browse.html">
             <img src="images/VENAUDIO.png" alt="">
             <span>VenAudio</span>
-        </span>
+        </a>
 
         <nav class="topnav" aria-label="Primary">
             <a href="browse.html">Browse</a>
@@ -34,11 +38,25 @@
 
         <div class="topbar-tools">
             <div class="account-chip" id="account-chip"></div>
+            <!-- account.js fills in the count and the label -->
+            <a class="cart-button" href="checkout.html" aria-label="Bag — go to checkout">
+                <svg class="bag-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+                     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <g class="crate-sleeves">
+                        <path d="M6.5 11L8 4.5h5L12 11"/>
+                        <path d="M12.5 11l2-4.5h4l-1 4.5"/>
+                    </g>
+                    <rect x="3" y="11" width="18" height="9" rx="1.5"/>
+                    <path d="M10 15.5h4"/>
+                </svg>
+                <span class="cart-count" aria-hidden="true">0</span>
+            </a>
         </div>
     </header>
 
     <main class="shop-main">
         <section class="crate-hero">
+            <a class="back-link" href="browse.html" data-back>Back</a>
             <p class="eyebrow">Almost yours</p>
             <h1>Checkout</h1>
             <p class="crate-sub">Tell us where the records are going. We ship anywhere in the Philippines.</p>
@@ -146,6 +164,14 @@
                         <label class="choice"><input type="radio" name="label" value="Home" checked> Home</label>
                         <label class="choice"><input type="radio" name="label" value="Work"> Work</label>
                     </div>
+
+                    <!-- Shown by checkout.js for accounts that can keep an address -->
+                    <div class="save-address" id="save-address-row" hidden>
+                        <label class="choice">
+                            <input type="checkbox" id="save-address" name="save-address">
+                            Save as my shipping address
+                        </label>
+                    </div>
                 </fieldset>
 
                 <fieldset>
@@ -246,6 +272,7 @@
             <!-- ============ Order summary ============ -->
             <aside class="panel checkout-summary" aria-labelledby="summary-title">
                 <h2 id="summary-title">Your order</h2>
+                <p class="summary-notes" id="summary-notes" role="status" hidden></p>
                 <ul class="drawer-list summary-list" id="summary-list"></ul>
                 <p class="drawer-empty" id="summary-empty" hidden>
                     Your bag is empty. <a href="browse.html">Back to the crates</a>
@@ -285,6 +312,8 @@
             <p class="confirm-address" id="confirm-address"></p>
             <div class="msgbox-actions">
                 <a class="btn btn-primary" href="browse.html" id="confirm-done">Back to the crates</a>
+                <!-- Shown by checkout.js when the order was saved to an account -->
+                <a class="btn btn-ghost" href="orders.html" id="confirm-orders" hidden>View my orders</a>
             </div>
         </div>
     </div>

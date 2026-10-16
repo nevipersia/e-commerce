@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="images/faviconn.png">
+    <script src="bg.js" defer></script>
+    <script src="account.js" defer></script>
+    <script src="ph-address.js" defer></script>
+    <script src="address-picker.js" defer></script>
+    <script src="profile.js" defer></script>
+
+    <title>My Account — VenAudio</title>
+</head>
+<body class="shop">
+    <video autoplay muted loop playsinline preload="auto" id="gradient-bg">
+        <source src="videos/Olive-Green.mp4" type="video/mp4">
+    </video>
+    <div class="shop-veil" aria-hidden="true"></div>
+    <div id="cursor-glow"></div>
+
+    <header class="topbar">
+        <!-- The same header on every shop page. The logo goes to Browse, not the
+             landing page: once you're in the crates, you stay in the crates. -->
+        <a class="brand" href="browse.html">
+            <img src="images/VENAUDIO.png" alt="">
+            <span>VenAudio</span>
+        </a>
+
+        <nav class="topnav" aria-label="Primary">
+            <a href="browse.html">Browse</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+
+        <div class="topbar-tools">
+            <div class="account-chip" id="account-chip"></div>
+            <!-- account.js fills in the count and the label -->
+            <a class="cart-button" href="checkout.html" aria-label="Bag — go to checkout">
+                <svg class="bag-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"
+                     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <g class="crate-sleeves">
+                        <path d="M6.5 11L8 4.5h5L12 11"/>
+                        <path d="M12.5 11l2-4.5h4l-1 4.5"/>
+                    </g>
+                    <rect x="3" y="11" width="18" height="9" rx="1.5"/>
+                    <path d="M10 15.5h4"/>
+                </svg>
+                <span class="cart-count" aria-hidden="true">0</span>
+            </a>
+        </div>
+    </header>
+
+    <main class="shop-main">
+        <section class="crate-hero">
+            <a class="back-link" href="browse.html" data-back>Back</a>
+            <p class="eyebrow">Your account</p>
+            <h1>My Account</h1>
+            <p class="crate-sub" id="account-sub">Your details, your address and your orders.</p>
+        </section>
+
+        <!-- Signed in: filled in by profile.js -->
+        <div class="account-page" id="account-page" hidden>
+            <!-- Staff only: a way into the dashboard -->
+            <section class="panel account-section account-seller" id="account-seller" hidden aria-labelledby="seller-title">
+                <h2 id="seller-title">Seller dashboard</h2>
+                <p class="panel-note">Sales, every customer's orders, and the records in the shop.</p>
+                <a class="btn btn-primary" href="seller.html">Open the dashboard</a>
+            </section>
+
+            <section class="panel account-section" aria-labelledby="details-title">
+                <div class="account-section-head">
+                    <span class="account-avatar account-avatar-large" id="account-initials" aria-hidden="true"></span>
+                    <h2 id="details-title">Your details</h2>
+                </div>
+
+                <!-- Showing -->
+                <div class="account-view" id="details-view">
+                    <dl class="order-details" id="account-details"></dl>
+                    <button type="button" class="btn btn-ghost" id="edit-details">Edit details</button>
+                </div>
+
+                <!-- Editing (signed-up accounts only) -->
+                <form class="account-form" id="details-form" novalidate hidden>
+                    <div class="field-row">
+                        <label class="field" for="edit-first">
+                            <span>First name</span>
+                            <input type="text" id="edit-first" name="firstName" autocomplete="given-name" required>
+                        </label>
+                        <label class="field" for="edit-last">
+                            <span>Last name</span>
+                            <input type="text" id="edit-last" name="lastName" autocomplete="family-name" required>
+                        </label>
+                    </div>
+                    <label class="field" for="edit-email">
+                        <span>Email</span>
+                        <input type="email" id="edit-email" name="email" autocomplete="email" required>
+                    </label>
+                    <label class="field" for="edit-phone">
+                        <span>Mobile number <em>(optional)</em></span>
+                        <input type="tel" id="edit-phone" name="phone" autocomplete="tel"
+                               placeholder="0917 123 4567" pattern="(\+63|0)\s?9\d{2}[\s\-]?\d{3}[\s\-]?\d{4}">
+                    </label>
+                    <p class="form-error" id="details-error" role="alert" hidden></p>
+                    <div class="account-form-actions">
+                        <button type="submit" class="btn btn-primary">Save details</button>
+                        <button type="button" class="btn btn-ghost" data-cancel>Cancel</button>
+                    </div>
+                </form>
+
+                <p class="panel-note" id="account-demo-note" hidden>
+                    This is a shared demo account, so its details and address stay as they are.
+                    <a class="link-button" href="index.html?signup&amp;next=account">Create your own account</a>
+                    to edit yours.
+                </p>
+            </section>
+
+            <section class="panel account-section" aria-labelledby="address-title">
+                <h2 id="address-title">Shipping address</h2>
+
+                <!-- Showing -->
+                <div class="account-view" id="address-view">
+                    <p class="account-address" id="account-address"></p>
+                    <button type="button" class="btn btn-ghost" id="edit-address">Edit address</button>
+                </div>
+
+                <!-- Editing: the same dropdowns and ZIP as checkout (address-picker.js) -->
+                <form class="account-form" id="address-form" novalidate hidden>
+                    <div class="field-row">
+                        <label class="field" for="addr-region">
+                            <span>Region</span>
+                            <select id="addr-region" name="region" required>
+                                <option value="">Select region</option>
+                            </select>
+                        </label>
+                        <label class="field" for="addr-province">
+                            <span>Province</span>
+                            <select id="addr-province" name="province" required disabled>
+                                <option value="">Select province</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="field-row">
+                        <label class="field" for="addr-city">
+                            <span>City / Municipality</span>
+                            <select id="addr-city" name="city" required disabled>
+                                <option value="">Select city</option>
+                            </select>
+                        </label>
+                        <label class="field" for="addr-barangay">
+                            <span>Barangay</span>
+                            <select id="addr-barangay" name="barangay" required disabled>
+                                <option value="">Select barangay</option>
+                            </select>
+                        </label>
+                    </div>
+                    <div class="field-row">
+                        <label class="field field-grow" for="addr-street">
+                            <span>House no., building, street</span>
+                            <input type="text" id="addr-street" name="street" autocomplete="address-line1" required
+                                   placeholder="Unit 4B, 88 Maginhawa St.">
+                        </label>
+                        <label class="field field-small" for="addr-postal">
+                            <span>Postal code</span>
+                            <input type="text" id="addr-postal" name="postal" autocomplete="postal-code" required
+                                   inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="1100"
+                                   list="addr-postal-options" aria-describedby="addr-postal-hint">
+                            <datalist id="addr-postal-options"></datalist>
+                        </label>
+                    </div>
+                    <p class="field-hint" id="addr-postal-hint" aria-live="polite"></p>
+                    <label class="field" for="addr-landmark">
+                        <span>Landmark <em>(optional)</em></span>
+                        <input type="text" id="addr-landmark" name="landmark" placeholder="Near the church, blue gate">
+                    </label>
+                    <p class="form-error" id="address-error" role="alert" hidden></p>
+                    <div class="account-form-actions">
+                        <button type="submit" class="btn btn-primary">Save address</button>
+                        <button type="button" class="btn btn-ghost" data-cancel>Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="panel account-section" aria-labelledby="orders-title">
+                <h2 id="orders-title">Orders</h2>
+                <p class="panel-note" id="account-orders-note"></p>
+                <a class="btn btn-ghost" href="orders.html">View my orders</a>
+            </section>
+
+            <button type="button" class="btn btn-ghost account-signout-button" id="sign-out">Sign out</button>
+        </div>
+
+        <!-- Not signed in -->
+        <section class="panel orders-message" id="account-guest" hidden>
+            <h2>Sign in to see your account</h2>
+            <p class="panel-note">Your details, saved address and orders are all here once you're signed in.</p>
+            <a class="btn btn-primary" href="index.html?signin&amp;next=account">Sign in</a>
+            <a class="link-button" href="index.html?signup&amp;next=account">Create an account</a>
+        </section>
+    </main>
+
+    <footer class="shop-footer">
+        <p>VenAudio — albums on wax, disc &amp; file</p>
+        <p class="muted">Ships nationwide. Sleeves handled with gloves.</p>
+    </footer>
+</body>
+</html>

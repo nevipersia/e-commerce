@@ -1,11 +1,5 @@
 // Contact page: bulk-order total, image-button validation, help prompt.
 
-// Pesos, formatted the same way as the shop and checkout pages
-const money = (n) => `₱${n.toLocaleString('en-PH', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-})}`;
-
 // Called from the quantity field's oninput attribute.
 // q is the quantity input, p the hidden unit price.
 function multiply(q, p) {
