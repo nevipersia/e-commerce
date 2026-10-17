@@ -158,6 +158,10 @@ let lastFocusedInShop = null;
 
 const MAX_QTY = 10;
 
+// Most copies one line can have: the per-order cap, or what's in stock
+const maxFor = (item) => Math.min(MAX_QTY,
+    item.productTitle ? stockLeft(productKey(item.productTitle, item.format), item.baseStock) : MAX_QTY);
+
 // renderBag rebuilds the list, so a typed quantity loses focus — remember
 // which line was being edited and put the caret back afterwards.
 let refocusLine = null;
@@ -170,7 +174,7 @@ function buildStepper(item, index) {
 
     // One place to change the count, whichever control was used
     const setQty = (next) => {
-        const clamped = Math.min(Math.max(next, 0), MAX_QTY);
+        const clamped = Math.min(Math.max(next, 0), maxFor(item));
 
         if (clamped === 0) {
             bag.splice(index, 1);   // zero copies means remove the line
@@ -193,7 +197,7 @@ function buildStepper(item, index) {
     field.type = 'number';
     field.className = 'qty-input';
     field.min = '0';
-    field.max = String(MAX_QTY);
+    field.max = String(maxFor(item));
     field.value = item.qty;
     field.setAttribute('aria-label', `Copies of ${item.title}`);
     field.addEventListener('change', () => {
@@ -207,7 +211,7 @@ function buildStepper(item, index) {
     plus.className = 'qty-step';
     plus.setAttribute('aria-label', `More copies of ${item.title}`);
     plus.textContent = '+';
-    plus.disabled = item.qty >= MAX_QTY;
+    plus.disabled = item.qty >= maxFor(item);
     plus.addEventListener('click', () => setQty(item.qty + 1));
 
     stepper.append(minus, field, plus);
@@ -285,13 +289,14 @@ function addToBag(card) {
     const existing = bag.find((item) => item.key === title + card.dataset.format);
 
     if (existing) {
-        existing.qty = Math.min(existing.qty + 1, MAX_QTY);
+        existing.qty = Math.min(existing.qty + 1, maxFor(existing));
     } else {
         bag.push({
             key: title + card.dataset.format,
             // productTitle + format let catalogue.js find the seller's later changes
             productTitle: title,
             format: card.dataset.format,
+            baseStock: card.dataset.stock,   // starting stock; catalogue.js knows what's left
             added: card.querySelector('.art img').getAttribute('src').startsWith('data:'),
             title: card.querySelector('.title').textContent,
             artist: card.dataset.artist,
@@ -360,6 +365,10 @@ const viewerPrice = document.getElementById('viewer-price');
 const viewerAdd = document.getElementById('viewer-add');
 const viewerBack = document.getElementById('viewer-back');
 const viewerListen = document.getElementById('viewer-listen');
+const viewerStock = document.getElementById('viewer-stock');
+const reviewSummary = document.getElementById('review-summary');
+const reviewList = document.getElementById('review-list');
+const reviewMore = document.getElementById('review-more');
 
 let viewerCard = null;      // the card currently on show
 let viewerShots = [];       // its sample pictures
@@ -382,24 +391,206 @@ function showShot(index) {
 
 // Spotify's own player for the record. data-spotify is "album/<id>" or
 // "track/<id>"; anything else (or nothing) just leaves the player out.
-// It's built fresh on every open and removed on close, so closing the
-// viewer also stops the music.
+// One <iframe> lives in the viewer and is pointed at each record in turn:
+//   - resting on a record's sleeve starts loading its player early, while
+//     the viewer is still closed, so it's usually ready when it opens
+//   - until Spotify's page has loaded, a "Loading Spotify…" placeholder
+//     holds its space
+//   - closing the viewer points it at a blank page, which stops the music
 const SPOTIFY_REF = /^(album|track)\/[A-Za-z0-9]{22}$/;
+const WARM_DELAY = 250;   // ms on a sleeve before its player starts loading
+
+function loadPlayer(card) {
+    const ref = card.dataset.spotify || '';
+    if (!SPOTIFY_REF.test(ref)) return null;
+
+    let player = viewerListen.querySelector('iframe');
+    if (player && player.dataset.ref === ref) return player;   // already loading or loaded
+
+    if (!player) {
+        player = document.createElement('iframe');
+        player.height = '152';
+        // Not lazy: lazy loading made Chrome hold it back inside the pop-up
+        player.allow = 'encrypted-media; clipboard-write; picture-in-picture';
+        player.addEventListener('load', () => {
+            if (!player.dataset.ref) return;   // the blank page after closing
+            player.dataset.loaded = 'true';
+            viewerListen.classList.add('is-loaded');
+        });
+        viewerListen.appendChild(player);
+    }
+
+    player.dataset.ref = ref;
+    player.dataset.loaded = 'false';
+    viewerListen.classList.remove('is-loaded');
+    player.title = `Listen to ${card.dataset.title} on Spotify`;
+    player.src = `https://open.spotify.com/embed/${ref}`;
+    return player;
+}
 
 function showListen(card) {
-    viewerListen.innerHTML = '';
-    const ref = card.dataset.spotify || '';
-    viewerListen.hidden = !SPOTIFY_REF.test(ref);
-    if (viewerListen.hidden) return;
-
-    const player = document.createElement('iframe');
-    player.src = `https://open.spotify.com/embed/${ref}`;
-    player.title = `Listen to ${card.dataset.title} on Spotify`;
-    player.height = '152';
-    player.loading = 'lazy';
-    player.allow = 'encrypted-media; clipboard-write; picture-in-picture';
-    viewerListen.appendChild(player);
+    const player = loadPlayer(card);
+    viewerListen.hidden = !player;
+    if (player) viewerListen.classList.toggle('is-loaded', player.dataset.loaded === 'true');
 }
+
+function stopPlayer() {
+    const player = viewerListen.querySelector('iframe');
+    if (!player) return;
+    player.dataset.ref = '';
+    player.dataset.loaded = 'false';
+    viewerListen.classList.remove('is-loaded');
+    player.src = 'about:blank';
+}
+
+// Warm up a record's player while the mouse rests on its sleeve (or the
+// View button gets keyboard focus), so opening it feels instant
+let warmTimer = null;
+grid.addEventListener('pointerover', (e) => {
+    const art = e.target.closest('.art');
+    clearTimeout(warmTimer);
+    if (!art || !viewer.hidden) return;
+    const card = art.closest('.card');
+    warmTimer = setTimeout(() => loadPlayer(card), WARM_DELAY);
+});
+grid.addEventListener('pointerout', (e) => {
+    if (!e.target.closest('.art')?.contains(e.relatedTarget)) clearTimeout(warmTimer);
+});
+grid.addEventListener('focusin', (e) => {
+    if (e.target.matches('.view') && viewer.hidden) loadPlayer(e.target.closest('.card'));
+});
+
+// What people who bought this record thought (account.js keeps the
+// reviews; they're written on My orders once an order arrives). The
+// viewer shows the newest few; "Show all" opens every review in a second
+// pop-up on top, with Back (or Escape) to return and X to close both.
+const REVIEWS_SHOWN = 3;
+let viewerReviews = [];   // every review of the record on show, newest first
+
+const reviewDate = (iso) => new Date(iso).toLocaleDateString('en-PH', { day: 'numeric', month: 'short', year: 'numeric' });
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+// One review as a list item — the same in the viewer and in "Show all"
+function reviewItem(r) {
+    const li = document.createElement('li');
+    const head = document.createElement('p');
+    head.className = 'review-head';
+    const stars = document.createElement('span');
+    stars.className = 'review-stars';
+    stars.textContent = starText(r.rating);
+    stars.setAttribute('aria-label', `${r.rating} out of 5 stars`);
+    const who = document.createElement('span');
+    who.className = 'review-who';
+    who.textContent = `${r.author} · ${reviewDate(r.date)}`;
+    head.append(stars, who);
+    li.append(head);
+    if (r.text) {
+        const text = document.createElement('p');
+        text.className = 'review-text';
+        text.textContent = r.text;
+        li.append(text);
+    }
+    return li;
+}
+
+const averageOf = (reviews) => reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
+function showReviews(card) {
+    viewerReviews = reviewsOf(productKey(card.dataset.title, card.dataset.format),
+        card.dataset.artist, card.querySelector('.title').textContent);
+    reviewList.innerHTML = '';
+    reviewMore.hidden = viewerReviews.length <= REVIEWS_SHOWN;
+
+    if (viewerReviews.length === 0) {
+        reviewSummary.textContent = 'No reviews yet — they come from people whose order has arrived.';
+        return;
+    }
+
+    const average = averageOf(viewerReviews);
+    reviewSummary.textContent = '';
+    const stars = document.createElement('span');
+    stars.className = 'review-stars';
+    stars.textContent = starText(Math.round(average));
+    stars.setAttribute('aria-hidden', 'true');
+    reviewSummary.append(stars, ` ${average.toFixed(1)} out of 5 · ${plural(viewerReviews.length, 'review')}`);
+
+    reviewList.append(...viewerReviews.slice(0, REVIEWS_SHOWN).map(reviewItem));
+    reviewMore.textContent = `Show all ${viewerReviews.length} reviews`;
+}
+
+/* ---------- "Show all" reviews pop-up ---------- */
+const reviewsPop = document.getElementById('reviews-pop');
+const reviewsBackdrop = document.getElementById('reviews-backdrop');
+const reviewsBack = document.getElementById('reviews-back');
+const reviewsSort = document.getElementById('reviews-sort');
+const reviewsPopList = document.getElementById('reviews-pop-list');
+
+const SORTS = {
+    newest: (a, b) => new Date(b.date) - new Date(a.date),
+    highest: (a, b) => b.rating - a.rating || new Date(b.date) - new Date(a.date),
+    lowest: (a, b) => a.rating - b.rating || new Date(b.date) - new Date(a.date)
+};
+
+function listAllReviews() {
+    const sorted = [...viewerReviews].sort(SORTS[reviewsSort.value] || SORTS.newest);
+    reviewsPopList.replaceChildren(...sorted.map(reviewItem));
+}
+
+function openReviews() {
+    const average = averageOf(viewerReviews);
+    document.getElementById('reviews-pop-title').textContent = viewerTitle.textContent;
+    document.getElementById('reviews-avg').textContent = average.toFixed(1);
+    document.getElementById('reviews-avg-stars').textContent = starText(Math.round(average));
+    document.getElementById('reviews-count').textContent = plural(viewerReviews.length, 'review');
+    document.getElementById('reviews-all-label').textContent = `All ${plural(viewerReviews.length, 'review')}`;
+
+    // How many people gave each star rating, 5 down to 1
+    const bars = document.getElementById('reviews-bars');
+    bars.replaceChildren(...[5, 4, 3, 2, 1].map((stars) => {
+        const count = viewerReviews.filter((r) => r.rating === stars).length;
+        const li = document.createElement('li');
+        li.setAttribute('aria-label', `${stars} star${stars > 1 ? 's' : ''}: ${count}`);
+        const label = document.createElement('span');
+        label.textContent = `${stars}★`;
+        label.setAttribute('aria-hidden', 'true');
+        const track = document.createElement('span');
+        track.className = 'reviews-bar';
+        const fill = document.createElement('span');
+        fill.style.width = `${(count / viewerReviews.length) * 100}%`;
+        track.append(fill);
+        const n = document.createElement('span');
+        n.textContent = count;
+        n.setAttribute('aria-hidden', 'true');
+        li.append(label, track, n);
+        return li;
+    }));
+
+    reviewsSort.value = 'newest';
+    listAllReviews();
+    reviewsPop.scrollTop = 0;
+    reviewsPop.hidden = false;
+    reviewsBackdrop.hidden = false;
+    reviewsBack.focus();
+}
+
+// Back (or Escape): just the reviews, back to the record
+function closeReviews() {
+    if (reviewsPop.hidden) return;
+    reviewsPop.hidden = true;
+    reviewsBackdrop.hidden = true;
+    reviewMore.focus();
+}
+
+reviewMore.addEventListener('click', openReviews);
+reviewsBack.addEventListener('click', closeReviews);
+reviewsBackdrop.addEventListener('click', closeReviews);
+reviewsSort.addEventListener('change', listAllReviews);
+// X: the reviews and the record together, back to the shop
+document.getElementById('reviews-close').addEventListener('click', () => {
+    reviewsPop.hidden = true;
+    reviewsBackdrop.hidden = true;
+    closeViewer();
+});
 
 // Fill the viewer from one card's data- attributes and show it
 function openViewer(card) {
@@ -422,6 +613,13 @@ function openViewer(card) {
     const soldOut = card.classList.contains('is-sold-out');
     viewerAdd.disabled = soldOut;
     viewerAdd.textContent = soldOut ? 'Sold out' : 'Add to crate';
+
+    // How many are left, from catalogue.js (data-left)
+    const left = Number(card.dataset.left);
+    viewerStock.textContent = soldOut ? 'Sold out'
+        : !card.dataset.left ? 'In stock'
+        : left <= 3 ? `Only ${left} left`
+        : `${left} available`;
     delete viewerAdd.dataset.label;   // flashAdded() remembers the label; let it re-read this one
 
     // Song titles live in data-tracks, separated by "|"
@@ -434,6 +632,7 @@ function openViewer(card) {
     });
     viewerTracks.hidden = tracks.length === 0;
 
+    showReviews(card);
     showListen(card);
     stopPreview();   // the full player takes over from the hover preview
 
@@ -473,7 +672,7 @@ function closeViewer() {
     viewer.hidden = true;
     viewerBackdrop.hidden = true;
     viewerCard = null;
-    viewerListen.innerHTML = '';   // removing the player is what stops its music
+    stopPlayer();   // a blank page in the player is what stops its music
     document.body.style.overflow = '';
     if (lastFocusedInShop) lastFocusedInShop.focus();   // hand focus back where it came from
 }
@@ -495,6 +694,12 @@ viewerAdd.addEventListener('click', () => {
 // Escape closes the viewer, arrow keys page through its pictures
 document.addEventListener('keydown', (e) => {
     if (viewer.hidden) return;
+    // With "Show all" reviews open on top, Escape goes back to the record
+    // and the arrow keys are left for the reviews' sort menu
+    if (!reviewsPop.hidden) {
+        if (e.key === 'Escape') closeReviews();
+        return;
+    }
     if (e.key === 'Escape') closeViewer();
     if (e.key === 'ArrowLeft') showShot(shotIndex - 1);
     if (e.key === 'ArrowRight') showShot(shotIndex + 1);
@@ -668,3 +873,9 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
 applyHash();
 render();
 renderBag();
+
+// browse.html?record=<title>|<format> (About's best sellers link here)
+// opens that record's pop-up straight away
+const linkedRecord = new URLSearchParams(location.search).get('record');
+const linkedCard = cards.find((card) => productKey(card.dataset.title, card.dataset.format) === linkedRecord);
+if (linkedCard && grid.contains(linkedCard)) openViewer(linkedCard);

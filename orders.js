@@ -5,7 +5,8 @@
 
    The status is whatever the seller last set on the Seller
    dashboard: Processing until they mark it Shipped, then Delivered.
-   The arrival date is an estimate from the delivery speed.
+   The arrival date is an estimate from the delivery speed. Once an
+   order is delivered, each record in it can be reviewed.
    ============================================================= */
 
 const list = document.getElementById('orders-list');
@@ -44,6 +45,107 @@ function el(tag, className, text) {
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+}
+
+/* ---------- Reviews ---------- */
+// Under each record of a delivered order: the review written for it, or a
+// button that opens a small form (stars + a few words). Saved by account.js.
+let reviewFormCount = 0;   // keeps each form's radio group and ids unique
+
+function reviewBlock(order, item) {
+    const box = el('div', 'review-box');
+    const account = currentAccount();
+    const mine = account && reviewFor(account.id, order.id, item);
+
+    if (mine) {
+        const shown = el('div', 'review-mine');
+        const stars = el('span', 'review-stars', starText(mine.rating));
+        stars.setAttribute('aria-label', `${mine.rating} out of 5 stars`);
+        shown.append(el('span', 'review-label', 'Your review'), stars);
+        if (mine.text) shown.append(el('p', 'review-text', mine.text));
+        const edit = el('button', 'link-button review-edit', 'Edit');
+        edit.type = 'button';
+        edit.addEventListener('click', () => box.replaceWith(reviewForm(order, item, mine)));
+        shown.append(edit);
+        box.append(shown);
+        return box;
+    }
+
+    const write = el('button', 'btn btn-ghost review-write', 'Write a review');
+    write.type = 'button';
+    write.addEventListener('click', () => {
+        const form = reviewForm(order, item, null);
+        box.replaceWith(form);
+        form.querySelector('input').focus();
+    });
+    box.append(write);
+    return box;
+}
+
+function reviewForm(order, item, existing) {
+    const n = ++reviewFormCount;
+    const form = el('form', 'review-form');
+    form.noValidate = true;
+
+    // Five stars as radio buttons. They're written 5 -> 1 so CSS can light
+    // up every star up to the one under the mouse (row-reverse puts them
+    // back in 1 -> 5 order on screen).
+    const fieldset = el('fieldset', 'review-rating');
+    fieldset.append(el('legend', null, `Your rating for ${item.title}`));
+    const row = el('div', 'review-stars-input');
+    for (let stars = 5; stars >= 1; stars--) {
+        const id = `review-${n}-${stars}`;
+        const radio = el('input');
+        radio.type = 'radio';
+        radio.name = `rating-${n}`;
+        radio.value = stars;
+        radio.id = id;
+        if (existing && existing.rating === stars) radio.checked = true;
+        const label = el('label', null, '★');
+        label.htmlFor = id;
+        label.title = `${stars} star${stars > 1 ? 's' : ''}`;
+        label.setAttribute('aria-label', label.title);
+        row.append(radio, label);
+    }
+    fieldset.append(row);
+
+    const textLabel = el('label', 'field');
+    textLabel.append(el('span', null, 'A few words (optional)'));
+    const text = el('textarea');
+    text.rows = 3;
+    text.maxLength = REVIEW_MAX;
+    text.value = existing ? existing.text : '';
+    text.placeholder = 'How does it sound? How did it arrive?';
+    textLabel.append(text);
+
+    const error = el('p', 'form-error');
+    error.setAttribute('role', 'alert');
+    error.hidden = true;
+
+    const actions = el('div', 'review-actions');
+    const save = el('button', 'btn btn-primary', existing ? 'Save review' : 'Post review');
+    save.type = 'submit';
+    const cancel = el('button', 'btn btn-ghost', 'Cancel');
+    cancel.type = 'button';
+    cancel.addEventListener('click', () => form.replaceWith(reviewBlock(order, item)));
+    actions.append(save, cancel);
+
+    form.append(fieldset, textLabel, error, actions);
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const picked = form.querySelector(`input[name="rating-${n}"]:checked`);
+        try {
+            saveReview(order, item, picked ? picked.value : 0, text.value);
+        } catch (err) {
+            error.textContent = err.message;
+            error.hidden = false;
+            return;
+        }
+        const done = reviewBlock(order, item);
+        form.replaceWith(done);
+        (done.querySelector('button') || done).focus();
+    });
+    return form;
 }
 
 function renderOrder(order) {
@@ -90,6 +192,8 @@ function renderOrder(order) {
             el('p', 'name', item.title),
             el('p', 'line-price', `${item.qty} × ${money(item.price)} · ${money(item.qty * item.price)}`)
         );
+        // Delivered: each record can be reviewed
+        if (step === STEPS.length - 1) text.append(reviewBlock(order, item));
         li.append(img, text);
         items.appendChild(li);
     });

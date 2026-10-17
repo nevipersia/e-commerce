@@ -155,6 +155,7 @@ async function loadBaseProducts() {
             label: card.dataset.label,
             name: card.querySelector('.title').textContent.trim(),
             price: Number(card.dataset.price),
+            stock: card.dataset.stock,
             image: card.querySelector('.art img').getAttribute('src'),
             added: false
         }));
@@ -173,6 +174,7 @@ function allProducts() {
         return {
             ...p,
             price: Number.isFinite(edit.price) ? edit.price : p.price,
+            left: stockFrom(edit, p.stock),   // catalogue.js
             soldOut: !!edit.soldOut,
             hidden: !!edit.hidden
         };
@@ -232,6 +234,30 @@ function renderProducts() {
         // Units sold, matched by the name the shopper saw in their bag
         const units = (sold[`${product.artist}|${product.name}`] || { units: 0 }).units;
 
+        // Stock left — checkout takes sales off it; at 0 it's sold out
+        const stockCell = el('td');
+        const stock = el('input', 'seller-price seller-stock');
+        stock.type = 'number';
+        stock.min = '0';
+        stock.step = '1';
+        stock.value = Number.isFinite(product.left) ? product.left : '';
+        stock.placeholder = '—';
+        stock.setAttribute('aria-label', `Copies in stock of ${product.name}, ${product.label}`);
+        stock.addEventListener('change', () => {
+            const value = Math.round(Number(stock.value));
+            if (stock.value === '' || !Number.isFinite(value) || value < 0) {
+                stock.value = Number.isFinite(product.left) ? product.left : '';
+                productsStatus.textContent = "Stock must be 0 or more — that change wasn't saved.";
+                return;
+            }
+            saveEdit(product, { stock: value });
+            productsStatus.textContent = value === 0
+                ? `${product.name} (${product.label}) is out of stock, so it shows as sold out.`
+                : `Saved: ${value} of ${product.name} (${product.label}) in stock.`;
+            renderProducts();
+        });
+        stockCell.appendChild(stock);
+
         const toggle = (label, checked, onChange) => {
             const cell = el('td');
             const box = el('input');
@@ -243,11 +269,18 @@ function renderProducts() {
             return cell;
         };
 
-        const soldOutCell = toggle('Sold out', product.soldOut, (on) => {
+        // Ticked by hand, or automatically when the stock reaches 0
+        const outOfStock = product.left <= 0;
+        const soldOutCell = toggle('Sold out', product.soldOut || outOfStock, (on) => {
             saveEdit(product, { soldOut: on });
-            productsStatus.textContent = `${product.name} is ${on ? 'now sold out' : 'back in stock'}.`;
+            productsStatus.textContent = `${product.name} is ${on ? 'now sold out' : 'back on sale'}.`;
             renderProducts();
         });
+        if (outOfStock) {
+            const box = soldOutCell.querySelector('input');
+            box.disabled = true;
+            box.title = 'Out of stock — add stock to put it back on sale';
+        }
         const shownCell = toggle('Shown in the shop', !product.hidden, (on) => {
             saveEdit(product, { hidden: !on });
             productsStatus.textContent = `${product.name} is ${on ? 'back in the shop' : 'hidden from the shop'}.`;
@@ -270,7 +303,7 @@ function renderProducts() {
             removeCell.appendChild(remove);
         }
 
-        tr.append(recordCell, priceCell, el('td', null, String(units)), soldOutCell, shownCell, removeCell);
+        tr.append(recordCell, priceCell, el('td', null, String(units)), stockCell, soldOutCell, shownCell, removeCell);
         return tr;
     }));
 }
@@ -337,6 +370,8 @@ addForm.addEventListener('submit', async (e) => {
     if (!title) return showAddError('Give the record a title.', f.title);
     if (!artist) return showAddError('Who is the artist?', f.artist);
     if (!Number.isFinite(price) || price < 1) return showAddError('Enter a price of at least ₱1.', f.price);
+    const stock = Math.round(Number(f.stock.value));
+    if (f.stock.value === '' || !Number.isFinite(stock) || stock < 0) return showAddError('How many copies are in stock? Enter 0 or more.', f.stock);
     if (!file) return showAddError('Choose a cover picture.', f.image);
 
     const spotify = spotifyRef(f.spotify.value);
@@ -368,6 +403,7 @@ addForm.addEventListener('submit', async (e) => {
         // one song per line -> "Song|Song|Song", as the shop's cards store them
         tracks: f.tracks.value.split('\n').map((t) => t.replace(/\|/g, '/').trim()).filter(Boolean).join('|'),
         spotify,
+        stock,
         image
     };
 

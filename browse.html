@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Start talking to Spotify early, so the record pop-up's player loads faster -->
+    <link rel="preconnect" href="https://open.spotify.com">
+    <link rel="preconnect" href="https://embed-cdn.spotifycdn.com">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@200;400;800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="images/faviconn.png">
@@ -102,7 +105,7 @@
 
         <section class="grid" id="grid" aria-label="Records">
 
-            <article class="card" data-format="vinyl" data-price="1450" data-title="Gabriel"
+            <article class="card" data-format="vinyl" data-stock="12" data-price="1450" data-title="Gabriel"
                     data-artist="keshi" data-label="Limited Red Vinyl LP"
                     data-desc="keshi&#x27;s 2022 debut album, pressed on limited-edition red vinyl."
                      data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
@@ -126,7 +129,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cd" data-price="756" data-title="Gabriel"
+            <article class="card" data-format="cd" data-stock="25" data-price="756" data-title="Gabriel"
                     data-artist="keshi" data-label="Standard CD"
                     data-desc="keshi&#x27;s 2022 debut album on CD in its original cover — the everyday way into the record."
                      data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
@@ -148,7 +151,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="boxset" data-price="2523" data-title="Requiem Collectible Boxset"
+            <article class="card" data-format="boxset" data-stock="60" data-price="2523" data-title="Requiem Collectible Boxset"
                     data-artist="keshi" data-label="Collectible CD Boxset"
                     data-desc="The limited Requiem collector&#x27;s box: the standard CD, twelve behind-the-album polaroids, a photo booklet from the music video shoots and a double-sided poster, in a matte box wrapped with the Requiem obi strip. There&#x27;s room left inside for the rest of your collection. The second picture shows everything that comes in it."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -172,7 +175,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cd signed" data-price="883" data-title="Requiem Signed CD"
+            <article class="card" data-format="cd signed" data-stock="5" data-price="883" data-title="Requiem Signed CD"
                     data-artist="keshi" data-label="Signed CD"
                     data-desc="Requiem on CD in a standard jewel case, with a square insert signed by keshi. One per customer while they last."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -194,7 +197,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl signed" data-price="1640" data-title="Requiem Signed LP"
+            <article class="card" data-format="vinyl signed" data-stock="4" data-price="1640" data-title="Requiem Signed LP"
                     data-artist="keshi" data-label="Signed Vinyl LP"
                     data-desc="The standard Requiem LP on black vinyl, with an insert signed by keshi. Shipped in a stiffened mailer, corners protected."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -216,7 +219,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="2460" data-title="Currents"
+            <article class="card" data-format="vinyl" data-stock="8" data-price="2460" data-title="Currents"
                      data-artist="Tame Impala" data-label="Double Vinyl LP"
                      data-desc="Tame Impala&#x27;s 2015 album across two LPs in a gatefold sleeve. A permanent fixture of the crate."
                      data-tracks="Let It Happen|Nangs|The Moment|Yes I&#x27;m Changing|Eventually|Gossip|The Less I Know the Better|Past Life|Disciples|&#x27;Cause I&#x27;m a Man|Reality in Motion|Love/Paranoia|New Person, Same Old Mistakes"
@@ -239,7 +242,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="882" data-title="Wantchu"
+            <article class="card" data-format="vinyl" data-stock="15" data-price="882" data-title="Wantchu"
                     data-artist="keshi" data-label="7-inch Single"
                     data-desc="keshi&#x27;s WANTCHU on a 7-inch single: the original on side A, a slowed-down version on side B. Every disc&#x27;s colour comes out a little different, so yours may not match the photo exactly."
                      data-tracks="WANTCHU|WANTCHU (Slowed Down Version)"
@@ -262,7 +265,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1260" data-title="Always"
+            <article class="card" data-format="vinyl" data-stock="10" data-price="1260" data-title="Always"
                     data-artist="keshi" data-label="Vinyl LP"
                     data-desc="keshi&#x27;s always EP on a standard 12-inch LP — six songs over two sides."
                      data-tracks="always|more|drunk|talk|B.Y.S.|Us"
@@ -284,7 +287,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1260" data-title="Bandaids"
+            <article class="card" data-format="vinyl" data-stock="10" data-price="1260" data-title="Bandaids"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="keshi&#x27;s bandaids EP on a standard 12-inch LP — five songs over two sides. Pairs with always and skeletons."
                      data-tracks="less of you|alright|blue|right here|bandaids"
@@ -306,7 +309,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1260" data-title="Skeletons"
+            <article class="card" data-format="vinyl" data-stock="10" data-price="1260" data-title="Skeletons"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="keshi&#x27;s skeletons EP on a standard 12-inch LP — four songs over two sides."
                      data-tracks="atlas|skeletons|summer|xoxosos"
@@ -330,7 +333,7 @@
 
             <!-- Added from keshi's official store, priced at USD -> PHP 63.08 (2026-10-16) -->
 
-            <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Standard LP"
+            <article class="card" data-format="vinyl" data-stock="20" data-price="1640" data-title="Requiem Standard LP"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="Requiem on classic black vinyl in a standard jacket, with an 11-inch insert carrying the lyrics and credits, and an obi strip from the limited first run."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -352,7 +355,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Premium LP"
+            <article class="card" data-format="vinyl" data-stock="6" data-price="1892" data-title="Requiem Premium LP"
                      data-artist="keshi" data-label="Premium Vinyl LP"
                      data-desc="Requiem in its standard cover but on a differently coloured disc, with an exclusive double-sided poster and a limited obi strip. Every disc&#x27;s colour comes out a little different."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -374,7 +377,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Alternate Cover LP"
+            <article class="card" data-format="vinyl" data-stock="8" data-price="1640" data-title="Requiem Alternate Cover LP"
                      data-artist="keshi" data-label="Alternate Cover Vinyl LP"
                      data-desc="Same record, different face: Requiem in its alternate cover, in standard packaging with a limited obi strip."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -396,7 +399,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Fans First LP"
+            <article class="card" data-format="vinyl" data-stock="6" data-price="1892" data-title="Requiem Fans First LP"
                      data-artist="keshi" data-label="Picture Disc LP"
                      data-desc="Requiem as a picture disc in a clear sleeve with a product sticker — first released as a Spotify Fans First exclusive."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -419,7 +422,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cd" data-price="882" data-title="Requiem Standard CD"
+            <article class="card" data-format="cd" data-stock="30" data-price="882" data-title="Requiem Standard CD"
                      data-artist="keshi" data-label="Standard CD"
                      data-desc="Requiem on CD in a standard jewel case — the cheapest way into the album."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -441,7 +444,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cassette" data-price="945" data-title="Requiem Cassette"
+            <article class="card" data-format="cassette" data-stock="12" data-price="945" data-title="Requiem Cassette"
                      data-artist="keshi" data-label="Cassette"
                      data-desc="Requiem on cassette in a standard case, for the deck that still works."
                      data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
@@ -463,7 +466,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="vinyl" data-price="882" data-title="Say"
+            <article class="card" data-format="vinyl" data-stock="15" data-price="882" data-title="Say"
                      data-artist="keshi" data-label="7-inch Single"
                      data-desc="Say, the lead single from Requiem, on a 7-inch: the song on side A, its instrumental on side B."
                      data-tracks="Say|Say (Instrumental)"
@@ -485,7 +488,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cd" data-price="756" data-title="Gabriel Heaven Cover"
+            <article class="card" data-format="cd" data-stock="10" data-price="756" data-title="Gabriel Heaven Cover"
                      data-artist="keshi" data-label="Alternate Cover CD"
                      data-desc="Gabriel on CD in the alternate heaven cover — the same twelve songs, a different face. Pairs with the limbo edition."
                      data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
@@ -507,7 +510,7 @@
                 </div>
             </article>
 
-            <article class="card" data-format="cd" data-price="756" data-title="Gabriel Limbo Cover"
+            <article class="card" data-format="cd" data-stock="10" data-price="756" data-title="Gabriel Limbo Cover"
                      data-artist="keshi" data-label="Alternate Cover CD"
                      data-desc="Gabriel on CD in the alternate limbo cover — the same twelve songs, a different face. Pairs with the heaven edition."
                      data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
@@ -623,12 +626,28 @@
                 <ol id="viewer-tracklist"></ol>
             </div>
 
+            <!-- Reviews from delivered orders (My orders), filled by browse.js -->
+            <div class="viewer-reviews" id="viewer-reviews">
+                <p class="viewer-tracks-label">Reviews</p>
+                <p class="review-summary" id="review-summary"></p>
+                <ul class="review-list" id="review-list"></ul>
+                <button type="button" class="btn btn-ghost review-more" id="review-more" hidden>Show all reviews</button>
+            </div>
+
             <!-- Spotify's player for this record, added by browse.js when it opens -->
-            <div class="viewer-listen" id="viewer-listen" hidden></div>
+            <div class="viewer-listen" id="viewer-listen" hidden>
+                <!-- Holds the player's space until Spotify's page has loaded -->
+                <div class="listen-loading" aria-hidden="true">
+                    <span class="listen-cover"></span>
+                    <span class="listen-lines"><span></span><span></span></span>
+                    <span class="listen-text">Loading Spotify…</span>
+                </div>
+            </div>
 
             <dl class="viewer-specs">
                 <div><dt>Delivery</dt><dd>1–7 business days</dd></div>
                 <div><dt>Condition</dt><dd>New &amp; sealed</dd></div>
+                <div><dt>Stock</dt><dd id="viewer-stock"></dd></div>
                 <div><dt>Size</dt><dd><a href="#size-guide" class="viewer-size-link" id="viewer-size-link">Size guide</a></dd></div>
             </dl>
 
@@ -638,6 +657,41 @@
                 <button type="button" class="btn btn-ghost" id="viewer-back">Keep digging</button>
             </div>
         </div>
+    </div>
+
+    <!-- Every review of the record on show, on top of the viewer (browse.js).
+         Back or Escape returns to the record; X closes both. -->
+    <div class="reviews-backdrop" id="reviews-backdrop" hidden></div>
+    <div class="reviews-pop" id="reviews-pop" role="dialog" aria-modal="true" aria-labelledby="reviews-pop-title" hidden>
+        <div class="reviews-pop-top">
+            <button type="button" class="reviews-back" id="reviews-back">Back</button>
+            <button type="button" class="msgbox-close reviews-close" id="reviews-close" aria-label="Close the reviews and the record">&times;</button>
+        </div>
+        <p class="artist">Reviews</p>
+        <h2 id="reviews-pop-title"></h2>
+
+        <div class="reviews-overview">
+            <div class="reviews-average">
+                <p class="reviews-avg" id="reviews-avg"></p>
+                <p class="review-stars" id="reviews-avg-stars" aria-hidden="true"></p>
+                <p class="reviews-count" id="reviews-count"></p>
+            </div>
+            <ol class="reviews-bars" id="reviews-bars" aria-label="Ratings by number of stars"></ol>
+        </div>
+
+        <div class="reviews-sort">
+            <span id="reviews-all-label"></span>
+            <label>
+                <span class="visually-hidden">Sort reviews</span>
+                <select id="reviews-sort">
+                    <option value="newest">Newest first</option>
+                    <option value="highest">Highest rated</option>
+                    <option value="lowest">Lowest rated</option>
+                </select>
+            </label>
+        </div>
+
+        <ul class="review-list reviews-pop-list" id="reviews-pop-list"></ul>
     </div>
 
     <!-- Crate drawer -->

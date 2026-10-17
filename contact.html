@@ -8,6 +8,7 @@
     <link rel="shortcut icon" type="image/png" href="images/faviconn.png">
     <script src="bg.js" defer></script>
     <script src="account.js" defer></script>
+    <script src="catalogue.js" defer></script>
     <script src="contact.js" defer></script>
 
     <title>Get in Touch — VenAudio</title>
@@ -60,24 +61,114 @@
                 <span class="help-hint" title="Every form on this page posts to the local echo server.">Need a hand?</span></p>
         </section>
 
+        <!-- Two columns at Browse's full width: the forms on the left, quick
+             answers on the right. On phones the answers come first. -->
+        <div class="page-layout">
+        <div class="page-side">
+        <!-- ============ Quick answers ============ -->
+        <section class="panel faq" aria-labelledby="faq-title">
+            <h2 id="faq-title">Quick answers</h2>
+            <p class="panel-note">Most questions are answered here — the form's just below if yours isn't.</p>
+            <details>
+                <summary>How long does delivery take?</summary>
+                <p>Standard delivery takes 2–3 business days in Metro Manila, 3–5 in the rest of Luzon,
+                    4–6 in the Visayas and 5–7 in Mindanao. Express is next business day in Metro Manila
+                    and 1–3 days everywhere else.</p>
+            </details>
+            <details>
+                <summary>How much is shipping?</summary>
+                <p>Standard shipping is ₱99 in Metro Manila and Luzon, ₱180 to the Visayas and ₱200 to
+                    Mindanao. Express costs ₱199–₱390. Checkout shows the exact price once you pick your region.</p>
+            </details>
+            <details>
+                <summary>Where's my order?</summary>
+                <p>Sign in and open <a href="orders.html">My orders</a> — each order shows whether it's being
+                    packed, on its way or delivered.</p>
+            </details>
+            <details>
+                <summary>A record arrived warped or bent. What now?</summary>
+                <p>Tell us within 30 days and we'll replace it or refund you, postage on us. Pick the order in
+                    the form below so we know which one.</p>
+            </details>
+            <details>
+                <summary>Will it fit my shelf?</summary>
+                <p>The <a href="browse.html#size-guide">size guide</a> lists every format's size and weight.</p>
+            </details>
+            <details>
+                <summary>How can I pay?</summary>
+                <p>Cash on delivery, GCash, Maya or card.</p>
+            </details>
+        </section>
+
+        <!-- ============ 2. Validated email signup ============ -->
+        <section class="panel">
+            <h2>Join the mailing list</h2>
+            <p class="panel-note">
+                The button on the right is a plain image that runs a pattern check before sending —
+                the one on the left submits straight away.
+            </p>
+
+            <form id="myForm" method="GET" action="http://localhost/echo.py">
+                <label class="field" for="adr">
+                    <span>Please supply your email address</span>
+                    <input type="text" id="adr" name="Address" size="45" placeholder="you@example.com">
+                </label>
+
+                <div class="button-row">
+                    <input type="image" src="images/favicon.png" width="44" height="44"
+                        alt="Submit Button" title="Submit immediately">
+                    <img id="btn" src="images/favicon.png" width="44" height="44"
+                        alt="Submit Button" title="Click to submit with JavaScript validation">
+                </div>
+            </form>
+        </section>
+
+        <!-- ============ 3. Bulk order calculator ============ -->
+        <section class="panel">
+            <h2>Bulk order — Requiem boxset</h2>
+
+            <form method="GET" action="http://localhost/echo.py">
+                <label class="field" for="qty">
+                    <span>Quantity <em>(<span id="bulk-stock">60 available</span> · <span id="bulk-price">₱2,523.00</span> each)</em></span>
+                    <input type="number" id="qty" name="Quantity" min="1" max="60" value="1"
+                        oninput="document.getElementById('sum').value=multiply(this, document.getElementById('price'))">
+                </label>
+
+                <input type="hidden" id="price" name="Unit Price" value="2523">
+                <output id="sum" name="sum" for="qty price"></output>
+
+                <div class="button-row">
+                    <input type="submit" name="Offer" value="Place bulk order" class="btn btn-primary">
+                </div>
+            </form>
+        </section>
+        </div>
+
+        <div class="page-main">
         <!-- ============ 1. Main enquiry ============ -->
         <section class="panel">
             <h2>Send us a message</h2>
-
-            <form class="stack" method="POST" action="http://localhost/echo.py">
+            <!-- contact.js shows a "Message sent" note instead of leaving the page -->
+            <form class="stack" method="POST" action="http://localhost/echo.py" id="enquiry-form">
 
                 <dl class="field-list">
                     <dt><label for="name">Your name</label></dt>
-                    <dd><input type="text" id="name" name="Name" size="45" placeholder="Jane Vinyl"></dd>
+                    <dd><input type="text" id="name" name="Name" size="45" placeholder="Jane Vinyl" required></dd>
 
                     <dt><label for="email">Email address</label></dt>
-                    <dd><input type="email" id="email" name="Address" size="45" placeholder="you@example.com"></dd>
+                    <dd><input type="email" id="email" name="Address" size="45" placeholder="you@example.com" required></dd>
 
                     <dt><label for="zip">Postal code</label></dt>
                     <dd><input type="text" id="zip" name="Zip" size="5" maxlength="4" inputmode="numeric"
                                pattern="\d{4}" title="4 digits, like 1100" placeholder="1100"></dd>
                 </dl>
-
+                <!-- Only for signed-in shoppers with orders; filled by contact.js -->
+                <label class="field" for="order-ref" id="order-ref-field" hidden>
+                    <span>About an order? <em>(optional)</em></span>
+                    <select id="order-ref" name="Order">
+                        <option value="">Not about an order</option>
+                    </select>
+                </label>
                 <label class="field" for="heard">
                     <span>How did you hear about us?</span>
                     <input list="channels" id="heard" name="Heard Via" autocomplete="off"
@@ -95,7 +186,7 @@
 
                 <label class="field" for="message">
                     <span>Your message</span>
-                    <textarea id="message" name="Message" rows="8" cols="70"
+                    <textarea id="message" name="Message" rows="8" cols="70" required
                             placeholder="Tell us which pressing you're after…"></textarea>
                 </label>
 
@@ -134,49 +225,18 @@
                     </button>
                 </div>
             </form>
-        </section>
-
-        <!-- ============ 2. Validated email signup ============ -->
-        <section class="panel">
-            <h2>Join the mailing list</h2>
-            <p class="panel-note">
-                The button on the right is a plain image that runs a pattern check before sending —
-                the one on the left submits straight away.
-            </p>
-
-            <form id="myForm" method="GET" action="http://localhost/echo.py">
-                <label class="field" for="adr">
-                    <span>Please supply your email address</span>
-                    <input type="text" id="adr" name="Address" size="45" placeholder="you@example.com">
-                </label>
-
+            <div class="sent-note" id="sent-note" role="status" tabindex="-1" hidden>
+                <span class="sent-tick" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+                </span>
+                <h3>Message sent</h3>
+                <p id="sent-text">We'll reply by email within one working day.</p>
                 <div class="button-row">
-                    <input type="image" src="images/favicon.png" width="44" height="44"
-                        alt="Submit Button" title="Submit immediately">
-                    <img id="btn" src="images/favicon.png" width="44" height="44"
-                        alt="Submit Button" title="Click to submit with JavaScript validation">
+                    <a class="btn btn-primary" href="browse.html">Back to the crates</a>
+                    <button type="button" class="btn btn-ghost" id="send-another">Send another</button>
                 </div>
-            </form>
-        </section>
-
-        <!-- ============ 3. Bulk order calculator ============ -->
-        <section class="panel">
-            <h2>Bulk order — Requiem boxset</h2>
-
-            <form method="GET" action="http://localhost/echo.py">
-                <label class="field" for="qty">
-                    <span>Quantity <em>(60 available · ₱3,690.00 each)</em></span>
-                    <input type="number" id="qty" name="Quantity" min="1" max="60" value="1"
-                        oninput="document.getElementById('sum').value=multiply(this, document.getElementById('price'))">
-                </label>
-
-                <input type="hidden" id="price" name="Unit Price" value="3690">
-                <output id="sum" name="sum" for="qty price"></output>
-
-                <div class="button-row">
-                    <input type="submit" name="Offer" value="Place bulk order" class="btn btn-primary">
-                </div>
-            </form>
+            </div>
         </section>
 
         <!-- ============ 4. Trade-in ============ -->
@@ -218,6 +278,8 @@
                 </div>
             </form>
         </section>
+        </div>
+        </div>
     </main>
 
     <footer class="shop-footer">

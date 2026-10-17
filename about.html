@@ -8,6 +8,8 @@
     <link rel="shortcut icon" type="image/png" href="images/faviconn.png">
     <script src="bg.js" defer></script>
     <script src="account.js" defer></script>
+    <script src="catalogue.js" defer></script>
+    <script src="about.js" defer></script>
 
     <title>About the Shop — VenAudio</title>
 </head>
@@ -59,6 +61,10 @@
                 <span class="help-hint" title="Everything here was pressed, packed and photographed by hand.">Who packs these?</span></p>
         </section>
 
+        <!-- Two columns at Browse's full width: the story on the left,
+             visiting and support on the right (stacked on phones) -->
+        <div class="page-layout">
+        <div class="page-main">
         <!-- ============ Story: figures float, first paragraph gets a drop cap ============ -->
         <article class="prose">
             <h2>Two sides of the same record</h2>
@@ -90,15 +96,54 @@
             post and one that doesn't is usually a few pesos’ worth of stiffened card.</p>
         </article>
 
-        <!-- ============ Now spinning ============ -->
-        <section class="panel">
-            <h2>Now spinning in the shop</h2>
-            <p class="panel-note">Whatever is on the counter turntable, piped through to the website.</p>
-
-            <audio controls preload="none">
-                <source src="audio/logo sound.MP3" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
+        <!-- ============ Best sellers ============ -->
+        <!-- about.js swaps in the real top three from orders placed in this shop;
+             until there are any, these staff picks stand in. -->
+        <section class="panel best-sellers" aria-labelledby="best-title">
+            <h2 id="best-title">Top 3 best sellers</h2>
+            <p class="panel-note" id="best-note">Our picks until the first orders come in. Press play for a 30-second taste.</p>
+            <ol class="best-list" id="best-list">
+                <li class="best-item">
+                    <span class="best-rank" aria-hidden="true">1</span>
+                    <img class="best-cover" src="images/Requiem%20Signed%20LP.jpg" alt="" width="88" height="88" loading="lazy">
+                    <div class="best-text">
+                        <p class="best-artist">keshi</p>
+                        <p class="best-name"><a href="browse.html?record=Requiem%20Signed%20LP%7Cvinyl%20signed">Requiem — Signed LP</a></p>
+                        <p class="best-meta">Signed Vinyl LP · ₱1,640.00</p>
+                        <p class="best-song">Featured song: <span>Soft Spot</span></p>
+                        <audio controls preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </li>
+                <li class="best-item">
+                    <span class="best-rank" aria-hidden="true">2</span>
+                    <img class="best-cover" src="images/Keshi%20-%20Gabriel%20(vinyl).jpg" alt="" width="88" height="88" loading="lazy">
+                    <div class="best-text">
+                        <p class="best-artist">keshi</p>
+                        <p class="best-name"><a href="browse.html?record=Gabriel%7Cvinyl">Gabriel</a></p>
+                        <p class="best-meta">Limited Red Vinyl LP · ₱1,450.00</p>
+                        <p class="best-song">Featured song: <span>UNDERSTAND</span></p>
+                        <audio controls preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/c8/0b/17c80b1b-756d-141d-07ad-312a2abfd1f5/mzaf_3423709056660709534.plus.aac.p.m4a">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </li>
+                <li class="best-item">
+                    <span class="best-rank" aria-hidden="true">3</span>
+                    <img class="best-cover" src="images/currents%20vinyl.jpg" alt="" width="88" height="88" loading="lazy">
+                    <div class="best-text">
+                        <p class="best-artist">Tame Impala</p>
+                        <p class="best-name"><a href="browse.html?record=Currents%7Cvinyl">Currents</a></p>
+                        <p class="best-meta">Double Vinyl LP · ₱2,460.00</p>
+                        <p class="best-song">Featured song: <span>The Less I Know the Better</span></p>
+                        <audio controls preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5d/2a/2a/5d2a2a7c-a42f-901e-bbf7-d99c33323526/mzaf_5177778173802721769.plus.aac.p.m4a">
+                            Your browser does not support the audio element.
+                        </audio>
+                    </div>
+                </li>
+            </ol>
+            <a class="best-more" href="browse.html">Find them in the crates</a>
         </section>
 
         <!-- ============ Image map: the boxset, region by region ============ -->
@@ -128,6 +173,57 @@
                     href="browse.html#signed" alt="More art cards" title="More art cards">
             </map>
         </section>
+        </div>
+
+        <div class="page-side">
+        <!-- ============ Visit the counter ============ -->
+        <section class="panel" aria-labelledby="visit-title">
+            <h2 id="visit-title">Visit the counter</h2>
+            <div class="visit">
+                <dl class="visit-hours">
+                    <div><dt>Monday – Friday</dt><dd>10am – 6pm</dd></div>
+                    <div><dt>Saturday</dt><dd>Closed</dd></div>
+                    <div><dt>Sunday</dt><dd>Closed</dd></div>
+                </dl>
+                <div class="visit-where">
+                    <p class="visit-status" id="visit-status" hidden></p>
+                    <p>Second floor, above the laundrette. Ring the bell twice.</p>
+                    <p class="muted">Orders placed after 4pm go out the next working day.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ How we pack ============ -->
+        <section class="panel" aria-labelledby="pack-title">
+            <h2 id="pack-title">How we pack</h2>
+            <p class="panel-note">Every order, every time — it's why the corners arrive square.</p>
+            <ol class="pack-steps">
+                <li>
+                    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor"
+                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 3a9 9 0 0 1 9 9"/>
+                    </svg>
+                    <h3>Checked</h3>
+                    <p>Unpacked and checked against the pressing notes — no warps, no scuffs.</p>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor"
+                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="4" width="13" height="16" rx="1.5"/><path d="M8 4v16"/><circle cx="17" cy="12" r="4.5"/>
+                    </svg>
+                    <h3>Sleeved</h3>
+                    <p>A fresh inner sleeve, and a clear outer one to keep the cover clean.</p>
+                </li>
+                <li>
+                    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor"
+                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 8l9-4 9 4v8l-9 4-9-4z"/><path d="M3 8l9 4 9-4M12 12v8"/>
+                    </svg>
+                    <h3>Boxed</h3>
+                    <p>Stiff card on both sides and a snug box, so nothing slides in the post.</p>
+                </li>
+            </ol>
+        </section>
 
         <!-- ============ Catalogue PDF ============ -->
         <section class="panel">
@@ -153,6 +249,8 @@
             <a href="contact.html">Get in touch</a>.</p>
             <p class="muted">Sleeves handled with gloves. Always.</p>
         </aside>
+        </div>
+        </div>
     </main>
 
     <footer class="shop-footer">

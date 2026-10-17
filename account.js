@@ -283,6 +283,64 @@ function setOrderStatus(accountId, orderId, status) {
     writeStore(ORDERS_KEY, all);
 }
 
+/* ---------- Reviews ----------
+   Written on My orders once an order is delivered, one per record per
+   order; shown in the record's pop-up on Browse. Each review:
+   { id, product, artist, name, rating, text, author, accountId, orderId, date }
+   `product` is "title|format" (the same key catalogue.js uses); orders
+   placed before it was saved only have the artist and shown name. */
+
+const REVIEWS_KEY = 'venaudio.reviews';
+const REVIEW_MAX = 500;   // characters
+
+function allReviews() {
+    const saved = readStore(REVIEWS_KEY);
+    return Array.isArray(saved) ? saved : [];
+}
+
+// This account's review of one record from one order, if written
+function reviewFor(accountId, orderId, item) {
+    return allReviews().find((r) => r.accountId === accountId && r.orderId === orderId
+        && r.artist === item.artist && r.name === item.title) || null;
+}
+
+// Save (or replace) the signed-in account's review of a delivered record.
+// Throws an Error with a message fit to show.
+function saveReview(order, item, rating, text) {
+    const account = currentAccount();
+    if (!account) throw new Error('Sign in to write a review.');
+    if (order.status !== 'delivered') throw new Error('You can review a record once it has arrived.');
+    const stars = Math.round(Number(rating));
+    if (!(stars >= 1 && stars <= 5)) throw new Error('Pick from one to five stars.');
+
+    const review = {
+        id: `rev-${Date.now().toString(36)}`,
+        product: item.productTitle ? `${item.productTitle}|${item.format}` : '',
+        artist: item.artist,
+        name: item.title,
+        rating: stars,
+        text: String(text || '').trim().slice(0, REVIEW_MAX),
+        author: `${account.firstName} ${account.lastName[0].toUpperCase()}.`,
+        accountId: account.id,
+        orderId: order.id,
+        date: new Date().toISOString()
+    };
+    const others = allReviews().filter((r) => !(r.accountId === account.id && r.orderId === order.id
+        && r.artist === item.artist && r.name === item.title));
+    writeStore(REVIEWS_KEY, [...others, review]);
+    return review;
+}
+
+// Every review of one record, newest first
+function reviewsOf(key, artist, name) {
+    return allReviews()
+        .filter((r) => (r.product ? r.product === key : r.artist === artist && r.name === name))
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+// 4 -> "★★★★☆"
+const starText = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
+
 /* ---------- Top bar account chip ---------- */
 
 // Fill a .account-chip element: the avatar and first name, linking to My
@@ -323,16 +381,18 @@ function mountAccountChip(chip, next) {
 
     link.append(avatar, name);
     chip.appendChild(link);
+}
 
-    // Staff get a way into the dashboard from every page
-    if (isSeller(account)) {
-        const dash = document.createElement('a');
-        dash.href = 'seller.html';
-        dash.className = 'account-dashboard';
-        dash.textContent = 'Dashboard';
-        if (location.pathname.endsWith('seller.html')) dash.setAttribute('aria-current', 'page');
-        chip.appendChild(dash);
-    }
+// Staff get a "Dashboard" tab after Contact in the top bar's links.
+// Shoppers never see it.
+function mountDashboardTab() {
+    const nav = document.querySelector('.topnav');
+    if (!nav || !isSeller(currentAccount())) return;
+    const tab = document.createElement('a');
+    tab.href = 'seller.html';
+    tab.textContent = 'Dashboard';
+    if (location.pathname.endsWith('seller.html')) tab.setAttribute('aria-current', 'page');
+    nav.appendChild(tab);
 }
 
 /* ---------- Back button ---------- */
@@ -355,6 +415,7 @@ document.addEventListener('click', (e) => {
 // this page after signing in.
 const thisPage = location.pathname.split('/').pop().replace('.html', '') || 'browse';
 mountAccountChip(document.getElementById('account-chip'), thisPage);
+mountDashboardTab();
 
 /* ---------- Bag count in the top bar ---------- */
 

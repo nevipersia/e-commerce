@@ -75,8 +75,9 @@
                     <span class="account-tile-tag">Demo</span>
                 </button>
 
-                <!-- The shop's own account: opens the Seller dashboard -->
-                <button type="button" class="account-tile" id="seller-account">
+                <!-- The shop's own account: opens the Seller dashboard. Hidden from
+                     shoppers — msgbox.js shows it only when seller.html sent you here. -->
+                <button type="button" class="account-tile" id="seller-account" hidden>
                     <span class="account-avatar account-avatar-seller" aria-hidden="true" id="seller-initials"></span>
                     <span class="account-tile-text">
                         <span class="account-tile-name" id="seller-name"></span>

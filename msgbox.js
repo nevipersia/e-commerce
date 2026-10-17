@@ -79,7 +79,10 @@ demoTile.addEventListener('click', () => {
     goOn();
 });
 
-// The staff account goes straight to its dashboard
+// The staff account goes straight to its dashboard. Shoppers never see
+// it: the tile only shows when the dashboard sent a guest here to sign in
+// (seller.html -> index.html?signin&next=seller).
+document.getElementById('seller-account').hidden = new URLSearchParams(location.search).get('next') !== 'seller';
 document.getElementById('seller-initials').textContent = DEMO_SELLER.initials;
 document.getElementById('seller-name').textContent = DEMO_SELLER.name;
 document.getElementById('seller-email').textContent = DEMO_SELLER.email;

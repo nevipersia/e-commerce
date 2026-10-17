@@ -1,8 +1,8 @@
 /* =============================================================
    MY ACCOUNT
    The page the name in the top bar links to: details, shipping
-   address, a summary of orders, Sign out — and for staff, a way
-   into the Seller dashboard.
+   address, a summary of orders, and Sign out. (Staff reach the Seller
+   dashboard from the "Dashboard" link in the top bar.)
 
    Signed-up accounts can edit their details and address here.
    The two demo accounts are shared, so they're shown read-only.
@@ -64,7 +64,6 @@ function render() {
     const editable = canEdit(account);
     subtitle.textContent = `Signed in as ${account.name}.`;
     document.getElementById('account-initials').textContent = account.initials;
-    document.getElementById('account-seller').hidden = !isSeller(account);
 
     document.getElementById('account-details').replaceChildren(
         detailRow('Name', account.name),

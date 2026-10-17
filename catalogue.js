@@ -2,7 +2,7 @@
    CATALOGUE CHANGES
    The records in browse.html are the shop's base catalogue. The
    seller's changes from the dashboard live in localStorage on top:
-     edits  — per record: a new price, sold out, or hidden
+     edits  — per record: a new price, sold out, hidden, or the stock left
      added  — whole new records, with their picture as a data: URL
    On the Browse page these are applied to the grid before
    browse.js reads the cards, so filters, sorting and the bag all
@@ -24,6 +24,35 @@ function catalogueChanges() {
 
 function saveCatalogueChanges(changes) {
     writeStore(CATALOGUE_KEY, changes);
+}
+
+/* ---------- Stock ----------
+   Each record starts with the stock on its card (data-stock, or `stock`
+   on a record the seller added). Once anything sells, or the seller
+   changes the count, what's left lives in edits[key].stock. A record
+   with nothing left is sold out on its own. */
+
+// What's left: the saved count, else the starting stock. A record with no
+// count at all (older data) never runs out.
+function stockFrom(edit, startingStock) {
+    if (edit && Number.isFinite(edit.stock)) return edit.stock;
+    const start = startingStock === undefined || startingStock === '' ? NaN : Number(startingStock);
+    return Number.isFinite(start) ? start : Infinity;
+}
+
+const stockLeft = (key, startingStock) => stockFrom(catalogueChanges().edits[key], startingStock);
+
+// After a paid order: take what was bought off each record's stock
+function takeStock(items) {
+    const changes = catalogueChanges();
+    items.forEach((item) => {
+        if (!item.productTitle) return;
+        const key = productKey(item.productTitle, item.format);
+        const left = stockFrom(changes.edits[key], item.baseStock);
+        if (!Number.isFinite(left)) return;
+        changes.edits[key] = { ...changes.edits[key], stock: Math.max(0, left - item.qty) };
+    });
+    saveCatalogueChanges(changes);
 }
 
 // Only pictures the dashboard made itself (resized into a data: URL) are
@@ -53,6 +82,7 @@ function buildCard(p) {
         label: p.label,
         desc: p.desc || '',
         tracks: p.tracks || '',
+        stock: Number.isFinite(p.stock) ? p.stock : '',
         spotify: spotifyRef(`https://open.spotify.com/${p.spotify || ''}`) || ''
     });
 
@@ -113,14 +143,25 @@ function markSoldOut(card) {
     add.textContent = 'Sold out';
 }
 
+// Nearly gone: the sleeve's flag says how many are left
+function markLowStock(card, left) {
+    let flag = card.querySelector('.flag');
+    if (!flag) {
+        flag = document.createElement('span');
+        flag.className = 'flag';
+        card.querySelector('.art').appendChild(flag);
+    }
+    flag.classList.add('is-low');
+    flag.textContent = `Only ${left} left`;
+}
+
 // Turn the Browse grid into the shop as the seller has left it
 function applyCatalogue(grid) {
     const { edits, added } = catalogueChanges();
     added.forEach((p) => grid.appendChild(buildCard(p)));
 
     grid.querySelectorAll('.card').forEach((card) => {
-        const edit = edits[productKey(card.dataset.title, card.dataset.format)];
-        if (!edit) return;
+        const edit = edits[productKey(card.dataset.title, card.dataset.format)] || {};
         if (edit.hidden) {
             card.remove();
             return;
@@ -129,7 +170,12 @@ function applyCatalogue(grid) {
             card.dataset.price = edit.price;
             card.querySelector('.price').textContent = money(edit.price);
         }
-        if (edit.soldOut) markSoldOut(card);
+
+        // data-stock stays the starting stock; data-left is what's left now
+        const left = stockFrom(edit, card.dataset.stock);
+        if (Number.isFinite(left)) card.dataset.left = left;
+        if (edit.soldOut || left <= 0) markSoldOut(card);
+        else if (left <= 3) markLowStock(card, left);
     });
 }
 
@@ -150,13 +196,21 @@ function reconcileBag(bag) {
         const name = `${item.title} (${FORMAT_NAMES[item.format] || item.format})`;
         const edit = edits[key] || {};
         const gone = item.added && !added.some((p) => productKey(p.title, p.format) === key);
+        const left = stockFrom(edit, item.baseStock);
+        const soldOut = edit.soldOut || left <= 0;
 
-        if (gone || edit.hidden || edit.soldOut) {
+        if (gone || edit.hidden || soldOut) {
             bag.splice(i, 1);
-            notes.push(`${name} is ${edit.soldOut && !gone ? 'sold out' : 'no longer in the shop'}, so it was taken out.`);
-        } else if (Number.isFinite(edit.price) && edit.price !== item.price) {
+            notes.push(`${name} is ${soldOut && !gone && !edit.hidden ? 'sold out' : 'no longer in the shop'}, so it was taken out.`);
+            continue;
+        }
+        if (Number.isFinite(edit.price) && edit.price !== item.price) {
             notes.push(`${name} is now ${money(edit.price)} (was ${money(item.price)}).`);
             item.price = edit.price;
+        }
+        if (item.qty > left) {
+            notes.push(`Only ${left} of ${name} left, so your crate has ${left} now.`);
+            item.qty = left;
         }
     }
     return notes.reverse();   // the loop ran backwards; give them in bag order

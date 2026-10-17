@@ -331,6 +331,19 @@ form.addEventListener('submit', async (e) => {
     }
     formError.hidden = true;
 
+    // Stock may have run out (or the seller changed things) since this page
+    // opened. If the crate had to change, show why and let them look first.
+    const late = reconcileBag(bag);
+    if (late.length) {
+        saveBag(bag);
+        bagNotes.splice(0, bagNotes.length, ...late);
+        renderSummary();
+        renderTotals();
+        formError.textContent = 'Your crate changed — check the summary, then place the order again.';
+        formError.hidden = false;
+        return;
+    }
+
     const data = new FormData(form);
     const method = data.get('payment');
     const total = subtotal() + shippingCost();
@@ -371,7 +384,9 @@ form.addEventListener('submit', async (e) => {
         const saved = saveOrder({
             id: orderNo,
             placedAt: new Date().toISOString(),
-            items: bag.map(({ title, artist, price, qty, image }) => ({ title, artist, price, qty, image })),
+            // productTitle + format say exactly which record, for reviews
+            items: bag.map(({ title, artist, price, qty, image, productTitle, format }) =>
+                ({ title, artist, price, qty, image, productTitle, format })),
             subtotal: subtotal(),
             shipping: shippingCost(),
             total,
@@ -397,7 +412,9 @@ form.addEventListener('submit', async (e) => {
             landmark: data.get('landmark')
         });
 
-        // Only now — after payment worked — empty the bag
+        // Only now — after payment worked — take the records off the shelf
+        // (catalogue.js; at 0 they're sold out) and empty the bag
+        takeStock(bag);
         saveBag([]);
         bag.length = 0;
 

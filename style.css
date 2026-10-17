@@ -1013,6 +1013,12 @@ body {
     color: var(--cream);
 }
 
+/* "Only 2 left" — cream, so it stands apart from Limited / Exclusive */
+.flag.is-low {
+    background: var(--cream);
+    color: var(--ink);
+}
+
 /* ---------- Card meta ---------- */
 .meta {
     padding: 16px 2px 0;
@@ -1471,6 +1477,14 @@ body {
 }
 
 /* ---------- Gallery ---------- */
+/* The pictures stay in view while the details beside them scroll.
+   top matches the viewer's padding so they stop where the content starts. */
+.viewer-gallery {
+    position: sticky;
+    top: clamp(22px, 3vw, 38px);
+    align-self: start;
+}
+
 .viewer-stage {
     position: relative;
     aspect-ratio: 1 / 1;
@@ -1630,7 +1644,91 @@ body {
 
 /* Spotify's player, under the tracklist. Spotify colours it from the cover. */
 .viewer-listen {
+    position: relative;
+    min-height: 152px;
     margin-top: 20px;
+}
+
+/* Placeholder until the player has loaded, then the player fades in over it */
+.listen-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: rgba(51, 32, 7, 0.6);
+    transition: opacity 0.3s ease;
+}
+
+.listen-cover {
+    flex: none;
+    width: 112px;
+    height: 112px;
+    border-radius: 8px;
+}
+
+.listen-lines {
+    flex: 1;
+    display: grid;
+    gap: 10px;
+}
+
+.listen-lines span {
+    height: 10px;
+    border-radius: 999px;
+}
+
+.listen-lines span:last-child {
+    width: 60%;
+}
+
+/* A soft shimmer across the grey shapes */
+.listen-cover,
+.listen-lines span {
+    background: linear-gradient(90deg,
+        rgba(239, 236, 231, 0.07) 25%,
+        rgba(239, 236, 231, 0.16) 50%,
+        rgba(239, 236, 231, 0.07) 75%);
+    background-size: 200% 100%;
+    animation: listen-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes listen-shimmer {
+    from { background-position: 100% 0; }
+    to   { background-position: -100% 0; }
+}
+
+.listen-text {
+    position: absolute;
+    right: 16px;
+    bottom: 12px;
+    color: rgba(239, 236, 231, 0.55);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.viewer-listen iframe {
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.viewer-listen.is-loaded iframe {
+    opacity: 1;
+}
+
+.viewer-listen.is-loaded .listen-loading {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .listen-cover,
+    .listen-lines span {
+        animation: none;
+    }
 }
 
 .viewer-listen[hidden] {
@@ -1701,6 +1799,8 @@ body {
     .viewer-price { margin-top: 20px; padding-top: 0; }
     .viewer-actions { flex-direction: column; }
     .viewer-thumb { width: 58px; height: 58px; }
+    /* Stacked on a phone: a stuck picture would cover the details */
+    .viewer-gallery { position: static; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1792,6 +1892,39 @@ body {
     max-width: 780px;
     margin: 0 auto 28px;
     backdrop-filter: blur(6px);
+}
+
+/* About and Contact: Browse's full width in two columns — main content,
+   then a side column — both starting at the title's left edge */
+.page-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+    grid-template-areas: "main side";
+    gap: 28px;
+    align-items: start;
+}
+
+.page-main { grid-area: main; }
+.page-side { grid-area: side; }
+
+.page-layout .panel,
+.page-layout .prose,
+.page-layout .sidenote {
+    max-width: none;
+    margin: 0 0 28px;
+}
+
+/* One column on narrower screens, in the order the HTML gives */
+@media (max-width: 900px) {
+    .page-layout {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: none;
+        gap: 0;
+    }
+    .page-main,
+    .page-side {
+        grid-area: auto;
+    }
 }
 
 .panel {
@@ -2105,6 +2238,441 @@ figure#back-stack {
     margin-top: 6px;
 }
 
+/* ---------- Contact: quick answers ---------- */
+.faq details {
+    border-bottom: 1px solid rgba(239, 236, 231, 0.08);
+}
+
+.faq details:last-of-type {
+    border-bottom: none;
+}
+
+.faq summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 0;
+    color: var(--bone);
+    font-size: 15px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+    display: none;
+}
+
+/* A plus that turns into a minus when the answer is open */
+.faq summary::after {
+    content: "+";
+    flex: none;
+    color: var(--cream);
+    font-size: 20px;
+    line-height: 1;
+    transition: transform 0.2s ease;
+}
+
+.faq details[open] summary::after {
+    content: "−";
+}
+
+.faq summary:hover,
+.faq summary:focus-visible {
+    color: var(--cream);
+    outline: none;
+}
+
+.faq details p {
+    padding: 0 0 14px;
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.faq details a {
+    color: var(--cream);
+    text-underline-offset: 3px;
+}
+
+/* ---------- Contact: order picker and "Message sent" ---------- */
+#order-ref-field[hidden],
+#enquiry-form[hidden],
+.sent-note[hidden] {
+    display: none;
+}
+
+.sent-note {
+    padding: 26px 0 8px;
+    text-align: center;
+    outline: none;
+}
+
+.sent-tick {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: rgba(90, 102, 49, 0.45);
+    color: #cfe3a6;
+}
+
+.sent-note h3 {
+    color: var(--cream);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.sent-note p {
+    margin: 6px auto 18px;
+    max-width: 420px;
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.sent-note .button-row {
+    justify-content: center;
+}
+
+/* ---------- About: top 3 best sellers ---------- */
+.best-list {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.best-item {
+    position: relative;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(51, 32, 7, 0.45);
+}
+
+/* 1, 2, 3 on the corner of each cover */
+.best-rank {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.best-cover {
+    flex: none;
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.best-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.best-artist {
+    color: var(--cream);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.best-name {
+    margin-top: 2px;
+    color: var(--bone);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.best-meta,
+.best-song {
+    margin-top: 2px;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 13px;
+}
+
+.best-song span {
+    color: var(--bone);
+}
+
+/* The record's name opens its pop-up on Browse */
+.best-name a {
+    color: inherit;
+    text-decoration: none;
+    text-underline-offset: 4px;
+    transition: color 0.2s ease;
+}
+
+.best-name a:hover,
+.best-name a:focus-visible {
+    color: var(--cream);
+    text-decoration: underline;
+    outline: none;
+}
+
+.best-more {
+    display: inline-block;
+    margin-top: 16px;
+    color: var(--cream);
+    font-size: 13px;
+    text-underline-offset: 3px;
+}
+
+/* ---------- About: the shop's audio player ---------- */
+/* Built by about.js around each <audio>: play button, seek bar, time */
+.player {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 6px 14px 6px 6px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 999px;
+    background: rgba(28, 20, 7, 0.6);
+}
+
+.player-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cream);
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.player-play svg {
+    fill: currentColor;
+}
+
+.player-play:hover,
+.player-play:focus-visible {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 4px rgba(248, 206, 151, 0.2);
+    outline: none;
+}
+
+.player-play:active {
+    transform: scale(0.95);
+}
+
+/* Play triangle until it's playing, then the pause bars */
+.player .icon-pause,
+.player.is-playing .icon-play {
+    display: none;
+}
+
+.player.is-playing .icon-pause {
+    display: inline;
+}
+
+/* Seek bar: a thin track that fills in cream up to --progress */
+.player-seek {
+    flex: 1;
+    min-width: 0;
+    height: 18px;
+    margin: 0;
+    background: transparent;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.player-seek::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        var(--cream) var(--progress, 0%),
+        rgba(239, 236, 231, 0.18) var(--progress, 0%));
+}
+
+.player-seek::-moz-range-track {
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        var(--cream) var(--progress, 0%),
+        rgba(239, 236, 231, 0.18) var(--progress, 0%));
+}
+
+.player-seek::-webkit-slider-thumb {
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cream);
+    transform: scale(0);
+    transition: transform 0.15s ease;
+    -webkit-appearance: none;
+}
+
+.player-seek::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cream);
+    transform: scale(0);
+    transition: transform 0.15s ease;
+}
+
+/* The knob only shows when you reach for it, or while it plays */
+.player:hover .player-seek::-webkit-slider-thumb,
+.player.is-playing .player-seek::-webkit-slider-thumb,
+.player-seek:focus-visible::-webkit-slider-thumb {
+    transform: scale(1);
+}
+
+.player:hover .player-seek::-moz-range-thumb,
+.player.is-playing .player-seek::-moz-range-thumb,
+.player-seek:focus-visible::-moz-range-thumb {
+    transform: scale(1);
+}
+
+.player-seek:focus-visible {
+    outline: none;
+}
+
+.player-time {
+    flex: none;
+    min-width: 74px;
+    color: rgba(239, 236, 231, 0.7);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+/* ---------- About: how we pack ---------- */
+.pack-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pack-steps li {
+    padding: 18px;
+    border-radius: 12px;
+    background: rgba(51, 32, 7, 0.45);
+    text-align: center;
+}
+
+.pack-steps svg {
+    color: var(--cream);
+}
+
+.pack-steps h3 {
+    margin-top: 8px;
+    color: var(--bone);
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.pack-steps p {
+    margin-top: 4px;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* In the narrow side column: compact rows, icon on the left */
+.page-side .pack-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+
+.page-side .pack-steps li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: start;
+    padding: 14px 16px;
+    text-align: left;
+}
+
+.page-side .pack-steps svg {
+    grid-row: span 2;
+    margin-top: 2px;
+}
+
+.page-side .pack-steps h3 {
+    margin-top: 0;
+}
+
+/* ---------- About: visit the counter ---------- */
+.visit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px 30px;
+}
+
+.visit-hours div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(239, 236, 231, 0.08);
+    font-size: 14px;
+}
+
+.visit-hours dt {
+    color: rgba(239, 236, 231, 0.7);
+}
+
+.visit-hours dd {
+    margin: 0;
+    color: var(--bone);
+}
+
+.visit-where p {
+    margin-bottom: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.visit-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(239, 236, 231, 0.08);
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.visit-status.is-open {
+    background: rgba(90, 102, 49, 0.45);
+    color: #cfe3a6;
+}
+
+.visit-status[hidden] {
+    display: none;
+}
+
 /* ---------- Clickable picture ---------- */
 /* Record-shaped cursor over the mapped photo and the shop sleeves */
 .mapped,
@@ -2294,6 +2862,10 @@ html.stylus-on * {
 }
 
 /* The clickable mock account on the sign-in pop-up */
+.account-tile[hidden] {
+    display: none;
+}
+
 .account-tile {
     display: flex;
     align-items: center;
@@ -2969,6 +3541,360 @@ select optgroup option {
 
 
 /* ============================================================
+   REVIEWS
+   Written under each record of a delivered order (My orders),
+   read in the record's pop-up on Browse.
+   ============================================================ */
+
+.review-stars {
+    color: var(--cream);
+    letter-spacing: 0.08em;
+}
+
+/* My orders: the button, or the review already written */
+.review-box {
+    margin-top: 10px;
+}
+
+.review-write {
+    width: auto;
+    padding: 7px 14px;
+    font-size: 11px;
+}
+
+.review-mine {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 10px;
+    font-size: 13px;
+}
+
+.review-label {
+    color: rgba(239, 236, 231, 0.6);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.review-mine .review-text {
+    flex-basis: 100%;
+}
+
+.review-text {
+    color: rgba(239, 236, 231, 0.82);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+/* The form: five stars, a few words, Post / Cancel */
+.review-form {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 14px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 12px;
+    background: rgba(28, 20, 7, 0.55);
+}
+
+.panel .review-rating {
+    padding: 0;
+    border: none;
+}
+
+.panel .review-rating legend {
+    padding: 0;
+    margin-bottom: 4px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+}
+
+/* Radios come 5 -> 1 in the HTML; row-reverse shows them 1 -> 5, and
+   "this star and every one after it in the HTML" lights up to the left */
+.review-stars-input {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 2px;
+}
+
+.review-stars-input input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.review-stars-input label {
+    color: rgba(239, 236, 231, 0.25);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.review-stars-input input:checked ~ label,
+.review-stars-input label:hover,
+.review-stars-input label:hover ~ label {
+    color: var(--cream);
+}
+
+.review-stars-input label:hover {
+    transform: scale(1.12);
+}
+
+.review-stars-input input:focus-visible + label {
+    outline: 2px solid var(--cream);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.review-form textarea {
+    min-height: 70px;
+}
+
+.review-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.review-actions .btn {
+    width: auto;
+    padding: 9px 18px;
+}
+
+/* Browse pop-up: average, then the latest few */
+.viewer-reviews {
+    margin-top: 20px;
+}
+
+.review-summary {
+    margin-top: 8px;
+    color: rgba(239, 236, 231, 0.75);
+    font-size: 13px;
+}
+
+.review-summary .review-stars {
+    font-size: 15px;
+}
+
+.review-list {
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review-list li {
+    padding: 10px 0;
+    border-top: 1px solid rgba(239, 236, 231, 0.08);
+}
+
+.review-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
+    font-size: 13px;
+}
+
+.review-who {
+    color: rgba(239, 236, 231, 0.55);
+    font-size: 12px;
+}
+
+.review-list .review-text {
+    margin-top: 4px;
+}
+
+/* "Show all N reviews" under the newest three */
+.review-more {
+    width: auto;
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 11px;
+}
+
+.review-more[hidden] {
+    display: none;
+}
+
+/* ---------- Every review, in a pop-up on top of the viewer ---------- */
+.reviews-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: rgba(18, 12, 4, 0.6);
+    animation: backdrop-in 0.2s ease-out;
+}
+
+.reviews-backdrop[hidden],
+.reviews-pop[hidden] {
+    display: none;
+}
+
+.reviews-pop {
+    position: fixed;
+    z-index: 16;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(82vh, 680px);
+    overflow-y: auto;
+    padding: 18px 26px 26px;
+    border: 2px solid var(--forest);
+    border-radius: 16px;
+    background: var(--ink);
+    box-shadow: 0 34px 80px rgba(0, 0, 0, 0.6);
+    animation: viewer-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(248, 206, 151, 0.35) transparent;
+}
+
+.reviews-pop-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.reviews-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border: none;
+    background: none;
+    color: rgba(239, 236, 231, 0.75);
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.reviews-back::before {
+    content: "←";
+    font-size: 14px;
+    letter-spacing: 0;
+}
+
+.reviews-back:hover,
+.reviews-back:focus-visible {
+    gap: 12px;
+    color: var(--cream);
+    outline: none;
+}
+
+/* The X sits in the top row instead of the box's corner */
+.reviews-pop .reviews-close {
+    position: static;
+}
+
+.reviews-pop h2 {
+    margin-top: 4px;
+    color: var(--cream);
+    font-size: clamp(22px, 3vw, 28px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+/* Big average beside a bar per star rating */
+.reviews-overview {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    margin: 18px 0;
+    padding: 16px 18px;
+    border-radius: 12px;
+    background: rgba(51, 32, 7, 0.55);
+}
+
+.reviews-average {
+    flex: none;
+    text-align: center;
+}
+
+.reviews-avg {
+    color: var(--bone);
+    font-size: 40px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.reviews-average .review-stars {
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.reviews-count {
+    margin-top: 2px;
+    color: rgba(239, 236, 231, 0.55);
+    font-size: 12px;
+}
+
+.reviews-bars {
+    flex: 1;
+    display: grid;
+    gap: 5px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.reviews-bars li {
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr) 22px;
+    gap: 8px;
+    align-items: center;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 12px;
+}
+
+.reviews-bars li span:last-child {
+    text-align: right;
+}
+
+.reviews-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(239, 236, 231, 0.12);
+    overflow: hidden;
+}
+
+.reviews-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--cream);
+}
+
+.reviews-sort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 13px;
+}
+
+.reviews-sort select {
+    width: auto;
+}
+
+.reviews-pop-list {
+    margin-top: 6px;
+}
+
+@media (max-width: 480px) {
+    .reviews-pop { padding: 14px 18px 20px; }
+    .reviews-overview { gap: 16px; padding: 14px; }
+}
+
+/* ============================================================
    MY ORDERS
    Order cards reuse .panel, the bag's .drawer-list and the
    checkout's .summary-totals, so they match the rest of the shop.
@@ -3254,24 +4180,6 @@ select optgroup option {
 /* ============================================================
    SELLER BITS ELSEWHERE
    ============================================================ */
-
-/* "Dashboard" beside the staff account's name in the top bar */
-.account-dashboard {
-    margin-left: 14px;
-    color: rgba(239, 236, 231, 0.7);
-    font-size: 12px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.account-dashboard:hover,
-.account-dashboard:focus-visible,
-.account-dashboard[aria-current="page"] {
-    color: var(--cream);
-    outline: none;
-}
 
 /* The staff tile on the sign-in pop-up */
 .account-avatar-seller {
