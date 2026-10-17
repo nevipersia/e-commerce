@@ -2649,8 +2649,41 @@ figure#back-stack {
 
 .visit-where p {
     margin-bottom: 8px;
+    color: var(--bone);
     font-size: 14px;
     line-height: 1.6;
+}
+
+/* <address> is italic by default — keep it like the rest of the panel */
+.visit-address {
+    margin-bottom: 10px;
+    color: var(--bone);
+    font-size: 14px;
+    font-style: normal;
+    line-height: 1.6;
+}
+
+/* Opens Google Maps in a new tab */
+.visit-map {
+    display: inline-block;
+    margin-bottom: 12px;
+    color: var(--cream);
+    font-size: 13px;
+    text-underline-offset: 3px;
+}
+
+.visit-map::after {
+    content: " ↗";
+}
+
+.visit-map:hover,
+.visit-map:focus-visible {
+    color: var(--bone);
+}
+
+.visit-where .muted {
+    color: rgba(239, 236, 231, 0.6);
+    font-size: 13px;
 }
 
 .visit-status {

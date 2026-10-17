@@ -212,9 +212,9 @@ function updateOpenNow() {
         timeZone: 'Asia/Manila', weekday: 'short', hour: 'numeric', hourCycle: 'h23'
     }).formatToParts(new Date()).map((p) => [p.type, p.value]));
 
-    const weekday = !['Sat', 'Sun'].includes(parts.weekday);
+    // Monday to Saturday, 10am–6pm; closed on Sundays
     const hour = Number(parts.hour);
-    const open = weekday && hour >= 10 && hour < 18;
+    const open = parts.weekday !== 'Sun' && hour >= 10 && hour < 18;
 
     status.textContent = open ? 'Open now' : 'Closed now';
     status.classList.toggle('is-open', open);
