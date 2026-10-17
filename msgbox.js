@@ -17,10 +17,56 @@ let lastFocused = null;
 
 // Show one view, hide the others, and put focus on its first field or button
 function showView(name) {
+    hidePasswords();   // a password shown on one view shouldn't stay shown
     Object.entries(VIEWS).forEach(([key, view]) => { view.el.hidden = key !== name; });
     dialog.setAttribute('aria-labelledby', VIEWS[name].title);
     VIEWS[name].el.querySelector('input, button, a').focus();
 }
+
+/* ---------- Show / hide password ----------
+   An eye button inside each password box. The HTML keeps
+   type="password"; pressing the eye swaps it to "text" until it's
+   pressed again or the view changes. */
+const EYE_ICON = `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none"
+    stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/>
+    <circle cx="12" cy="12" r="3"/>
+    <path class="eye-slash" d="M4 4l16 16"/>
+</svg>`;
+
+function setPasswordShown(input, button, shown) {
+    input.type = shown ? 'text' : 'password';
+    button.classList.toggle('is-shown', shown);
+    button.setAttribute('aria-pressed', String(shown));
+    button.setAttribute('aria-label', shown ? 'Hide password' : 'Show password');
+    button.title = shown ? 'Hide password' : 'Show password';
+}
+
+function hidePasswords() {
+    document.querySelectorAll('.password-toggle').forEach((button) => {
+        setPasswordShown(document.getElementById(button.getAttribute('aria-controls')), button, false);
+    });
+}
+
+document.querySelectorAll('.msgbox input[type="password"]').forEach((input) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'password-wrap';
+    input.before(wrap);
+    wrap.append(input);
+    input.classList.add('password-input');
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'password-toggle';
+    button.setAttribute('aria-controls', input.id);
+    button.innerHTML = EYE_ICON;
+    setPasswordShown(input, button, false);
+    button.addEventListener('click', () => {
+        setPasswordShown(input, button, input.type === 'password');
+        input.focus();   // keep typing where they were
+    });
+    wrap.append(button);
+});
 
 function openMsgbox(view = 'welcome') {
     lastFocused = document.activeElement;
@@ -141,13 +187,6 @@ signinForm.addEventListener('submit', (e) => {
 
 const signupForm = document.getElementById('signup-form');
 const signupError = document.getElementById('signup-error');
-
-// "Show passwords" flips both password boxes between hidden and plain text
-document.getElementById('signup-show').addEventListener('change', (e) => {
-    ['password', 'confirm'].forEach((name) => {
-        signupForm.elements[name].type = e.target.checked ? 'text' : 'password';
-    });
-});
 
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();

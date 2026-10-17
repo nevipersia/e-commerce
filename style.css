@@ -354,6 +354,53 @@ body {
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+/* Password box with the show / hide eye inside its right edge */
+.password-wrap {
+    position: relative;
+    display: block;
+}
+
+.msgbox input.password-input {
+    padding-right: 46px;           /* room for the eye */
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(239, 236, 231, 0.55);
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+    color: var(--cream);
+    background: rgba(239, 236, 231, 0.08);
+    outline: none;
+}
+
+/* Eye while hidden ("show it"), crossed-out eye while shown ("hide it") */
+.password-toggle .eye-slash {
+    display: none;
+}
+
+.password-toggle.is-shown {
+    color: var(--cream);
+}
+
+.password-toggle.is-shown .eye-slash {
+    display: inline;
+}
+
 .msgbox input:focus {
     outline: none;
     border-color: var(--cream);
