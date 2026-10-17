@@ -341,6 +341,91 @@ function reviewsOf(key, artist, name) {
 // 4 -> "★★★★☆"
 const starText = (rating) => '★'.repeat(rating) + '☆'.repeat(5 - rating);
 
+/* ---------- Trade-ins and store credit ----------
+   Shoppers send a trade-in from Contact (photo, records, format,
+   condition, copies). Staff accept it on the Seller dashboard, which
+   adds store credit to the shopper's account; checkout can spend it.
+   Each trade-in:
+   { id, accountId, customer: {name, email}, records, format, condition,
+     copies, photo, estimate, offer, status, sentAt, decidedAt }
+   status: 'pending' -> 'accepted' (offer = credit given) or 'declined' */
+
+const TRADEINS_KEY = 'venaudio.tradeins';
+const CREDIT_KEY = 'venaudio.credit';   // { accountId: pesos }
+
+// What a copy is worth in store credit, before its condition
+const TRADE_VALUES = { 'Vinyl LP': 400, 'CD': 150, 'Boxset': 600, 'Cassette': 100 };
+const TRADE_CONDITIONS = { 'Mint': 1, 'Very Good': 0.6, 'Played to death': 0.15 };
+const TRADE_MAX_COPIES = 20;
+
+// Rough offer, rounded to the nearest ₱10. 0 until format and condition are picked.
+function tradeEstimate(format, condition, copies) {
+    const value = TRADE_VALUES[format];
+    const factor = TRADE_CONDITIONS[condition];
+    const n = Math.round(Number(copies));
+    if (!value || !factor || !(n >= 1)) return 0;
+    return Math.round((value * factor * Math.min(n, TRADE_MAX_COPIES)) / 10) * 10;
+}
+
+function allTradeIns() {
+    const saved = readStore(TRADEINS_KEY);
+    return Array.isArray(saved) ? saved : [];
+}
+
+const tradeInsOf = (accountId) => allTradeIns()
+    .filter((t) => t.accountId === accountId)
+    .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+
+// Save a new trade-in for the signed-in account. Throws an Error with a
+// message fit to show (not signed in, or the browser's storage is full).
+function sendTradeIn({ records, format, condition, copies, photo }) {
+    const account = currentAccount();
+    if (!account) throw new Error('Sign in first — the credit goes on your account.');
+    const tradeIn = {
+        id: `TRD-${Date.now().toString(36).toUpperCase().slice(-6)}`,
+        accountId: account.id,
+        customer: { name: account.name, email: account.email },
+        records: String(records).trim().slice(0, 200),
+        format,
+        condition,
+        copies: Math.min(Math.round(Number(copies)), TRADE_MAX_COPIES),
+        photo,
+        estimate: tradeEstimate(format, condition, copies),
+        offer: null,
+        status: 'pending',
+        sentAt: new Date().toISOString()
+    };
+    writeStore(TRADEINS_KEY, [...allTradeIns(), tradeIn]);
+    if (!allTradeIns().some((t) => t.id === tradeIn.id)) {
+        throw new Error("Couldn't save it — this browser's storage is full. Try a smaller photo.");
+    }
+    return tradeIn;
+}
+
+// Staff decide: accept with an offer (credited straight away) or decline
+function decideTradeIn(id, accept, offer) {
+    const all = allTradeIns();
+    const tradeIn = all.find((t) => t.id === id);
+    if (!tradeIn || tradeIn.status !== 'pending') return null;
+    tradeIn.status = accept ? 'accepted' : 'declined';
+    tradeIn.offer = accept ? Math.max(0, Math.round(Number(offer))) : null;
+    tradeIn.decidedAt = new Date().toISOString();
+    writeStore(TRADEINS_KEY, all);
+    if (accept) addCredit(tradeIn.accountId, tradeIn.offer);
+    return tradeIn;
+}
+
+function creditOf(accountId) {
+    const balances = readStore(CREDIT_KEY) || {};
+    return Number(balances[accountId]) || 0;
+}
+
+function addCredit(accountId, amount) {
+    const balances = readStore(CREDIT_KEY) || {};
+    balances[accountId] = Math.max(0, (Number(balances[accountId]) || 0) + amount);
+    writeStore(CREDIT_KEY, balances);
+}
+
 /* ---------- Top bar account chip ---------- */
 
 // Fill a .account-chip element: the avatar and first name, linking to My

@@ -3975,6 +3975,197 @@ select optgroup option {
 }
 
 /* ============================================================
+   TRADE-INS AND STORE CREDIT
+   Sent on Contact, reviewed on the Seller dashboard, shown on
+   My account; the credit is spent at checkout.
+   ============================================================ */
+
+/* Contact */
+.trade-guest {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-left: 3px solid var(--cream);
+    color: var(--bone);
+    font-size: 14px;
+}
+
+.trade-guest[hidden],
+.trade-preview[hidden],
+#trade-form[hidden] {
+    display: none;
+}
+
+.trade-guest a {
+    color: var(--cream);
+}
+
+.trade-preview {
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin: -4px 0 14px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(248, 206, 151, 0.2);
+}
+
+.trade-estimate {
+    margin: 4px 0 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: rgba(51, 32, 7, 0.55);
+    color: var(--bone);
+    font-size: 14px;
+}
+
+/* Seller dashboard */
+.seller-tradeins {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.seller-tradein {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid rgba(248, 206, 151, 0.18);
+    border-radius: 12px;
+    background: rgba(28, 20, 7, 0.55);
+}
+
+.seller-tradein.is-pending {
+    border-color: rgba(248, 206, 151, 0.45);
+}
+
+.seller-tradein-photo {
+    width: 84px;
+    height: 84px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.seller-tradein-records {
+    color: var(--bone);
+    font-weight: 700;
+}
+
+.seller-tradein-decide {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.seller-offer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(239, 236, 231, 0.65);
+    font-size: 12px;
+}
+
+.seller-offer .seller-price {
+    width: 100px;
+}
+
+.seller-tradein-result {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+}
+
+.seller-tradein-result.is-accepted {
+    background: rgba(90, 102, 49, 0.45);
+    color: #cfe3a6;
+}
+
+.seller-tradein-result.is-declined {
+    background: rgba(239, 236, 231, 0.08);
+    color: rgba(239, 236, 231, 0.7);
+}
+
+@media (max-width: 700px) {
+    .seller-tradein {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+    .seller-tradein-photo {
+        width: 64px;
+        height: 64px;
+    }
+    .seller-tradein-decide {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+}
+
+/* My account */
+.account-credit {
+    color: var(--bone);
+    font-size: 16px;
+}
+
+.account-credit strong {
+    color: var(--cream);
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.account-tradeins {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.account-tradein,
+.account-tradein-none {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(51, 32, 7, 0.45);
+    font-size: 14px;
+}
+
+.account-tradein-none {
+    color: rgba(239, 236, 231, 0.6);
+}
+
+.account-tradein-what {
+    color: var(--bone);
+}
+
+.account-tradein-state {
+    margin-top: 2px;
+    color: rgba(239, 236, 231, 0.6);
+    font-size: 13px;
+}
+
+.account-tradein.is-accepted .account-tradein-state {
+    color: #cfe3a6;
+}
+
+/* Checkout */
+.credit-choice {
+    margin: 4px 0 0;
+}
+
+.credit-choice[hidden],
+.summary-credit[hidden] {
+    display: none;
+}
+
+.summary-credit dd {
+    color: #cfe3a6;
+}
+
+/* ============================================================
    MY ORDERS
    Order cards reuse .panel, the bag's .drawer-list and the
    checkout's .summary-totals, so they match the rest of the shop.

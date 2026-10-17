@@ -14,7 +14,7 @@
 
 const sellerArea = document.getElementById('seller');
 
-const PAYMENT_NAMES = { cod: 'Cash on delivery', gcash: 'GCash', maya: 'Maya', card: 'Card' };
+const PAYMENT_NAMES = { cod: 'Cash on delivery', gcash: 'GCash', maya: 'Maya', card: 'Card', credit: 'Store credit' };
 const STATUS_NAMES = { processing: 'Processing', shipped: 'Shipped', delivered: 'Delivered' };
 const FORMAT_LABELS = { vinyl: 'Vinyl LP', cd: 'CD', cassette: 'Cassette', boxset: 'Boxset' };
 
@@ -129,10 +129,87 @@ function renderOrders(orders) {
     }));
 }
 
+/* =============================================================
+   TRADE-INS
+   ============================================================= */
+
+const TRADE_STATUS_TEXT = { pending: 'Waiting for you', accepted: 'Accepted', declined: 'Declined' };
+
+// Waiting ones first, then the rest newest first
+function renderTradeIns() {
+    const list = document.getElementById('seller-tradeins');
+    const tradeIns = allTradeIns().sort((a, b) =>
+        (a.status === 'pending' ? 0 : 1) - (b.status === 'pending' ? 0 : 1) || new Date(b.sentAt) - new Date(a.sentAt));
+    document.getElementById('seller-tradeins-empty').hidden = tradeIns.length > 0;
+
+    list.replaceChildren(...tradeIns.map((t) => {
+        const li = el('li', `seller-tradein is-${t.status}`);
+
+        const photo = el('img', 'seller-tradein-photo');
+        photo.src = safeImage(t.photo);   // only pictures this site resized
+        photo.alt = `Photo sent with ${t.id}`;
+
+        const info = el('div', 'seller-tradein-info');
+        info.append(
+            el('p', 'seller-tradein-records', t.records),
+            el('p', 'seller-sub', `${t.copies} × ${t.format} · ${t.condition}`),
+            el('p', 'seller-sub', `${t.customer.name} · ${t.customer.email}`),
+            el('p', 'seller-sub', `${t.id} · sent ${shortDate(t.sentAt)} · estimate ${money(t.estimate)}`)
+        );
+
+        const decide = el('div', 'seller-tradein-decide');
+        if (t.status === 'pending') {
+            const label = el('label', 'seller-offer');
+            label.append(el('span', null, 'Offer (₱)'));
+            const offer = el('input', 'seller-price');
+            offer.type = 'number';
+            offer.min = '0';
+            offer.step = '10';
+            offer.value = t.estimate;
+            offer.setAttribute('aria-label', `Offer in store credit for ${t.id}`);
+            label.append(offer);
+
+            const accept = el('button', 'seller-action', 'Accept');
+            accept.type = 'button';
+            accept.addEventListener('click', () => {
+                const value = Math.round(Number(offer.value));
+                if (offer.value === '' || !Number.isFinite(value) || value < 0) {
+                    document.getElementById('tradeins-status').textContent = 'Enter an offer of ₱0 or more.';
+                    offer.focus();
+                    return;
+                }
+                decideTradeIn(t.id, true, value);
+                document.getElementById('tradeins-status').textContent =
+                    `Accepted ${t.id}: ${money(value)} store credit added for ${t.customer.name}.`;
+                renderTradeIns();
+            });
+
+            const decline = el('button', 'seller-action seller-remove', 'Decline');
+            decline.type = 'button';
+            decline.addEventListener('click', () => {
+                decideTradeIn(t.id, false);
+                document.getElementById('tradeins-status').textContent = `Declined ${t.id}.`;
+                renderTradeIns();
+            });
+            decide.append(label, accept, decline);
+        } else {
+            const text = t.status === 'accepted'
+                ? `Accepted · ${money(t.offer)} credit`
+                : 'Declined';
+            decide.append(el('span', `seller-tradein-result is-${t.status}`, text),
+                el('span', 'seller-sub', shortDate(t.decidedAt)));
+        }
+
+        li.append(photo, info, decide);
+        return li;
+    }));
+}
+
 function renderSales() {
     const orders = allOrders();
     renderOverview(orders);
     renderOrders(orders);
+    renderTradeIns();
     renderProducts();   // the "Sold" column follows the orders too
 }
 
@@ -317,27 +394,6 @@ const addError = document.getElementById('add-error');
 const addDone = document.getElementById('add-done');
 const addPreview = document.getElementById('add-preview');
 
-// Shrink the chosen picture to at most 600px and turn it into a JPEG
-// data: URL — browser storage only holds a few megabytes
-function resizeImage(file) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-            const scale = Math.min(1, 600 / Math.max(img.width, img.height));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(img.width * scale);
-            canvas.height = Math.round(img.height * scale);
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#fff';                    // transparent PNGs get a white sleeve, like the others
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            URL.revokeObjectURL(img.src);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
-        };
-        img.onerror = () => reject(new Error("That file doesn't look like a picture. Try a JPG or PNG."));
-        img.src = URL.createObjectURL(file);
-    });
-}
 
 addForm.elements.image.addEventListener('change', async () => {
     const file = addForm.elements.image.files[0];

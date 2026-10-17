@@ -1,5 +1,5 @@
 // Contact page: bulk-order total, image-button validation, help prompt,
-// and the main enquiry form (order picker, "Message sent").
+// the main enquiry form (order picker, "Message sent"), and trade-ins.
 
 // Called from the quantity field's oninput attribute.
 // q is the quantity input, p the hidden unit price.
@@ -118,4 +118,97 @@ document.getElementById('send-another').addEventListener('click', () => {
     sentNote.hidden = true;
     enquiry.hidden = false;
     messageBox.focus();
+});
+
+/* ---------- Trade in your crate ---------- */
+// Saved by account.js for the staff to review on the Seller dashboard.
+// Accepting one adds store credit to the shopper's account.
+const tradeForm = document.getElementById('trade-form');
+const tradeError = document.getElementById('trade-error');
+const tradeEstimateLine = document.getElementById('trade-estimate');
+const tradePreview = document.getElementById('trade-preview');
+const tradeSent = document.getElementById('trade-sent');
+const tf = tradeForm.elements;
+
+// Guests can see the form but need an account for the credit to land on
+document.getElementById('trade-guest').hidden = !!currentAccount();
+
+function showTradeEstimate() {
+    const estimate = tradeEstimate(tf['Trade Format'].value, tf.Condition.value, tf.Copies.value);
+    tradeEstimateLine.textContent = estimate
+        ? `We'd offer about ${money(estimate)} in store credit — staff confirm it after seeing the photo.`
+        : 'Pick a format and condition for an estimate.';
+}
+['Trade Format', 'Condition', 'Copies'].forEach((name) => {
+    tf[name].addEventListener('input', showTradeEstimate);
+    tf[name].addEventListener('change', showTradeEstimate);
+});
+
+// Show the chosen photo, already shrunk the way it'll be saved
+let tradePhoto = null;
+tf.file.addEventListener('change', async () => {
+    tradePhoto = null;
+    tradePreview.hidden = true;
+    const file = tf.file.files[0];
+    if (!file) return;
+    try {
+        tradePhoto = await resizeImage(file);   // catalogue.js
+        tradePreview.src = tradePhoto;
+        tradePreview.hidden = false;
+    } catch (err) {
+        showTradeError(err.message, tf.file);
+    }
+});
+
+function showTradeError(message, field) {
+    tradeError.textContent = message;
+    tradeError.hidden = false;
+    if (field) field.focus();
+}
+
+tradeForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    tradeError.hidden = true;
+
+    if (!currentAccount()) {
+        return showTradeError('Sign in first — the credit goes on your account.');
+    }
+    if (!tradePhoto) return showTradeError('Add a photo of the records.', tf.file);
+    if (!tf.Records.value.trim()) return showTradeError('Say which records you\u2019re trading.', tf.Records);
+    if (!tf['Trade Format'].value) return showTradeError('Pick what you\u2019re trading.', tf['Trade Format']);
+    if (!tf.Condition.value) return showTradeError('Pick their condition.', tf.Condition);
+    const copies = Number(tf.Copies.value);
+    if (!Number.isInteger(copies) || copies < 1 || copies > TRADE_MAX_COPIES) {
+        return showTradeError(`Copies must be a whole number from 1 to ${TRADE_MAX_COPIES}.`, tf.Copies);
+    }
+
+    let tradeIn;
+    try {
+        tradeIn = sendTradeIn({
+            records: tf.Records.value,
+            format: tf['Trade Format'].value,
+            condition: tf.Condition.value,
+            copies,
+            photo: tradePhoto
+        });
+    } catch (err) {
+        return showTradeError(err.message);
+    }
+
+    document.getElementById('trade-sent-text').textContent =
+        `Reference ${tradeIn.id}. Our estimate is ${money(tradeIn.estimate)} in store credit; ` +
+        "you'll see the final offer on My account once the staff have looked.";
+    tradeForm.hidden = true;
+    tradeSent.hidden = false;
+    tradeSent.focus();
+});
+
+document.getElementById('trade-another').addEventListener('click', () => {
+    tradeForm.reset();
+    tradePhoto = null;
+    tradePreview.hidden = true;
+    showTradeEstimate();
+    tradeSent.hidden = true;
+    tradeForm.hidden = false;
+    tf.file.focus();
 });

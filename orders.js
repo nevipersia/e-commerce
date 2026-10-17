@@ -31,6 +31,7 @@ function statusOf(order) {
 const longDate = (d) => d.toLocaleDateString('en-PH', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
 function paymentText(payment, total) {
+    if (payment.method === 'credit') return 'Paid in full with store credit';
     if (payment.method === 'cod') return `Cash on delivery — ${money(total)} due on arrival`;
     if (payment.method === 'card') return `Card ending ${payment.last4} · ref ${payment.reference}`;
     const wallet = payment.method === 'gcash' ? 'GCash' : 'Maya';
@@ -200,9 +201,12 @@ function renderOrder(order) {
 
     // Totals, payment and address
     const totals = el('dl', 'summary-totals');
-    [['Subtotal', money(order.subtotal)], ['Shipping', money(order.shipping)], ['Total', money(order.total)]]
-        .forEach(([label, value], i) => {
-            const row = el('div', i === 2 ? 'summary-grand' : '');
+    [['Subtotal', money(order.subtotal)], ['Shipping', money(order.shipping)],
+        order.credit ? ['Store credit', `−${money(order.credit)}`] : null,
+        ['Total', money(order.total)]]
+        .filter(Boolean)
+        .forEach(([label, value], i, rows) => {
+            const row = el('div', i === rows.length - 1 ? 'summary-grand' : '');
             row.append(el('dt', null, label), el('dd', null, value));
             totals.appendChild(row);
         });

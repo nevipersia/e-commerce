@@ -59,6 +59,29 @@ function takeStock(items) {
 // trusted as an added record's image
 const safeImage = (src) => (typeof src === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(src) ? src : '');
 
+// Shrink a picture the visitor chose to a 600px JPEG data: URL, small
+// enough to keep in localStorage. Used for records the seller adds and
+// for trade-in photos.
+function resizeImage(file) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            const scale = Math.min(1, 600 / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fff';                    // transparent PNGs get a white background
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            URL.revokeObjectURL(img.src);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
+        };
+        img.onerror = () => reject(new Error("That file doesn't look like a picture. Try a JPG or PNG."));
+        img.src = URL.createObjectURL(file);
+    });
+}
+
 // A pasted Spotify link -> "album/<id>" or "track/<id>", the form the
 // cards keep in data-spotify. '' when nothing was pasted, null when it
 // isn't a Spotify album or song link.

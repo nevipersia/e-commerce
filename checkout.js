@@ -89,6 +89,22 @@ function renderSummary() {
     placeOrder.disabled = bag.length === 0;
 }
 
+// Store credit from accepted trade-ins (account.js). It covers as much of
+// the order as it can; the rest is paid the usual way.
+const creditChoice = document.getElementById('credit-choice');
+const useCredit = document.getElementById('use-credit');
+
+function creditAvailable() {
+    const account = currentAccount();
+    return account ? creditOf(account.id) : 0;
+}
+
+const creditUsed = () => (useCredit.checked
+    ? Math.min(creditAvailable(), subtotal() + (shippingCost() || 0))
+    : 0);
+
+useCredit.addEventListener('change', () => renderTotals());
+
 // Shipping depends on the region's zone and the chosen speed
 function shippingCost() {
     const region = selectedRegion();
@@ -109,9 +125,15 @@ function renderTotals() {
     }
 
     const ship = shippingCost();
+    const credit = creditUsed();
     document.getElementById('sum-subtotal').textContent = money(subtotal());
     document.getElementById('sum-shipping').textContent = ship === null ? 'Select a region' : money(ship);
-    document.getElementById('sum-total').textContent = money(subtotal() + (ship || 0));
+    document.getElementById('sum-total').textContent = money(subtotal() + (ship || 0) - credit);
+
+    creditChoice.hidden = creditAvailable() === 0 || bag.length === 0;
+    document.getElementById('credit-available').textContent = money(creditAvailable());
+    document.getElementById('sum-credit-row').hidden = credit === 0;
+    document.getElementById('sum-credit').textContent = `−${money(credit)}`;
 }
 
 form.querySelectorAll('input[name="speed"]').forEach((radio) => {
@@ -308,6 +330,7 @@ function firstProblem() {
 
 // How the confirmation describes the payment
 function paymentLine(method, total, receipt, cardDigits) {
+    if (method === 'credit') return 'paid in full with store credit';
     if (method === 'cod') return `pay ${money(total)} in cash when it arrives`;
     if (method === 'card') return `${money(total)} paid by card ending ${cardDigits.slice(-4)} (ref ${receipt.reference})`;
     return `${money(total)} paid with ${WALLETS[method]} (ref ${receipt.reference})`;
@@ -345,8 +368,10 @@ form.addEventListener('submit', async (e) => {
     }
 
     const data = new FormData(form);
-    const method = data.get('payment');
-    const total = subtotal() + shippingCost();
+    const credit = creditUsed();
+    const total = subtotal() + shippingCost() - credit;
+    // Fully covered by store credit: nothing left to pay by cash, card or wallet
+    const method = total === 0 ? 'credit' : data.get('payment');
     const cardDigits = (data.get('card-number') || '').replace(/\D/g, '');
 
     // Lock the button while we wait — a second click mustn't pay twice
@@ -358,7 +383,7 @@ form.addEventListener('submit', async (e) => {
     try {
         let receipt = null;
         if (WALLETS[method]) await askWalletApproval(WALLETS[method], total);
-        if (method !== 'cod') receipt = await fakeCharge({ method, cardDigits });
+        if (method !== 'cod' && method !== 'credit') receipt = await fakeCharge({ method, cardDigits });
 
         // Paid (or paying on delivery): the order goes through
         const orderNo = `VND-${Date.now().toString(36).toUpperCase().slice(-6)}`;
@@ -390,6 +415,7 @@ form.addEventListener('submit', async (e) => {
             subtotal: subtotal(),
             shipping: shippingCost(),
             total,
+            credit,
             speed,
             eta: RATES[region.zone].eta[speed === 'express' ? 1 : 0],
             payment: {
@@ -411,6 +437,9 @@ form.addEventListener('submit', async (e) => {
             street: data.get('street'),
             landmark: data.get('landmark')
         });
+
+        // Spend the store credit that went towards it
+        if (credit > 0) addCredit(currentAccount().id, -credit);
 
         // Only now — after payment worked — take the records off the shelf
         // (catalogue.js; at 0 they're sold out) and empty the bag

@@ -276,9 +276,16 @@
                     Your bag is empty. <a href="browse.html">Back to the crates</a>
                 </p>
 
+                <!-- Store credit from accepted trade-ins (checkout.js) -->
+                <label class="choice credit-choice" id="credit-choice" hidden>
+                    <input type="checkbox" id="use-credit" checked>
+                    Use my store credit (<span id="credit-available">₱0.00</span>)
+                </label>
+
                 <dl class="summary-totals">
                     <div><dt>Subtotal</dt><dd id="sum-subtotal">₱0.00</dd></div>
                     <div><dt>Shipping</dt><dd id="sum-shipping">Select a region</dd></div>
+                    <div class="summary-credit" id="sum-credit-row" hidden><dt>Store credit</dt><dd id="sum-credit">−₱0.00</dd></div>
                     <div class="summary-grand"><dt>Total</dt><dd id="sum-total">₱0.00</dd></div>
                 </dl>
 

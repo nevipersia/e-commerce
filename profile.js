@@ -77,10 +77,49 @@ function render() {
     editAddressButton.hidden = !editable;
     editAddressButton.textContent = account.address ? 'Edit address' : 'Add an address';
 
+    renderTradeIns(account);
+
     const orders = ordersOf(account.id);
     document.getElementById('account-orders-note').textContent = orders.length
         ? `You've placed ${orders.length} ${orders.length === 1 ? 'order' : 'orders'}. The latest is ${orders[0].id}.`
         : "You haven't placed an order yet.";
+}
+
+/* ---------- Trade-ins and store credit ---------- */
+// Accepted trade-ins become store credit (account.js); checkout spends it
+const TRADE_STATE = {
+    pending: 'Waiting for an offer',
+    accepted: 'Accepted',
+    declined: 'Declined'
+};
+
+function renderTradeIns(account) {
+    document.getElementById('account-credit').textContent = money(creditOf(account.id));
+    const list = document.getElementById('account-tradeins');
+    const tradeIns = tradeInsOf(account.id);
+
+    if (tradeIns.length === 0) {
+        const none = document.createElement('li');
+        none.className = 'account-tradein-none';
+        none.textContent = 'No trade-ins yet.';
+        list.replaceChildren(none);
+        return;
+    }
+
+    list.replaceChildren(...tradeIns.map((t) => {
+        const li = document.createElement('li');
+        li.className = `account-tradein is-${t.status}`;
+        const what = document.createElement('p');
+        what.className = 'account-tradein-what';
+        what.textContent = `${t.records} — ${t.copies} × ${t.format}, ${t.condition}`;
+        const state = document.createElement('p');
+        state.className = 'account-tradein-state';
+        state.textContent = t.status === 'accepted'
+            ? `${TRADE_STATE.accepted} · ${money(t.offer)} added to your credit`
+            : `${TRADE_STATE[t.status]} · ${t.id}`;
+        li.append(what, state);
+        return li;
+    }));
 }
 
 /* ---------- Switching a panel between showing and editing ---------- */
