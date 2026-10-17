@@ -78,6 +78,16 @@
             </div>
 
             <div class="toolbar-right">
+                <!-- Hover previews stay silent until this is switched on (browse.js) -->
+                <button type="button" class="chip sound-toggle" id="sound-toggle" aria-pressed="false">
+                    <svg class="sound-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"
+                         fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/>
+                        <path class="sound-waves" d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/>
+                        <path class="sound-mute" d="M16 9.5l5 5M21 9.5l-5 5"/>
+                    </svg>
+                    Sound <span class="sound-state">off</span>
+                </button>
                 <label class="sort">
                     <span class="visually-hidden">Sort records</span>
                     <select id="sort">
@@ -95,7 +105,9 @@
             <article class="card" data-format="vinyl" data-price="1450" data-title="Gabriel"
                     data-artist="keshi" data-label="Limited Red Vinyl LP"
                     data-desc="keshi&#x27;s 2022 debut album, pressed on limited-edition red vinyl."
-                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
+                    data-spotify="album/0kRngJxG4EcTvlFoprUkqG" data-song="UNDERSTAND"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/c8/0b/17c80b1b-756d-141d-07ad-312a2abfd1f5/mzaf_3423709056660709534.plus.aac.p.m4a">
 
 
                 <div class="art">
@@ -117,7 +129,9 @@
             <article class="card" data-format="cd" data-price="756" data-title="Gabriel"
                     data-artist="keshi" data-label="Standard CD"
                     data-desc="keshi&#x27;s 2022 debut album on CD in its original cover — the everyday way into the record."
-                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
+                    data-spotify="album/0kRngJxG4EcTvlFoprUkqG" data-song="UNDERSTAND"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/c8/0b/17c80b1b-756d-141d-07ad-312a2abfd1f5/mzaf_3423709056660709534.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Keshi_Gabriel_Standard_CD.jpg" alt="keshi — Gabriel standard CD" loading="eager" fetchpriority="high">
@@ -137,7 +151,9 @@
             <article class="card" data-format="boxset" data-price="2523" data-title="Requiem Collectible Boxset"
                     data-artist="keshi" data-label="Collectible CD Boxset"
                     data-desc="The limited Requiem collector&#x27;s box: the standard CD, twelve behind-the-album polaroids, a photo booklet from the music video shoots and a double-sided poster, in a matte box wrapped with the Requiem obi strip. There&#x27;s room left inside for the rest of your collection. The second picture shows everything that comes in it."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                    data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20CD%20Collectible%20Boxset.jpg" alt="keshi — Requiem collectible CD boxset" loading="eager" fetchpriority="high">
@@ -159,7 +175,9 @@
             <article class="card" data-format="cd signed" data-price="883" data-title="Requiem Signed CD"
                     data-artist="keshi" data-label="Signed CD"
                     data-desc="Requiem on CD in a standard jewel case, with a square insert signed by keshi. One per customer while they last."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                    data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Signed%20CD.jpg" alt="keshi — Requiem signed CD" loading="eager" fetchpriority="high">
@@ -179,7 +197,9 @@
             <article class="card" data-format="vinyl signed" data-price="1640" data-title="Requiem Signed LP"
                     data-artist="keshi" data-label="Signed Vinyl LP"
                     data-desc="The standard Requiem LP on black vinyl, with an insert signed by keshi. Shipped in a stiffened mailer, corners protected."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                    data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Signed%20LP.jpg" alt="keshi — Requiem signed LP" loading="lazy">
@@ -199,7 +219,9 @@
             <article class="card" data-format="vinyl" data-price="2460" data-title="Currents"
                      data-artist="Tame Impala" data-label="Double Vinyl LP"
                      data-desc="Tame Impala&#x27;s 2015 album across two LPs in a gatefold sleeve. A permanent fixture of the crate."
-                     data-tracks="Let It Happen|Nangs|The Moment|Yes I&#x27;m Changing|Eventually|Gossip|The Less I Know the Better|Past Life|Disciples|&#x27;Cause I&#x27;m a Man|Reality in Motion|Love/Paranoia|New Person, Same Old Mistakes">
+                     data-tracks="Let It Happen|Nangs|The Moment|Yes I&#x27;m Changing|Eventually|Gossip|The Less I Know the Better|Past Life|Disciples|&#x27;Cause I&#x27;m a Man|Reality in Motion|Love/Paranoia|New Person, Same Old Mistakes"
+                     data-spotify="album/0rxKf57PZvWEoU8v3m5W2q" data-song="The Less I Know the Better"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5d/2a/2a/5d2a2a7c-a42f-901e-bbf7-d99c33323526/mzaf_5177778173802721769.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/currents%20vinyl.jpg" alt="Tame Impala — Currents vinyl" loading="lazy">
@@ -220,7 +242,9 @@
             <article class="card" data-format="vinyl" data-price="882" data-title="Wantchu"
                     data-artist="keshi" data-label="7-inch Single"
                     data-desc="keshi&#x27;s WANTCHU on a 7-inch single: the original on side A, a slowed-down version on side B. Every disc&#x27;s colour comes out a little different, so yours may not match the photo exactly."
-                     data-tracks="WANTCHU|WANTCHU (Slowed Down Version)">
+                     data-tracks="WANTCHU|WANTCHU (Slowed Down Version)"
+                    data-spotify="album/3rCkHBye6oF5lzi9h0az3N" data-song="WANTCHU"
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/92/4c/61/924c61fc-e432-7acd-b262-12d9963d92a5/mzaf_1299459325439085704.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/keshi%20wantchu%20(vinyl).jpg" alt="keshi — Wantchu vinyl" loading="lazy">
@@ -241,7 +265,9 @@
             <article class="card" data-format="vinyl" data-price="1260" data-title="Always"
                     data-artist="keshi" data-label="Vinyl LP"
                     data-desc="keshi&#x27;s always EP on a standard 12-inch LP — six songs over two sides."
-                     data-tracks="always|more|drunk|talk|B.Y.S.|Us">
+                     data-tracks="always|more|drunk|talk|B.Y.S.|Us"
+                    data-spotify="album/37FLvUnF5qC1LZBNCWqG1A" data-song="B.Y.S."
+                    data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ea/13/b0/ea13b0a4-0c87-d0a2-77e7-35e34a526b08/mzaf_6072913287281044973.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/always%20standard%20LP.jpg" alt="keshi — Always standard LP" loading="lazy">
@@ -261,7 +287,9 @@
             <article class="card" data-format="vinyl" data-price="1260" data-title="Bandaids"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="keshi&#x27;s bandaids EP on a standard 12-inch LP — five songs over two sides. Pairs with always and skeletons."
-                     data-tracks="less of you|alright|blue|right here|bandaids">
+                     data-tracks="less of you|alright|blue|right here|bandaids"
+                     data-spotify="album/4LfFHT00C9ImLMUjHkqWjQ" data-song="blue"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d9/c1/b6/d9c1b6ea-fbd3-8e0d-8627-d621c51be7b1/mzaf_3173825804599530844.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/bandaids%20standard%20LP.jpg" alt="keshi — Bandaids standard LP" loading="lazy">
@@ -281,7 +309,9 @@
             <article class="card" data-format="vinyl" data-price="1260" data-title="Skeletons"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="keshi&#x27;s skeletons EP on a standard 12-inch LP — four songs over two sides."
-                     data-tracks="atlas|skeletons|summer|xoxosos">
+                     data-tracks="atlas|skeletons|summer|xoxosos"
+                     data-spotify="album/14IZ6aHadzsKrNMnntwLb0" data-song="skeletons"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2c/73/a7/2c73a74d-4231-8f13-2d94-86f23cf6158f/mzaf_12677550838042067874.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/skeletons%20standard%20LP.jpg" alt="keshi — Skeletons standard LP" loading="lazy">
@@ -303,7 +333,9 @@
             <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Standard LP"
                      data-artist="keshi" data-label="Vinyl LP"
                      data-desc="Requiem on classic black vinyl in a standard jacket, with an 11-inch insert carrying the lyrics and credits, and an obi strip from the limited first run."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Standard%20LP.jpg" alt="keshi — Requiem standard LP" loading="lazy">
@@ -323,7 +355,9 @@
             <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Premium LP"
                      data-artist="keshi" data-label="Premium Vinyl LP"
                      data-desc="Requiem in its standard cover but on a differently coloured disc, with an exclusive double-sided poster and a limited obi strip. Every disc&#x27;s colour comes out a little different."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Premium%20LP.jpg" alt="keshi — Requiem premium LP" loading="lazy">
@@ -343,7 +377,9 @@
             <article class="card" data-format="vinyl" data-price="1640" data-title="Requiem Alternate Cover LP"
                      data-artist="keshi" data-label="Alternate Cover Vinyl LP"
                      data-desc="Same record, different face: Requiem in its alternate cover, in standard packaging with a limited obi strip."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Alternate%20Cover%20LP.jpg" alt="keshi — Requiem alternate cover LP" loading="lazy">
@@ -363,7 +399,9 @@
             <article class="card" data-format="vinyl" data-price="1892" data-title="Requiem Fans First LP"
                      data-artist="keshi" data-label="Picture Disc LP"
                      data-desc="Requiem as a picture disc in a clear sleeve with a product sticker — first released as a Spotify Fans First exclusive."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Fans%20First%20LP.jpg" alt="keshi — Requiem Spotify Fans First exclusive LP" loading="lazy">
@@ -384,7 +422,9 @@
             <article class="card" data-format="cd" data-price="882" data-title="Requiem Standard CD"
                      data-artist="keshi" data-label="Standard CD"
                      data-desc="Requiem on CD in a standard jewel case — the cheapest way into the album."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Standard%20CD.jpg" alt="keshi — Requiem standard CD" loading="lazy">
@@ -404,7 +444,9 @@
             <article class="card" data-format="cassette" data-price="945" data-title="Requiem Cassette"
                      data-artist="keshi" data-label="Cassette"
                      data-desc="Requiem on cassette in a standard case, for the deck that still works."
-                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id">
+                     data-tracks="Amen|Say|Night|Soft Spot|Like That|Texas|Dream|War|Bodies|Requiem|Euphoria|Just to Die|Id"
+                     data-spotify="album/5DfKDonIvNlxlzA4ORIOFm" data-song="Soft Spot"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/83/53/9f/83539ff7-58d9-a02e-f9ca-bf339afeb7b0/mzaf_10894226152521713869.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Requiem%20Standard%20Cassette.jpg" alt="keshi — Requiem cassette" loading="lazy">
@@ -424,7 +466,9 @@
             <article class="card" data-format="vinyl" data-price="882" data-title="Say"
                      data-artist="keshi" data-label="7-inch Single"
                      data-desc="Say, the lead single from Requiem, on a 7-inch: the song on side A, its instrumental on side B."
-                     data-tracks="Say|Say (Instrumental)">
+                     data-tracks="Say|Say (Instrumental)"
+                     data-spotify="track/49PPH7Kji3bCyKKNx78SxS" data-song="Say"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/39/14/d5/3914d59f-1152-cf4f-3a8f-f96280fd47af/mzaf_4561919059289260910.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Say%207-inch%20Single.jpg" alt="keshi — Say 7-inch single" loading="lazy">
@@ -444,7 +488,9 @@
             <article class="card" data-format="cd" data-price="756" data-title="Gabriel Heaven Cover"
                      data-artist="keshi" data-label="Alternate Cover CD"
                      data-desc="Gabriel on CD in the alternate heaven cover — the same twelve songs, a different face. Pairs with the limbo edition."
-                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
+                     data-spotify="album/0kRngJxG4EcTvlFoprUkqG" data-song="HELL/HEAVEN"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/58/af/a8/58afa8b3-ad3f-f7ea-3454-8f69beadff84/mzaf_10304654596909842533.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Gabriel%20Heaven%20CD.jpg" alt="keshi — Gabriel CD, heaven alternate cover" loading="lazy">
@@ -464,7 +510,9 @@
             <article class="card" data-format="cd" data-price="756" data-title="Gabriel Limbo Cover"
                      data-artist="keshi" data-label="Alternate Cover CD"
                      data-desc="Gabriel on CD in the alternate limbo cover — the same twelve songs, a different face. Pairs with the heaven edition."
-                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL">
+                     data-tracks="GET IT|SOMEBODY|WESTSIDE|TOUCH|MILLI|PÉRE|HELL/HEAVEN|ANGOSTURA|UNDERSTAND|LIMBO|ANGEL|GABRIEL"
+                     data-spotify="album/0kRngJxG4EcTvlFoprUkqG" data-song="LIMBO"
+                     data-preview="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/17/af/4f/17af4f54-993d-b209-8bc7-46ea888f1280/mzaf_1848130934536833127.plus.aac.p.m4a">
                 <div class="art">
                     <span class="disc" aria-hidden="true"></span>
                     <img src="images/Gabriel%20Limbo%20CD.jpg" alt="keshi — Gabriel CD, limbo alternate cover" loading="lazy">
@@ -484,11 +532,69 @@
         </section>
 
         <p class="empty" id="empty" hidden>Nothing in this crate yet — try another filter.</p>
+
+        <!-- ============ Size guide ============ -->
+        <section class="size-guide" id="size-guide" aria-labelledby="size-guide-title">
+            <h2 id="size-guide-title">Size guide</h2>
+            <p class="size-guide-note">How big each format is, so you know what's arriving and where it'll live.</p>
+            <div class="size-table-wrap">
+                <table class="size-table">
+                    <caption class="visually-hidden">Sizes and weights of each record format</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Format</th>
+                            <th scope="col">Packaging</th>
+                            <th scope="col">Disc or tape</th>
+                            <th scope="col">Weight</th>
+                            <th scope="col">Shelve it on</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Vinyl LP <span class="size-sub">12-inch</span></th>
+                            <td>31.5 × 31.5 cm sleeve, about 0.5 cm thick (1 cm for a double LP)</td>
+                            <td>30 cm disc</td>
+                            <td>250–350 g</td>
+                            <td>An LP shelf at least 33 cm tall</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Vinyl single <span class="size-sub">7-inch</span></th>
+                            <td>18 × 18 cm sleeve</td>
+                            <td>17.5 cm disc</td>
+                            <td>60–80 g</td>
+                            <td>A 7-inch box or a bookshelf</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">CD</th>
+                            <td>14.2 × 12.5 × 1 cm case</td>
+                            <td>12 cm disc</td>
+                            <td>About 100 g</td>
+                            <td>A CD rack or a bookshelf</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Cassette</th>
+                            <td>10.9 × 7 × 1.7 cm case</td>
+                            <td>10 × 6.3 cm tape</td>
+                            <td>About 50 g</td>
+                            <td>A cassette rack or a drawer</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Boxset</th>
+                            <td>Varies — CD boxsets are usually around 15 × 15 × 5 cm</td>
+                            <td>Several discs, plus extras</td>
+                            <td>0.5–1 kg</td>
+                            <td>Lying flat, or standing on an LP shelf</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="size-guide-note">Standard sizes. Special packaging, like gatefolds and boxsets, can run a little bigger.</p>
+        </section>
     </main>
 
     <footer class="shop-footer">
         <p>VenAudio — albums on wax, disc &amp; file</p>
-        <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
+        <p class="muted">Ships nationwide. Sleeves handled with gloves.</p>
     </footer>
 
     <!-- Product viewer -->
@@ -517,9 +623,13 @@
                 <ol id="viewer-tracklist"></ol>
             </div>
 
+            <!-- Spotify's player for this record, added by browse.js when it opens -->
+            <div class="viewer-listen" id="viewer-listen" hidden></div>
+
             <dl class="viewer-specs">
-                <div><dt>Ships</dt><dd>2–4 business days</dd></div>
+                <div><dt>Delivery</dt><dd>1–7 business days</dd></div>
                 <div><dt>Condition</dt><dd>New &amp; sealed</dd></div>
+                <div><dt>Size</dt><dd><a href="#size-guide" class="viewer-size-link" id="viewer-size-link">Size guide</a></dd></div>
             </dl>
 
             <p class="viewer-price" id="viewer-price"></p>

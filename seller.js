@@ -13,7 +13,6 @@
    ============================================================= */
 
 const sellerArea = document.getElementById('seller');
-const lockedNote = document.getElementById('seller-locked');
 
 const PAYMENT_NAMES = { cod: 'Cash on delivery', gcash: 'GCash', maya: 'Maya', card: 'Card' };
 const STATUS_NAMES = { processing: 'Processing', shipped: 'Shipped', delivered: 'Delivered' };
@@ -340,6 +339,11 @@ addForm.addEventListener('submit', async (e) => {
     if (!Number.isFinite(price) || price < 1) return showAddError('Enter a price of at least ₱1.', f.price);
     if (!file) return showAddError('Choose a cover picture.', f.image);
 
+    const spotify = spotifyRef(f.spotify.value);
+    if (spotify === null) {
+        return showAddError('That Spotify link isn’t an album or a song. In Spotify, use Share → Copy link.', f.spotify);
+    }
+
     const format = f.signed.checked ? `${f.format.value} signed` : f.format.value;
     const label = (f.signed.checked ? 'Signed ' : '') + FORMAT_LABELS[f.format.value];
 
@@ -363,6 +367,7 @@ addForm.addEventListener('submit', async (e) => {
         desc: f.desc.value.trim(),
         // one song per line -> "Song|Song|Song", as the shop's cards store them
         tracks: f.tracks.value.split('\n').map((t) => t.replace(/\|/g, '/').trim()).filter(Boolean).join('|'),
+        spotify,
         image
     };
 
@@ -386,11 +391,16 @@ addForm.addEventListener('submit', async (e) => {
    FIRST DRAW
    ============================================================= */
 
+// Staff only. Anyone else never sees the page: guests are sent to sign in
+// (and come back here if they sign in as staff), shoppers back to the shop.
 async function start() {
     const account = currentAccount();
-    lockedNote.hidden = isSeller(account);
-    sellerArea.hidden = !isSeller(account);
-    if (!isSeller(account)) return;
+    if (!isSeller(account)) {
+        location.replace(account ? 'browse.html' : 'index.html?signin&next=seller');
+        return;
+    }
+    document.getElementById('seller-main').hidden = false;
+    sellerArea.hidden = false;
 
     await loadBaseProducts();
     renderSales();

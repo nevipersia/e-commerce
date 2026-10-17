@@ -71,10 +71,11 @@
                     <dd><input type="text" id="name" name="Name" size="45" placeholder="Jane Vinyl"></dd>
 
                     <dt><label for="email">Email address</label></dt>
-                    <dd><input type="text" id="email" name="Address" size="45" placeholder="you@example.com"></dd>
+                    <dd><input type="email" id="email" name="Address" size="45" placeholder="you@example.com"></dd>
 
-                    <dt><label for="zip">Zip / postcode</label></dt>
-                    <dd><input type="text" id="zip" name="Zip" size="5" maxlength="5" placeholder="12345"></dd>
+                    <dt><label for="zip">Postal code</label></dt>
+                    <dd><input type="text" id="zip" name="Zip" size="5" maxlength="4" inputmode="numeric"
+                               pattern="\d{4}" title="4 digits, like 1100" placeholder="1100"></dd>
                 </dl>
 
                 <label class="field" for="heard">
@@ -217,22 +218,11 @@
                 </div>
             </form>
         </section>
-
-        <!-- ============ 5. Find us ============ -->
-        <section class="panel">
-            <h2>More about the shop</h2>
-            <p class="panel-note">
-                Second floor, above the laundrette. Ring the bell twice — or read the long version below.
-            </p>
-
-            <iframe src="about.html" width="100%" height="320" loading="lazy"
-                    title="The VenAudio about page, inline"></iframe>
-        </section>
     </main>
 
     <footer class="shop-footer">
         <p>VenAudio — albums on wax, disc &amp; file</p>
-        <p class="muted">Ships worldwide. Sleeves handled with gloves.</p>
+        <p class="muted">Ships nationwide. Sleeves handled with gloves.</p>
     </footer>
 </body>
 </html>

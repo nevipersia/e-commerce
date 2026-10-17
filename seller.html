@@ -52,19 +52,13 @@
         </div>
     </header>
 
-    <main class="shop-main seller-main">
+    <!-- Hidden until seller.js has checked this is a staff account -->
+    <main class="shop-main seller-main" id="seller-main" hidden>
         <section class="crate-hero">
             <a class="back-link" href="browse.html" data-back>Back</a>
             <p class="eyebrow">Staff only</p>
             <h1>Seller Dashboard</h1>
             <p class="crate-sub">Sales, every customer's orders, and the records in the shop.</p>
-        </section>
-
-        <!-- Everyone but staff -->
-        <section class="panel orders-message" id="seller-locked" hidden>
-            <h2>This page is for VenAudio staff</h2>
-            <p class="panel-note">Sign in with the Seller demo account to manage the shop.</p>
-            <a class="btn btn-primary" href="index.html?signin&amp;next=seller">Sign in</a>
         </section>
 
         <div class="seller" id="seller" hidden>
@@ -163,6 +157,11 @@
                     <label class="field" for="add-tracks">
                         <span>Tracklist <em>(optional, one song per line)</em></span>
                         <textarea id="add-tracks" name="tracks" rows="4"></textarea>
+                    </label>
+                    <label class="field" for="add-spotify">
+                        <span>Spotify link <em>(optional, adds a player to the record)</em></span>
+                        <input type="url" id="add-spotify" name="spotify"
+                               placeholder="https://open.spotify.com/album/…">
                     </label>
                     <label class="field" for="add-image">
                         <span>Cover picture</span>

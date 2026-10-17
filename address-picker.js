@@ -19,11 +19,11 @@ const orList = (zips) => zips.length === 1 ? zips[0]
     : `${zips.slice(0, -1).join(', ')} or ${zips[zips.length - 1]}`;
 
 // Wire up one set of address fields. `fields` holds the elements:
-//   { region, province, city, barangay, postal, postalOptions, postalHint }
+//   { region, province, city, barangay, postal, postalHint }
 // `onRegionChange` runs whenever the region changes (checkout re-prices
 // shipping then). Returns { setAddress, selectedRegion }.
 function createAddressPicker(fields, { onRegionChange = () => {} } = {}) {
-    const { region, province, city, barangay, postal, postalOptions, postalHint } = fields;
+    const { region, province, city, barangay, postal, postalHint } = fields;
 
     const provinces = () => regionData[region.value] || {};
     const cities = () => provinces()[province.value] || {};
@@ -82,16 +82,12 @@ function createAddressPicker(fields, { onRegionChange = () => {} } = {}) {
         // No town picked yet: whatever ZIP is there was for some other address
         if (!city.value) {
             postal.value = '';
-            postalOptions.innerHTML = '';
             postalHint.textContent = '';
             return;
         }
 
         const zips = zipsFor(region.value, province.value, city.value, barangay.value);
         if (zips.length === 0) return;   // ZIP file still loading — it calls us again when it lands
-
-        postalOptions.innerHTML = '';
-        zips.forEach((zip) => postalOptions.append(new Option(zip)));
 
         if (zips.length === 1) {
             postal.value = zips[0];
@@ -105,11 +101,11 @@ function createAddressPicker(fields, { onRegionChange = () => {} } = {}) {
         if (postal.value) {
             postalHint.textContent = '';
         } else if (zips.length <= 3) {
-            postalHint.textContent = `${barangay.value || city.value} uses ${orList(zips)} — pick yours from the list.`;
+            postalHint.textContent = `${barangay.value || city.value} uses ${orList(zips)} — type in yours.`;
         } else if (!barangay.value) {
             postalHint.textContent = `${city.value} has ${zips.length} ZIP codes — choose your barangay to narrow it down.`;
         } else {
-            postalHint.textContent = `${city.value} has ${zips.length} ZIP codes and we can't tell yours from the barangay — pick it from the list.`;
+            postalHint.textContent = `${city.value} has ${zips.length} ZIP codes and we can't tell yours from the barangay — type in yours.`;
         }
     }
 

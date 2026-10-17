@@ -42,7 +42,6 @@ const picker = createAddressPicker({
     city: citySelect,
     barangay: barangaySelect,
     postal: document.getElementById('postal'),
-    postalOptions: document.getElementById('postal-options'),
     postalHint: document.getElementById('postal-hint')
 }, { onRegionChange: () => renderTotals() });
 

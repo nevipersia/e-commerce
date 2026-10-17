@@ -11,7 +11,7 @@
 /* ---------- Elements we touch more than once ---------- */
 const grid = document.getElementById('grid');
 const cards = Array.from(grid.querySelectorAll('.card'));   // every record, filtered or not
-const chips = Array.from(document.querySelectorAll('.chip')); // the All / Vinyl / CD buttons
+const chips = Array.from(document.querySelectorAll('.chips .chip')); // the All / Vinyl / CD buttons
 const searchInput = document.getElementById('search');
 const sortSelect = document.getElementById('sort');
 const resultCount = document.getElementById('result-count');
@@ -359,6 +359,7 @@ const viewerTracklist = document.getElementById('viewer-tracklist');
 const viewerPrice = document.getElementById('viewer-price');
 const viewerAdd = document.getElementById('viewer-add');
 const viewerBack = document.getElementById('viewer-back');
+const viewerListen = document.getElementById('viewer-listen');
 
 let viewerCard = null;      // the card currently on show
 let viewerShots = [];       // its sample pictures
@@ -377,6 +378,27 @@ function showShot(index) {
         thumb.classList.toggle('is-active', i === shotIndex);
         thumb.setAttribute('aria-selected', i === shotIndex ? 'true' : 'false');
     });
+}
+
+// Spotify's own player for the record. data-spotify is "album/<id>" or
+// "track/<id>"; anything else (or nothing) just leaves the player out.
+// It's built fresh on every open and removed on close, so closing the
+// viewer also stops the music.
+const SPOTIFY_REF = /^(album|track)\/[A-Za-z0-9]{22}$/;
+
+function showListen(card) {
+    viewerListen.innerHTML = '';
+    const ref = card.dataset.spotify || '';
+    viewerListen.hidden = !SPOTIFY_REF.test(ref);
+    if (viewerListen.hidden) return;
+
+    const player = document.createElement('iframe');
+    player.src = `https://open.spotify.com/embed/${ref}`;
+    player.title = `Listen to ${card.dataset.title} on Spotify`;
+    player.height = '152';
+    player.loading = 'lazy';
+    player.allow = 'encrypted-media; clipboard-write; picture-in-picture';
+    viewerListen.appendChild(player);
 }
 
 // Fill the viewer from one card's data- attributes and show it
@@ -411,6 +433,9 @@ function openViewer(card) {
         viewerTracklist.appendChild(li);
     });
     viewerTracks.hidden = tracks.length === 0;
+
+    showListen(card);
+    stopPreview();   // the full player takes over from the hover preview
 
     // Thumbnail strip — only worth showing when there's more than one shot
     viewerThumbs.innerHTML = '';
@@ -448,11 +473,14 @@ function closeViewer() {
     viewer.hidden = true;
     viewerBackdrop.hidden = true;
     viewerCard = null;
+    viewerListen.innerHTML = '';   // removing the player is what stops its music
     document.body.style.overflow = '';
     if (lastFocusedInShop) lastFocusedInShop.focus();   // hand focus back where it came from
 }
 
 viewerClose.addEventListener('click', closeViewer);
+// The size guide is on the page behind the viewer: close it, then the link scrolls there
+document.getElementById('viewer-size-link').addEventListener('click', closeViewer);
 viewerBack.addEventListener('click', closeViewer);
 viewerBackdrop.addEventListener('click', closeViewer);
 viewerPrev.addEventListener('click', () => showShot(shotIndex - 1));
@@ -532,6 +560,109 @@ window.addEventListener('hashchange', () => {
     applyHash();
     render();
 });
+
+/* ---------- Hover previews ---------- */
+// Resting the mouse on a record plays 30 seconds of its featured song
+// (data-preview, Apple's preview clip of data-song). Silent until the
+// visitor turns Sound on — browsers won't play audio before a click
+// anyway — and only where there's a real mouse to hover with.
+const SOUND_KEY = 'venaudio.sound';
+const PREVIEW_VOLUME = 0.5;
+const HOVER_DELAY = 400;   // ms of resting on a card before it plays, so sweeping past stays quiet
+
+const soundToggle = document.getElementById('sound-toggle');
+const preview = new Audio();
+preview.preload = 'none';
+
+let soundOn = false;
+let hoverCard = null;      // the card the mouse is over
+let playingCard = null;    // the card whose song is playing
+let hoverTimer = null;
+let fadeTimer = null;
+
+// Slide the volume to `target` over about a quarter of a second, then run `done`
+function fadeTo(target, done) {
+    clearInterval(fadeTimer);
+    fadeTimer = setInterval(() => {
+        const gap = target - preview.volume;
+        if (Math.abs(gap) <= 0.05) {
+            preview.volume = target;
+            clearInterval(fadeTimer);
+            if (done) done();
+        } else {
+            preview.volume += Math.sign(gap) * 0.05;
+        }
+    }, 25);
+}
+
+function startPreview(card) {
+    const src = card.dataset.preview || '';
+    if (!src.startsWith('https://') || card === playingCard) return;
+    stopPreview();
+    playingCard = card;
+    clearInterval(fadeTimer);   // cancel the last song's fade-out pause
+    preview.src = src;
+    preview.volume = 0;
+    preview.play()
+        .then(() => {
+            if (playingCard !== card) return;
+            card.classList.add('is-playing');   // spins its disc
+            fadeTo(PREVIEW_VOLUME);
+        })
+        .catch(() => {
+            // Blocked (no click yet this visit) or offline — stay quiet
+            if (playingCard === card) playingCard = null;
+        });
+}
+
+function stopPreview() {
+    clearTimeout(hoverTimer);
+    if (!playingCard) return;
+    playingCard.classList.remove('is-playing');
+    playingCard = null;
+    fadeTo(0, () => preview.pause());
+}
+
+function setSound(on) {
+    soundOn = on;
+    soundToggle.setAttribute('aria-pressed', String(on));
+    soundToggle.classList.toggle('is-active', on);
+    soundToggle.querySelector('.sound-state').textContent = on ? 'on' : 'off';
+    writeStore(SOUND_KEY, on);
+    if (!on) stopPreview();
+}
+
+// Phones and tablets have no hover — the viewer's Spotify player covers them
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    setSound(readStore(SOUND_KEY) === true);
+    soundToggle.addEventListener('click', () => setSound(!soundOn));
+
+    grid.addEventListener('pointerover', (e) => {
+        const card = e.target.closest('.card');
+        if (card === hoverCard) return;      // still inside the same record
+        hoverCard = card;
+        clearTimeout(hoverTimer);
+        if (card && soundOn) hoverTimer = setTimeout(() => startPreview(card), HOVER_DELAY);
+    });
+
+    grid.addEventListener('pointerout', (e) => {
+        if (!hoverCard || hoverCard.contains(e.relatedTarget)) return;
+        hoverCard = null;
+        stopPreview();
+    });
+
+    preview.addEventListener('ended', () => {
+        if (playingCard) playingCard.classList.remove('is-playing');
+        playingCard = null;
+    });
+
+    // Switching tabs shouldn't leave a song playing in the background
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopPreview();
+    });
+} else {
+    soundToggle.hidden = true;
+}
 
 // First paint
 applyHash();

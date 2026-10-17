@@ -157,7 +157,6 @@ const picker = createAddressPicker({
     city: af.city,
     barangay: af.barangay,
     postal: af.postal,
-    postalOptions: document.getElementById('addr-postal-options'),
     postalHint: document.getElementById('addr-postal-hint')
 });
 

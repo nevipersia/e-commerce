@@ -30,6 +30,16 @@ function saveCatalogueChanges(changes) {
 // trusted as an added record's image
 const safeImage = (src) => (typeof src === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(src) ? src : '');
 
+// A pasted Spotify link -> "album/<id>" or "track/<id>", the form the
+// cards keep in data-spotify. '' when nothing was pasted, null when it
+// isn't a Spotify album or song link.
+function spotifyRef(link) {
+    const text = String(link || '').trim();
+    if (!text) return '';
+    const match = text.match(/^https:\/\/open\.spotify\.com\/(?:intl-[a-z-]+\/)?(album|track)\/([A-Za-z0-9]{22})(?:[/?#]|$)/i);
+    return match ? `${match[1].toLowerCase()}/${match[2]}` : null;
+}
+
 // A record card with the same markup as the ones written in browse.html.
 // Everything typed by the seller goes in through textContent / dataset.
 function buildCard(p) {
@@ -42,7 +52,8 @@ function buildCard(p) {
         artist: p.artist,
         label: p.label,
         desc: p.desc || '',
-        tracks: p.tracks || ''
+        tracks: p.tracks || '',
+        spotify: spotifyRef(`https://open.spotify.com/${p.spotify || ''}`) || ''
     });
 
     const art = document.createElement('div');
